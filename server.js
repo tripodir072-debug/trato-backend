@@ -9,12 +9,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// CONFIG MP
+// CONFIG MERCADO PAGO
 mercadopago.configure({
-  access_token: process.env.MP_ACCESS_TOKENAPP_USR-3822730786979070-041707-2a6a7a0555139c12f88e5ba93b0ed401-220923936
+  access_token: process.env.MP_ACCESS_TOKEN
 });
 
-// "Base de datos" temporal
+// BASE DE DATOS TEMPORAL
 let operaciones = [];
 
 // =========================
@@ -25,7 +25,7 @@ app.post("/crear-pago", async (req, res) => {
     const { producto, precio } = req.body;
 
     if (!producto || !precio) {
-      return res.status(400).json({ error: "Datos incompletos" });
+      return res.status(400).json({ error: "Faltan datos" });
     }
 
     const total = Math.round(precio * 1.15);
@@ -43,11 +43,6 @@ app.post("/crear-pago", async (req, res) => {
         opId: opId
       },
       notification_url: `${process.env.BASE_URL}/webhook`,
-      back_urls: {
-        success: `${process.env.BASE_URL}/ok`,
-        failure: `${process.env.BASE_URL}/error`,
-        pending: `${process.env.BASE_URL}/pendiente`
-      },
       auto_return: "approved"
     };
 
@@ -62,12 +57,11 @@ app.post("/crear-pago", async (req, res) => {
     });
 
     res.json({
-      url: response.body.init_point,
-      opId
+      url: response.body.init_point
     });
 
   } catch (error) {
-    console.error("Error crear pago:", error);
+    console.error(error);
     res.status(500).json({ error: "Error al crear pago" });
   }
 });
@@ -77,14 +71,12 @@ app.post("/crear-pago", async (req, res) => {
 // =========================
 app.post("/webhook", async (req, res) => {
   try {
-    const { type, data } = req.body;
+    if (req.body.type === "payment") {
 
-    if (type === "payment") {
-      const paymentId = data.id;
-
-      const payment = await mercadopago.payment.findById(paymentId);
+      const payment = await mercadopago.payment.findById(req.body.data.id);
 
       if (payment.body.status === "approved") {
+
         const opId = payment.body.metadata.opId;
 
         const op = operaciones.find(o => o.id == opId);
@@ -99,7 +91,7 @@ app.post("/webhook", async (req, res) => {
     res.sendStatus(200);
 
   } catch (error) {
-    console.error("Error webhook:", error);
+    console.error(error);
     res.sendStatus(500);
   }
 });
@@ -112,7 +104,7 @@ app.get("/ops", (req, res) => {
 });
 
 // =========================
-// SERVIDOR
+// SERVER
 // =========================
 const PORT = process.env.PORT || 3000;
 
