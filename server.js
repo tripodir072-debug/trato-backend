@@ -11,7 +11,7 @@ app.use(express.json());
 
 // CONFIG MP
 mercadopago.configure({
-  access_token: process.env.MP_ACCESS_TOKEN
+  access_token: process.env.MP_ACCESS_TOKENAPP_USR-3822730786979070-041707-2a6a7a0555139c12f88e5ba93b0ed401-220923936
 });
 
 // "Base de datos" temporal
