@@ -75,6 +75,32 @@
             letter-spacing: 1px;
         }
         #status { margin-top: 10px; font-size: 0.8em; color: #00d4ff; display: none; }
+        
+        /* Estilo para el link generado */
+        .resultado-link {
+            margin-top: 20px;
+            padding: 15px;
+            background: #111;
+            border: 1px solid #00ff00;
+            border-radius: 10px;
+        }
+        .url-text {
+            font-size: 10px;
+            word-break: break-all;
+            color: #ccc;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .btn-whatsapp {
+            background: #25d366;
+            color: black;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -83,11 +109,15 @@
         <h1>TRATO™</h1>
         <div class="subtitle">Búnker RichardBro</div>
         
-        <input type="text" id="prod" placeholder="¿Qué vas a vender?">
-        <input type="number" id="monto" placeholder="Precio acordado ($)">
-        
-        <button id="btn-blindar" onclick="generarLink()">BLINDAR OPERACIÓN</button>
+        <div id="formulario">
+            <input type="text" id="prod" placeholder="¿Qué vas a vender?">
+            <input type="number" id="monto" placeholder="Precio acordado ($)">
+            <button id="btn-blindar" onclick="generarLink()">BLINDAR OPERACIÓN</button>
+        </div>
+
         <div id="status">ESTABLECIENDO CONEXIÓN SEGURA...</div>
+        
+        <div id="resultado"></div>
         
         <div class="footer">SISTEMA DE CUSTODIA ACTIVO<br>15% COSTO DE PROTECCIÓN</div>
     </div>
@@ -98,17 +128,16 @@
             const precioBase = document.getElementById('monto').value;
             const btn = document.getElementById('btn-blindar');
             const status = document.getElementById('status');
+            const resultado = document.getElementById('resultado');
             
             if(!producto || !precioBase) {
-                return alert("Richard, completá los datos para generar el búnker.");
+                return alert("Richard, completá los datos.");
             }
             
-            // Bloqueo de seguridad
             btn.disabled = true;
             status.style.display = "block";
 
             try {
-                // LLAMADA AL MOTOR EN RENDER
                 const respuesta = await fetch('https://trato-backend-99on.onrender.com/crear-pago', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -121,15 +150,27 @@
                 const data = await respuesta.json();
 
                 if(data.url) {
-                    // Salto directo a Mercado Pago
-                    window.location.href = data.url;
+                    status.style.display = "none";
+                    document.getElementById('formulario').style.display = "none";
+                    
+                    // Mostramos el link para que Richard lo pueda copiar
+                    resultado.innerHTML = `
+                        <div class="resultado-link">
+                            <p style="color:#00ff00; font-size:12px; margin-top:0;">¡LINK GENERADO!</p>
+                            <span class="url-text">${data.url}</span>
+                            <a href="https://wa.me/?text=Hola! Acá tenés el link blindado de TRATO para ${producto}: ${encodeURIComponent(data.url)}" target="_blank" class="btn-whatsapp">
+                                ENVIAR POR WHATSAPP
+                            </a>
+                            <p style="font-size:10px; color:#666; margin-top:10px;">Copiá el link de arriba o usá el botón verde.</p>
+                        </div>
+                    `;
                 } else {
-                    throw new Error("No se pudo obtener el link");
+                    throw new Error("No hay URL");
                 }
 
             } catch (error) {
                 console.error(error);
-                alert("ERROR: El búnker no responde. Verificá que el servidor en Render esté en estado LIVE.");
+                alert("ERROR: El búnker no responde. Revisá Render.");
                 btn.disabled = false;
                 status.style.display = "none";
             }
