@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRATO™ | Búnker de Seguridad</title>
+    <style>
+        /* ESTILO BLINDADO - NEGRO Y AZUL NEÓN RICHARD BRO */
+        body { 
+            background-color: #050505; 
+            color: #ffffff; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .bunker-container { 
+            border: 2px solid #00d4ff; 
+            background: #0a0a0a; 
+            padding: 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 0 30px #00d4ff33; 
+            text-align: center; 
+            width: 90%; 
+            max-width: 350px; 
+        }
+        h1 { 
+            color: #00d4ff; 
+            text-transform: uppercase; 
+            font-size: 2.2em; 
+            margin-bottom: 5px; 
+            letter-spacing: 3px;
+        }
+        .subtitle { 
+            color: #888; 
+            font-size: 0.9em; 
+            margin-bottom: 30px; 
+            text-transform: uppercase;
+        }
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 10px 0; 
+            background: #151515; 
+            border: 1px solid #333; 
+            color: #00d4ff; 
+            border-radius: 8px; 
+            box-sizing: border-box;
+            outline: none;
+        }
+        input:focus { border-color: #00d4ff; }
+        
+        button { 
+            width: 100%; 
+            padding: 15px; 
+            background: #00d4ff; 
+            color: #000; 
+            border: none; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            margin-top: 15px;
+            transition: 0.3s;
+        }
+        button:hover { background: #00b8e6; box-shadow: 0 0 15px #00d4ff; }
+        
+        .footer { 
+            font-size: 0.7em; 
+            margin-top: 25px; 
+            color: #444; 
+            letter-spacing: 1px;
+        }
+        #status { margin-top: 10px; font-size: 0.8em; color: #00d4ff; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="bunker-container">
+        <h1>TRATO™</h1>
+        <div class="subtitle">Búnker RichardBro</div>
+        
+        <input type="text" id="prod" placeholder="¿Qué vas a vender?">
+        <input type="number" id="monto" placeholder="Precio acordado ($)">
+        
+        <button id="btn-blindar" onclick="generarLink()">BLINDAR OPERACIÓN</button>
+        <div id="status">CONECTANDO AL BÚNKER...</div>
+        
+        <div class="footer">SISTEMA DE CUSTODIA ACTIVO<br>15% COSTO DE PROTECCIÓN</div>
+    </div>
+
+    <script>
+        async function generarLink() {
+            const producto = document.getElementById('prod').value;
+            const precioBase = document.getElementById('monto').value;
+            const btn = document.getElementById('btn-blindar');
+            const status = document.getElementById('status');
+            
+            if(!producto || !precioBase) {
+                return alert("Richard, completá los datos para generar el búnker.");
+            }
+            
+            // Bloqueamos el botón y mostramos estado
+            btn.disabled = true;
+            btn.style.opacity = "0.5";
+            status.style.display = "block";
+
+            try {
+                // LLAMADA AL BACKEND EN RENDER
+                const respuesta = await fetch('https://trato-backend-99on.onrender.com/crear-pago', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        producto: producto, 
+                        precioBase: parseFloat(precioBase) 
+                    })
+                });
+
+                const data = await respuesta.json();
+
+                if(data.url) {
+                    // Redirigir al Checkout de Mercado Pago
+                    window.location.href = data.url;
+                } else {
+                    throw new Error("No se recibió la URL");
+                }
+
+            } catch (error) {
+                console.error(error);
+                alert("ERROR: El búnker no responde. Verificá que el servidor en Render esté encendido.");
+                btn.disabled = false;
+                btn.style.opacity = "1";
+                status.style.display = "none";
+            }
+        }
+    </script>
+
+</body>
+</html>
