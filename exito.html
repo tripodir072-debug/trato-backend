@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRATO™ | Pago Confirmado</title>
+    <style>
+        body { background-color: #050505; color: #ffffff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .exito-container { border: 2px solid #00ff00; background: #0a0a0a; padding: 40px; border-radius: 20px; box-shadow: 0 0 30px #00ff0033; text-align: center; width: 90%; max-width: 450px; }
+        .icon-check { font-size: 50px; color: #00ff00; margin-bottom: 20px; }
+        h1 { color: #00ff00; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 10px; }
+        p { color: #ccc; line-height: 1.6; }
+        .btn-whatsapp { display: block; width: 100%; padding: 15px; background: #25d366; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-decoration: none; text-transform: uppercase; margin-top: 25px; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); }
+        .btn-whatsapp:hover { background: #1ebe57; transform: scale(1.02); transition: 0.3s; }
+        .footer { font-size: 0.7em; margin-top: 30px; color: #444; }
+    </style>
+</head>
+<body>
+
+    <div class="exito-container">
+        <div class="icon-check">✔</div>
+        <h1>¡PAGO PROTEGIDO!</h1>
+        <p>Tu dinero ya está en el búnker de <strong>TRATO™</strong>.</p>
+        <p>Ahora debés avisarle al vendedor para que realice la entrega o el despacho del producto.</p>
+        
+        <a id="linkWhatsapp" href="#" class="btn-whatsapp">
+            NOTIFICAR AL VENDEDOR (WHATSAPP)
+        </a>
+
+        <div class="footer">SISTEMA DE SEGURIDAD RICHARDBRO</div>
+    </div>
+
+    <script>
+        // Aquí podés configurar el número del vendedor o que el sistema lo tome del búnker
+        // Por ahora, configuramos un mensaje estándar
+        const mensaje = encodeURIComponent("¡Hola! Ya realicé el pago de mi compra a través de TRATO™. El dinero ya está asegurado. ¿Podés confirmarme el despacho del producto?");
+        
+        // El link de WhatsApp sin número específico para que el comprador elija a quién mandárselo
+        // O podés poner el número del vendedor si lo tenemos a mano
+        document.getElementById('linkWhatsapp').href = `https://wa.me/?text=${mensaje}`;
+    </script>
+</body>
+</html>
