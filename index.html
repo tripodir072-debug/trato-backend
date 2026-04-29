@@ -66,6 +66,7 @@
             transition: 0.3s;
         }
         button:hover { background: #00b8e6; box-shadow: 0 0 15px #00d4ff; }
+        button:disabled { background: #444; cursor: not-allowed; box-shadow: none; }
         
         .footer { 
             font-size: 0.7em; 
@@ -86,7 +87,7 @@
         <input type="number" id="monto" placeholder="Precio acordado ($)">
         
         <button id="btn-blindar" onclick="generarLink()">BLINDAR OPERACIÓN</button>
-        <div id="status">CONECTANDO AL BÚNKER...</div>
+        <div id="status">ESTABLECIENDO CONEXIÓN SEGURA...</div>
         
         <div class="footer">SISTEMA DE CUSTODIA ACTIVO<br>15% COSTO DE PROTECCIÓN</div>
     </div>
@@ -102,13 +103,12 @@
                 return alert("Richard, completá los datos para generar el búnker.");
             }
             
-            // Bloqueamos el botón y mostramos estado
+            // Bloqueo de seguridad
             btn.disabled = true;
-            btn.style.opacity = "0.5";
             status.style.display = "block";
 
             try {
-                // LLAMADA AL BACKEND EN RENDER
+                // LLAMADA AL MOTOR EN RENDER
                 const respuesta = await fetch('https://trato-backend-99on.onrender.com/crear-pago', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -121,17 +121,16 @@
                 const data = await respuesta.json();
 
                 if(data.url) {
-                    // Redirigir al Checkout de Mercado Pago
+                    // Salto directo a Mercado Pago
                     window.location.href = data.url;
                 } else {
-                    throw new Error("No se recibió la URL");
+                    throw new Error("No se pudo obtener el link");
                 }
 
             } catch (error) {
                 console.error(error);
-                alert("ERROR: El búnker no responde. Verificá que el servidor en Render esté encendido.");
+                alert("ERROR: El búnker no responde. Verificá que el servidor en Render esté en estado LIVE.");
                 btn.disabled = false;
-                btn.style.opacity = "1";
                 status.style.display = "none";
             }
         }
