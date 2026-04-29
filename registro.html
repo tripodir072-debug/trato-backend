@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRATO™ | Registro Blindado</title>
+    <style>
+        body { background-color: #050505; color: #ffffff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .registro-container { border: 2px solid #00d4ff; background: #0a0a0a; padding: 30px; border-radius: 20px; box-shadow: 0 0 30px #00d4ff33; text-align: center; width: 90%; max-width: 400px; }
+        h1 { color: #00d4ff; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 5px; }
+        .subtitle { color: #888; font-size: 0.8em; margin-bottom: 20px; text-transform: uppercase; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; background: #151515; border: 1px solid #333; color: #00d4ff; border-radius: 8px; box-sizing: border-box; outline: none; }
+        button { width: 100%; padding: 15px; background: #00d4ff; color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 15px; }
+        #mensaje { margin-top: 15px; font-size: 0.9em; padding: 15px; border-radius: 10px; display: none; line-height: 1.4; }
+        .token-box { background: #00d4ff; color: #000; font-weight: 800; font-size: 1.5em; padding: 10px; margin-top: 10px; border-radius: 5px; display: inline-block; }
+    </style>
+</head>
+<body>
+
+    <div class="registro-container" id="box">
+        <h1>TRATO™</h1>
+        <div class="subtitle">Búnker de Seguridad RichardBro</div>
+        
+        <form id="registroForm">
+            <input type="text" id="nombre" placeholder="Nombre y Apellido Real" required>
+            <input type="number" id="dni" placeholder="DNI de Identidad" required>
+            <input type="tel" id="tel" placeholder="WhatsApp (Cód. Área + Número)" required>
+            <input type="email" id="email" placeholder="Email de Usuario" required>
+            <input type="password" id="pass" placeholder="Contraseña Segura" required>
+            <select id="rol">
+                <option value="comprador">SOY COMPRADOR</option>
+                <option value="vendedor">SOY VENDEDOR</option>
+            </select>
+            <button type="submit">SOLICITAR ACCESO</button>
+        </form>
+
+        <div id="mensaje"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyBqu3cMDwQ7e9oGIpmOidSTq5iD3kKK5bs",
+          authDomain: "trato-bakend.firebaseapp.com",
+          projectId: "trato-bakend",
+          storageBucket: "trato-bakend.firebasestorage.app",
+          messagingSenderId: "250720316763",
+          appId: "1:250720316763:web:c6979823797176be413e7e",
+          measurementId: "G-2YYCKMBYD6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        document.getElementById('registroForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('pass').value;
+            const nombre = document.getElementById('nombre').value;
+            const dni = document.getElementById('dni').value;
+            const tel = document.getElementById('tel').value;
+            const rol = document.getElementById('rol').value;
+            const msg = document.getElementById('mensaje');
+
+            // Generar Token de Confianza (4 dígitos)
+            const token = "TRATO-" + Math.floor(1000 + Math.random() * 9000);
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                const user = userCredential.user;
+
+                await set(ref(db, 'usuarios/' + user.uid), {
+                    nombre, dni, tel, rol, email,
+                    token: token,
+                    estado: "pendiente",
+                    fecha: new Date().toLocaleString()
+                });
+
+                document.getElementById('registroForm').style.display = "none";
+                msg.style.display = "block";
+                msg.style.background = "#0a0a0a";
+                msg.style.border = "1px solid #00ff00";
+                msg.innerHTML = `
+                    <p style="color: #00ff00;">¡REGISTRO EXITOSO!</p>
+                    <p style="font-size: 0.8em; color: #ccc;">Tu Código de Seguridad de Operador es:</p>
+                    <div class="token-box">${token}</div>
+                    <p style="font-size: 0.7em; color: #888; margin-top: 15px;">
+                        ANOTALO. Si RichardBro te contacta, deberá decirte este código. 
+                        Si no lo sabe, es una estafa. Tu cuenta está en revisión.
+                    </p>`;
+                
+            } catch (error) {
+                msg.style.display = "block";
+                msg.style.color = "#ff4444";
+                msg.innerHTML = "ERROR: " + error.message;
+            }
+        });
+    </script>
+</body>
+</html>
