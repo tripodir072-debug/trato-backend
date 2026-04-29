@@ -76,7 +76,6 @@
         }
         #status { margin-top: 10px; font-size: 0.8em; color: #00d4ff; display: none; }
         
-        /* Estilo para el link generado */
         .resultado-link {
             margin-top: 20px;
             padding: 15px;
@@ -94,12 +93,14 @@
         .btn-whatsapp {
             background: #25d366;
             color: black;
-            padding: 10px;
+            padding: 12px;
             width: 100%;
             border-radius: 5px;
             font-weight: bold;
             text-decoration: none;
             display: inline-block;
+            text-transform: uppercase;
+            font-size: 13px;
         }
     </style>
 </head>
@@ -153,15 +154,30 @@
                     status.style.display = "none";
                     document.getElementById('formulario').style.display = "none";
                     
-                    // Mostramos el link para que Richard lo pueda copiar
+                    const opID = Math.floor(Math.random() * 900000) + 100000;
+                    
+                    const mensajeWA = `🛡️ *CERTIFICADO DE PROTECCIÓN TRATO™*\n` +
+                                     `*Operación RichardBro N°:* ${opID}\n\n` +
+                                     `Se ha iniciado la custodia de fondos. Al pagar, usted acepta los términos y protocolos de seguridad.\n\n` +
+                                     `📦 *PRODUCTO:* ${producto.toUpperCase()}\n` +
+                                     `🛡️ *GARANTÍA:* Compra Protegida RichardBro\n\n` +
+                                     `🔗 *LINK DE PAGO OFICIAL:*\n${data.url}\n\n` +
+                                     `⚖️ *PROTOCOLO LEGAL OBLIGATORIO:*\n` +
+                                     `1. *CUSTODIA:* Los fondos quedan retenidos. En envíos, el vendedor debe cargar Tracking. Una vez entregado, hay 24hs hábiles (o 48hs corridas en feriados) para validar antes de la liberación automática.\n` +
+                                     `2. *VIDEO UNBOXING:* Es condición OBLIGATORIA grabar un video sin cortes abriendo el paquete sellado. Sin video, no hay derecho a reclamo.\n` +
+                                     `3. *VENDEDOR:* Debe registrar fotos/video del despacho para proteger su cobro.\n` +
+                                     `4. *EL PIN:* El ID de Operación es su PIN de desbloqueo. Entregarlo implica conformidad irrevocable.\n` +
+                                     `5. *RESPONSABILIDAD:* TRATO™ actúa como mediador tecnológico de pago, no otorga garantía técnica sobre el bien.\n\n` +
+                                     `_Sistema Blindado TRATO™ RichardBro_`;
+
                     resultado.innerHTML = `
                         <div class="resultado-link">
-                            <p style="color:#00ff00; font-size:12px; margin-top:0;">¡LINK GENERADO!</p>
+                            <p style="color:#00ff00; font-size:14px; font-weight:bold;">🛡️ BÚNKER ACTIVADO</p>
                             <span class="url-text">${data.url}</span>
-                            <a href="https://wa.me/?text=Hola! Acá tenés el link blindado de TRATO para ${producto}: ${encodeURIComponent(data.url)}" target="_blank" class="btn-whatsapp">
-                                ENVIAR POR WHATSAPP
+                            <a href="https://wa.me/?text=${encodeURIComponent(mensajeWA)}" target="_blank" class="btn-whatsapp">
+                                📱 ENVIAR CERTIFICADO LEGAL
                             </a>
-                            <p style="font-size:10px; color:#666; margin-top:10px;">Copiá el link de arriba o usá el botón verde.</p>
+                            <p style="font-size:10px; color:#666; margin-top:10px;">Link generado con blindaje de responsabilidad.</p>
                         </div>
                     `;
                 } else {
