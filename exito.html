@@ -7,37 +7,44 @@
     <style>
         body { background-color: #050505; color: #ffffff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .exito-container { border: 2px solid #00ff00; background: #0a0a0a; padding: 40px; border-radius: 20px; box-shadow: 0 0 30px #00ff0033; text-align: center; width: 90%; max-width: 450px; }
-        .icon-check { font-size: 50px; color: #00ff00; margin-bottom: 20px; }
-        h1 { color: #00ff00; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 10px; }
-        p { color: #ccc; line-height: 1.6; }
-        .btn-whatsapp { display: block; width: 100%; padding: 15px; background: #25d366; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-decoration: none; text-transform: uppercase; margin-top: 25px; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); }
-        .btn-whatsapp:hover { background: #1ebe57; transform: scale(1.02); transition: 0.3s; }
-        .footer { font-size: 0.7em; margin-top: 30px; color: #444; }
+        .icon-check { font-size: 60px; color: #00ff00; margin-bottom: 20px; text-shadow: 0 0 20px #00ff00; }
+        h1 { color: #00ff00; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 10px; font-size: 1.8em; }
+        p { color: #ccc; line-height: 1.6; font-size: 1.1em; }
+        .btn-whatsapp { display: block; width: 100%; padding: 18px; background: #25d366; color: #000; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; text-decoration: none; text-transform: uppercase; margin-top: 25px; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4); font-size: 1.1em; }
+        .btn-whatsapp:hover { background: #1ebe57; transform: translateY(-3px); transition: 0.3s; }
+        .footer { font-size: 0.7em; margin-top: 35px; color: #444; letter-spacing: 1px; }
+        .info-pago { background: #111; padding: 15px; border-radius: 10px; border: 1px dashed #333; margin: 20px 0; }
     </style>
 </head>
 <body>
 
     <div class="exito-container">
         <div class="icon-check">✔</div>
-        <h1>¡PAGO PROTEGIDO!</h1>
-        <p>Tu dinero ya está en el búnker de <strong>TRATO™</strong>.</p>
-        <p>Ahora debés avisarle al vendedor para que realice la entrega o el despacho del producto.</p>
+        <h1>PAGO ASEGURADO</h1>
+        <div class="info-pago">
+            <p style="margin:0; font-size: 0.9em; color: #00ff00;">ESTADO: CUSTODIA ACTIVA</p>
+            <p id="detalle-prod" style="margin:5px 0 0 0; font-weight: bold; color: #fff;">Cargando producto...</p>
+        </div>
+        <p>El dinero ya entró al búnker. Avisale al vendedor para que prepare el despacho.</p>
         
         <a id="linkWhatsapp" href="#" class="btn-whatsapp">
-            NOTIFICAR AL VENDEDOR (WHATSAPP)
+            📱 NOTIFICAR AL VENDEDOR
         </a>
 
-        <div class="footer">SISTEMA DE SEGURIDAD RICHARDBRO</div>
+        <div class="footer">TRATO™ BY RICHARDBRO - SEGURIDAD TOTAL</div>
     </div>
 
     <script>
-        // Aquí podés configurar el número del vendedor o que el sistema lo tome del búnker
-        // Por ahora, configuramos un mensaje estándar
-        const mensaje = encodeURIComponent("¡Hola! Ya realicé el pago de mi compra a través de TRATO™. El dinero ya está asegurado. ¿Podés confirmarme el despacho del producto?");
+        // Leemos el nombre del producto de la URL (Mercado Pago nos lo puede enviar)
+        const urlParams = new URLSearchParams(window.location.search);
+        const producto = urlParams.get('external_reference') || "mi compra";
         
-        // El link de WhatsApp sin número específico para que el comprador elija a quién mandárselo
-        // O podés poner el número del vendedor si lo tenemos a mano
-        document.getElementById('linkWhatsapp').href = `https://wa.me/?text=${mensaje}`;
+        const textoWA = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n` +
+                        `¡Hola! Ya realicé el pago por el producto: *${producto.toUpperCase()}*.\n\n` +
+                        `El dinero ya está en custodia de TRATO™. Por favor, confirmame cuando realices el despacho o la entrega.`;
+        
+        document.getElementById('detalle-prod').innerText = producto.toUpperCase();
+        document.getElementById('linkWhatsapp').href = `https://wa.me/?text=${encodeURIComponent(textoWA)}`;
     </script>
 </body>
 </html>
