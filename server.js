@@ -22,9 +22,12 @@ app.post('/crear-pago', async (req, res) => {
         unit_price: montoFinal,
         quantity: 1,
       }],
+      external_reference: producto, 
       back_urls: {
-        success: "https://tripodir072-debug.github.io/trato-backend/",
-        failure: "https://tripodir072-debug.github.io/trato-backend/",
+        // Esto manda al comprador a tu nueva pantalla de WhatsApp
+        success: "https://tripodir072-debug.github.io/trato-backend/exito.html",
+        pending: "https://tripodir072-debug.github.io/trato-backend/exito.html",
+        failure: "https://tripodir072-debug.github.io/trato-backend/index.html",
       },
       auto_return: "approved",
     };
@@ -33,6 +36,7 @@ app.post('/crear-pago', async (req, res) => {
     res.json({ url: response.body.init_point });
 
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Falla en el búnker" });
   }
 });
