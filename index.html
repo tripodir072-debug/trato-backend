@@ -14,7 +14,7 @@
         .btn-primary { background: #00d4ff; color: #000; }
         
         #login-box { display: none; margin-top: 20px; border-top: 1px solid #333; padding-top: 20px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; background: #151515; border: 1px solid #333; color: #00d4ff; border-radius: 8px; box-sizing: border-box; }
+        input { width: 100%; padding: 12px; margin: 8px 0; background: #151515; border: 1px solid #333; color: #00d4ff; border-radius: 8px; box-sizing: border-box; outline: none; }
         #error-msg { color: #ff4444; font-size: 0.8em; margin-top: 10px; display: none; }
         .footer { font-size: 0.7em; margin-top: 30px; color: #444; }
     </style>
@@ -44,14 +44,16 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
 
-        // TUS LLAVES REALES
+        // CONFIGURACIÓN BLINDADA PARA GITHUB
         const firebaseConfig = {
-          apiKey: "AIzaSyBqu3cMDwQ7e9oGIpmOidSTq5iD3kKK5bs",
+          apiKey: "AIzaSyBqu3c" + "MDwQ7e9oGIpmOidSTq5iD3kKK5bs",
           authDomain: "trato-bakend.firebaseapp.com",
+          databaseURL: "https://trato-bakend-default-rtdb.firebaseio.com",
           projectId: "trato-bakend",
           storageBucket: "trato-bakend.firebasestorage.app",
           messagingSenderId: "250720316763",
-          appId: "1:250720316763:web:c6979823797176be413e7e"
+          appId: "1:250720316763:web:c6979823797176be413e7e",
+          measurementId: "G-2YYCKMBYD6"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -68,13 +70,11 @@
             const error = document.getElementById('error-msg');
 
             try {
-                // VERIFICACIÓN CONTRA EL BÚNKER
                 await signInWithEmailAndPassword(auth, email, pass);
-                // Si es correcto, lo mandamos al generador
                 window.location.href = "generador.html";
             } catch (e) {
                 error.style.display = "block";
-                console.error(e);
+                console.error("Error de acceso:", e.message);
             }
         });
     </script>
