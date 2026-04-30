@@ -1,45 +1,46 @@
-require('dotenv').config();
-const express = require('express');
-const mercadopago = require('mercadopago');
-const cors = require('cors');
-
+const express = require("express");
+const cors = require("cors");
+const admin = require("firebase-admin");
 const app = express();
-app.use(express.json());
+
 app.use(cors());
+app.use(express.json());
 
-mercadopago.configure({
-  access_token: process.env.MP_ACCESS_TOKEN
+// 🛡️ CONEXIÓN AL BÚNKER (Usando el Secret File de Render)
+const serviceAccount = require("/etc/secrets/firebase-admin.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://trato-bakend-default-rtdb.firebaseio.com"
 });
 
-app.post('/crear-pago', async (req, res) => {
-  try {
-    const { producto, precioBase } = req.body;
-    const montoFinal = Math.round(precioBase * 1.15);
+const db = admin.database();
 
-    const preference = {
-      items: [{
-        title: `TRATO: ${producto}`,
-        unit_price: montoFinal,
-        quantity: 1,
-      }],
-      external_reference: producto, 
-      back_urls: {
-        // Esto manda al comprador a tu nueva pantalla de WhatsApp
-        success: "https://tripodir072-debug.github.io/trato-backend/exito.html",
-        pending: "https://tripodir072-debug.github.io/trato-backend/exito.html",
-        failure: "https://tripodir072-debug.github.io/trato-backend/index.html",
-      },
-      auto_return: "approved",
-    };
-
-    const response = await mercadopago.preferences.create(preference);
-    res.json({ url: response.body.init_point });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Falla en el búnker" });
-  }
+// 🚀 RUTA PARA REGISTRAR TRATOS (Lo que antes hacíamos desde el HTML)
+app.post("/registrar-trato", async (req, res) => {
+    const { nombre, dni, monto, producto, vendedorId } = req.body;
+    
+    try {
+        const nuevoTratoRef = db.ref('tratos').push();
+        await nuevoTratoRef.set({
+            nombre,
+            dni,
+            monto,
+            producto,
+            vendedorId,
+            estado: "pendiente",
+            fecha: new Date().toISOString()
+        });
+        
+        res.status(200).send({ success: true, id: nuevoTratoRef.key });
+    } catch (error) {
+        console.error("Error en el búnker:", error);
+        res.status(500).send({ success: false, error: error.message });
+    }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Búnker TRATO en puerto ${PORT}`));
+// Mantengo el puerto que usa Render
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+    console.log(`Servidor TRATO operando en puerto ${PORT}`);
+});
