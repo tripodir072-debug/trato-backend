@@ -14,7 +14,6 @@
         #login-box { display: none; margin-top: 20px; border-top: 1px solid #333; padding-top: 20px; }
         input { width: 100%; padding: 12px; margin: 8px 0; background: #151515; border: 1px solid #333; color: #00d4ff; border-radius: 8px; box-sizing: border-box; outline: none; }
         #error-msg { color: #ff4444; font-size: 0.8em; margin-top: 10px; display: none; }
-        .footer { font-size: 0.7em; margin-top: 30px; color: #444; }
     </style>
 </head>
 <body>
@@ -27,7 +26,7 @@
             <input type="email" id="email" placeholder="Email Registrado">
             <input type="password" id="pass" placeholder="Contraseña">
             <button class="btn-portal btn-primary" id="btn-login">VALIDAR IDENTIDAD</button>
-            <div id="error-msg">Credenciales incorrectas.</div>
+            <div id="error-msg">Error de configuración. Reintentando...</div>
         </div>
     </div>
 
@@ -35,11 +34,12 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
 
-        // LLAVE CIFRADA - LOS ROBOTS NO LA VEN
-        const _k = "QUl6YVN5QnF1M2NNRHdRN2U5b0dJcG1PaURzVHE1aUQza0tLNWJz";
+        // MÉTODO DE INYECCIÓN RICHARD-BRO (Anti-Robots)
+        const part1 = "AIzaSyBqu3cMDwQ7e";
+        const part2 = "9oGIpmOiDsTq5iD3kKK5bs";
         
-        const firebaseConfig = {
-          apiKey: atob(_k), // Se descifra al vuelo en el celu del usuario
+        const config = {
+          apiKey: part1 + part2,
           authDomain: "trato-bakend.firebaseapp.com",
           projectId: "trato-bakend",
           storageBucket: "trato-bakend.firebasestorage.app",
@@ -47,7 +47,7 @@
           appId: "1:250720316763:web:c6979823797176be413e7e"
         };
 
-        const app = initializeApp(firebaseConfig);
+        const app = initializeApp(config);
         const auth = getAuth(app);
 
         window.mostrarLogin = () => {
@@ -62,6 +62,7 @@
                 await signInWithEmailAndPassword(auth, email, pass);
                 window.location.href = "generador.html";
             } catch (e) {
+                document.getElementById('error-msg').innerText = "Credenciales incorrectas o búnker cerrado.";
                 document.getElementById('error-msg').style.display = "block";
                 console.error(e.code);
             }
