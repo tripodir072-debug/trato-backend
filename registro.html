@@ -8,27 +8,21 @@
         body { background-color: #050505; color: #ffffff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .registro-container { border: 2px solid #00d4ff; background: #0a0a0a; padding: 30px; border-radius: 20px; box-shadow: 0 0 30px #00d4ff33; text-align: center; width: 90%; max-width: 400px; }
         h1 { color: #00d4ff; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 5px; }
-        .subtitle { color: #888; font-size: 0.8em; margin-bottom: 20px; text-transform: uppercase; }
         input, select { width: 100%; padding: 12px; margin: 8px 0; background: #151515; border: 1px solid #333; color: #00d4ff; border-radius: 8px; box-sizing: border-box; outline: none; }
         button { width: 100%; padding: 15px; background: #00d4ff; color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 15px; }
-        #mensaje { margin-top: 15px; font-size: 0.9em; padding: 15px; border-radius: 10px; display: none; line-height: 1.4; }
+        #mensaje { margin-top: 15px; font-size: 0.9em; padding: 15px; border-radius: 10px; display: none; }
         .token-box { background: #00d4ff; color: #000; font-weight: 800; font-size: 1.5em; padding: 10px; margin-top: 10px; border-radius: 5px; display: inline-block; }
     </style>
 </head>
 <body>
-    <div class="registro-container" id="box">
+    <div class="registro-container">
         <h1>TRATO™</h1>
-        <div class="subtitle">Búnker de Seguridad RichardBro</div>
         <form id="registroForm">
-            <input type="text" id="nombre" placeholder="Nombre y Apellido Real" required>
-            <input type="number" id="dni" placeholder="DNI de Identidad" required>
+            <input type="text" id="nombre" placeholder="Nombre Real" required>
+            <input type="number" id="dni" placeholder="DNI" required>
             <input type="tel" id="tel" placeholder="WhatsApp" required>
-            <input type="email" id="email" placeholder="Email de Usuario" required>
-            <input type="password" id="pass" placeholder="Contraseña Segura" required>
-            <select id="rol">
-                <option value="comprador">SOY COMPRADOR</option>
-                <option value="vendedor">SOY VENDEDOR</option>
-            </select>
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="pass" placeholder="Contraseña" required>
             <button type="submit">SOLICITAR ACCESO</button>
         </form>
         <div id="mensaje"></div>
@@ -39,7 +33,7 @@
         import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
 
-        // EL MISMO CIFRADO QUE EN EL INDEX
+        // PEGÁ EL MISMO CÓDIGO DE BASE64 ACÁ (ENTRE LAS COMILLAS):
         const _k = "QUl6YVN5QnF1M2NNRHdRN2U5b0dJcG1PaURzVHE1aUQza0tLNWJz";
 
         const firebaseConfig = {
@@ -58,28 +52,20 @@
 
         document.getElementById('registroForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('pass').value;
             const token = "TRATO-" + Math.floor(1000 + Math.random() * 9000);
-
             try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                const userCredential = await createUserWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('pass').value);
                 await set(ref(db, 'usuarios/' + userCredential.user.uid), {
                     nombre: document.getElementById('nombre').value,
                     dni: document.getElementById('dni').value,
-                    tel: document.getElementById('tel').value,
-                    rol: document.getElementById('rol').value,
-                    email: email,
                     token: token,
                     estado: "pendiente"
                 });
-
                 document.getElementById('registroForm').style.display = "none";
-                const msg = document.getElementById('mensaje');
-                msg.style.display = "block";
-                msg.innerHTML = `<p style="color: #00ff00;">¡ÉXITO!</p><div class="token-box">${token}</div>`;
+                document.getElementById('mensaje').style.display = "block";
+                document.getElementById('mensaje').innerHTML = `<p>ÉXITO</p><div class="token-box">${token}</div>`;
             } catch (error) {
-                alert("Error en el registro: " + error.message);
+                alert("Error: " + error.message);
             }
         });
     </script>
