@@ -35,7 +35,7 @@
     </div>
 
     <script>
-        // Leemos el nombre del producto de la URL (Mercado Pago nos lo puede enviar)
+        // Leemos el nombre del producto de la URL
         const urlParams = new URLSearchParams(window.location.search);
         const producto = urlParams.get('external_reference') || "mi compra";
         
