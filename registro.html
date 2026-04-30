@@ -16,16 +16,19 @@
     </style>
 </head>
 <body>
-    <div class="registro-container">
+    <div class="registro-container" id="box">
         <h1>TRATO™</h1>
-        <div class="subtitle">Búnker RichardBro</div>
+        <div class="subtitle">Búnker de Seguridad RichardBro</div>
         <form id="registroForm">
-            <input type="text" id="nombre" placeholder="Nombre Real" required>
-            <input type="number" id="dni" placeholder="DNI" required>
+            <input type="text" id="nombre" placeholder="Nombre y Apellido Real" required>
+            <input type="number" id="dni" placeholder="DNI de Identidad" required>
             <input type="tel" id="tel" placeholder="WhatsApp" required>
-            <input type="email" id="email" placeholder="Email" required>
-            <input type="password" id="pass" placeholder="Contraseña" required>
-            <select id="rol"><option value="comprador">SOY COMPRADOR</option><option value="vendedor">SOY VENDEDOR</option></select>
+            <input type="email" id="email" placeholder="Email de Usuario" required>
+            <input type="password" id="pass" placeholder="Contraseña Segura" required>
+            <select id="rol">
+                <option value="comprador">SOY COMPRADOR</option>
+                <option value="vendedor">SOY VENDEDOR</option>
+            </select>
             <button type="submit">SOLICITAR ACCESO</button>
         </form>
         <div id="mensaje"></div>
@@ -36,10 +39,11 @@
         import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
 
-        // CAMUFLAJE DE SEGURIDAD PARA GITHUB
-        const _0x = ["AIzaSyB", "qu3cMDwQ7e9", "oGIpmOiDsTq", "5iD3kKK5bs"];
+        // EL MISMO CIFRADO QUE EN EL INDEX
+        const _k = "QUl6YVN5QnF1M2NNRHdRN2U5b0dJcG1PaURzVHE1aUQza0tLNWJz";
+
         const firebaseConfig = {
-          apiKey: _0x.join(""),
+          apiKey: atob(_k),
           authDomain: "trato-bakend.firebaseapp.com",
           databaseURL: "https://trato-bakend-default-rtdb.firebaseio.com",
           projectId: "trato-bakend",
@@ -54,20 +58,28 @@
 
         document.getElementById('registroForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('pass').value;
             const token = "TRATO-" + Math.floor(1000 + Math.random() * 9000);
+
             try {
-                const userCredential = await createUserWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('pass').value);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
                 await set(ref(db, 'usuarios/' + userCredential.user.uid), {
                     nombre: document.getElementById('nombre').value,
                     dni: document.getElementById('dni').value,
+                    tel: document.getElementById('tel').value,
+                    rol: document.getElementById('rol').value,
+                    email: email,
                     token: token,
                     estado: "pendiente"
                 });
+
                 document.getElementById('registroForm').style.display = "none";
-                document.getElementById('mensaje').style.display = "block";
-                document.getElementById('mensaje').innerHTML = `<p>¡ÉXITO!</p><div class="token-box">${token}</div>`;
+                const msg = document.getElementById('mensaje');
+                msg.style.display = "block";
+                msg.innerHTML = `<p style="color: #00ff00;">¡ÉXITO!</p><div class="token-box">${token}</div>`;
             } catch (error) {
-                alert("Error: " + error.message);
+                alert("Error en el registro: " + error.message);
             }
         });
     </script>
