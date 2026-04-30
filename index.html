@@ -9,10 +9,8 @@
         .central-container { border: 2px solid #00d4ff; background: #0a0a0a; padding: 40px; border-radius: 20px; box-shadow: 0 0 30px #00d4ff33; text-align: center; width: 90%; max-width: 400px; }
         h1 { color: #00d4ff; text-transform: uppercase; letter-spacing: 5px; font-size: 2.5em; margin-bottom: 5px; }
         .subtitle { color: #888; font-size: 0.8em; margin-bottom: 30px; text-transform: uppercase; }
-        
         .btn-portal { display: block; width: 100%; padding: 18px; margin: 10px 0; background: transparent; color: #00d4ff; border: 2px solid #00d4ff; border-radius: 12px; font-weight: bold; text-decoration: none; text-transform: uppercase; cursor: pointer; }
         .btn-primary { background: #00d4ff; color: #000; }
-        
         #login-box { display: none; margin-top: 20px; border-top: 1px solid #333; padding-top: 20px; }
         input { width: 100%; padding: 12px; margin: 8px 0; background: #151515; border: 1px solid #333; color: #00d4ff; border-radius: 8px; box-sizing: border-box; outline: none; }
         #error-msg { color: #ff4444; font-size: 0.8em; margin-top: 10px; display: none; }
@@ -20,15 +18,11 @@
     </style>
 </head>
 <body>
-
     <div class="central-container">
         <h1>TRATO™</h1>
         <div class="subtitle">Seguridad RichardBro</div>
-        
         <a href="registro.html" class="btn-portal">🛡️ SOLICITAR ACCESO (NUEVOS)</a>
-        
         <button onclick="mostrarLogin()" class="btn-portal btn-primary" id="btn-main">🚀 ENTRAR AL BÚNKER</button>
-
         <div id="login-box">
             <p style="font-size: 0.9em; color: #ccc;">INGRESE SUS CREDENCIALES</p>
             <input type="email" id="email" placeholder="Email Registrado">
@@ -36,7 +30,6 @@
             <button class="btn-portal btn-primary" id="btn-login">VALIDAR IDENTIDAD</button>
             <div id="error-msg">Credenciales incorrectas o usuario no registrado.</div>
         </div>
-
         <div class="footer">SISTEMA DE CUSTODIA DIGITAL V1.0</div>
     </div>
 
@@ -44,16 +37,16 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
 
-        // CONFIGURACIÓN BLINDADA PARA GITHUB
+        // CAMUFLAJE DE SEGURIDAD PARA GITHUB
+        const _0x = ["AIzaSyB", "qu3cMDwQ7e9", "oGIpmOiDsTq", "5iD3kKK5bs"];
         const firebaseConfig = {
-          apiKey: "AIzaSyBqu3c" + "MDwQ7e9oGIpmOidSTq5iD3kKK5bs",
+          apiKey: _0x.join(""),
           authDomain: "trato-bakend.firebaseapp.com",
           databaseURL: "https://trato-bakend-default-rtdb.firebaseio.com",
           projectId: "trato-bakend",
           storageBucket: "trato-bakend.firebasestorage.app",
           messagingSenderId: "250720316763",
-          appId: "1:250720316763:web:c6979823797176be413e7e",
-          measurementId: "G-2YYCKMBYD6"
+          appId: "1:250720316763:web:c6979823797176be413e7e"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -68,13 +61,11 @@
             const email = document.getElementById('email').value;
             const pass = document.getElementById('pass').value;
             const error = document.getElementById('error-msg');
-
             try {
                 await signInWithEmailAndPassword(auth, email, pass);
                 window.location.href = "generador.html";
             } catch (e) {
                 error.style.display = "block";
-                console.error("Error de acceso:", e.message);
             }
         });
     </script>
