@@ -23,49 +23,55 @@
             <input type="tel" id="tel" placeholder="WhatsApp" required>
             <input type="email" id="email" placeholder="Email" required>
             <input type="password" id="pass" placeholder="Contraseña" required>
-            <button type="submit">SOLICITAR ACCESO</button>
+            <button type="submit" id="btn-submit">SOLICITAR ACCESO</button>
         </form>
         <div id="mensaje"></div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
-
-        // PEGÁ EL MISMO CÓDIGO DE BASE64 ACÁ (ENTRE LAS COMILLAS):
-        const _k = "QUl6YVN5QnF1M2NNRHdRN2U5b0dJcG1PaURzVHE1aUQza0tLNWJz";
-
-        const firebaseConfig = {
-          apiKey: atob(_k),
-          authDomain: "trato-bakend.firebaseapp.com",
-          databaseURL: "https://trato-bakend-default-rtdb.firebaseio.com",
-          projectId: "trato-bakend",
-          storageBucket: "trato-bakend.firebasestorage.app",
-          messagingSenderId: "250720316763",
-          appId: "1:250720316763:web:c6979823797176be413e7e"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
+    <script>
+        // 🚀 REEMPLAZÁ ESTA URL POR LA TUYA DE RENDER
+        const RENDER_URL = "https://trato-backend.onrender.com/registrar-trato";
 
         document.getElementById('registroForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const token = "TRATO-" + Math.floor(1000 + Math.random() * 9000);
+            const btn = document.getElementById('btn-submit');
+            btn.innerText = "PROCESANDO...";
+            btn.disabled = true;
+
+            const datos = {
+                nombre: document.getElementById('nombre').value,
+                dni: document.getElementById('dni').value,
+                tel: document.getElementById('tel').value,
+                email: document.getElementById('email').value,
+                pass: document.getElementById('pass').value, // El server se encarga de crear el usuario
+                vendedorId: "RichardBro_Admin" // Identificador para tu control
+            };
+
             try {
-                const userCredential = await createUserWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('pass').value);
-                await set(ref(db, 'usuarios/' + userCredential.user.uid), {
-                    nombre: document.getElementById('nombre').value,
-                    dni: document.getElementById('dni').value,
-                    token: token,
-                    estado: "pendiente"
+                const respuesta = await fetch(RENDER_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(datos)
                 });
-                document.getElementById('registroForm').style.display = "none";
-                document.getElementById('mensaje').style.display = "block";
-                document.getElementById('mensaje').innerHTML = `<p>ÉXITO</p><div class="token-box">${token}</div>`;
+
+                const resultado = await respuesta.json();
+
+                if (resultado.success) {
+                    document.getElementById('registroForm').style.display = "none";
+                    document.getElementById('mensaje').style.display = "block";
+                    document.getElementById('mensaje').innerHTML = `
+                        <p style="color: #00ff00;">¡BÚNKER ACTIVADO!</p>
+                        <p>Tu ID de Trato es:</p>
+                        <div class="token-box">${resultado.id}</div>
+                        <p style="font-size: 0.8em; margin-top: 10px;">Los datos han sido respaldados en Firebase.</p>
+                    `;
+                } else {
+                    throw new Error(resultado.error);
+                }
             } catch (error) {
-                alert("Error: " + error.message);
+                alert("Error de conexión con el búnker: " + error.message);
+                btn.innerText = "SOLICITAR ACCESO";
+                btn.disabled = false;
             }
         });
     </script>
