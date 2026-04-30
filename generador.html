@@ -101,6 +101,14 @@
             display: inline-block;
             text-transform: uppercase;
             font-size: 13px;
+            margin-bottom: 10px;
+        }
+        .btn-volver {
+            color: #888;
+            text-decoration: none;
+            font-size: 12px;
+            display: block;
+            margin-top: 15px;
         }
     </style>
 </head>
@@ -108,12 +116,13 @@
 
     <div class="bunker-container">
         <h1>TRATO™</h1>
-        <div class="subtitle">Búnker RichardBro</div>
+        <div class="subtitle">Generador de Links</div>
         
         <div id="formulario">
             <input type="text" id="prod" placeholder="¿Qué vas a vender?">
             <input type="number" id="monto" placeholder="Precio acordado ($)">
             <button id="btn-blindar" onclick="generarLink()">BLINDAR OPERACIÓN</button>
+            <a href="index.html" class="btn-volver">← Volver al Portal Central</a>
         </div>
 
         <div id="status">ESTABLECIENDO CONEXIÓN SEGURA...</div>
@@ -177,7 +186,7 @@
                             <a href="https://wa.me/?text=${encodeURIComponent(mensajeWA)}" target="_blank" class="btn-whatsapp">
                                 📱 ENVIAR CERTIFICADO LEGAL
                             </a>
-                            <p style="font-size:10px; color:#666; margin-top:10px;">Link generado con blindaje de responsabilidad.</p>
+                            <a href="index.html" style="color:#00d4ff; text-decoration:none; font-size:11px; font-weight:bold;">NUEVO LINK</a>
                         </div>
                     `;
                 } else {
@@ -192,6 +201,5 @@
             }
         }
     </script>
-
 </body>
 </html>
