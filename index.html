@@ -3,41 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRATO™ | Estación Central</title>
+    <title>TRATO™ | Acceso al Búnker</title>
     <style>
         body { background-color: #050505; color: #ffffff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .central-container { border: 2px solid #00d4ff; background: #0a0a0a; padding: 40px; border-radius: 20px; box-shadow: 0 0 30px #00d4ff33; text-align: center; width: 90%; max-width: 400px; }
-        h1 { color: #00d4ff; text-transform: uppercase; letter-spacing: 5px; font-size: 2.5em; margin-bottom: 10px; }
-        .subtitle { color: #888; font-size: 0.8em; margin-bottom: 40px; text-transform: uppercase; letter-spacing: 2px; }
+        h1 { color: #00d4ff; text-transform: uppercase; letter-spacing: 5px; font-size: 2.5em; margin-bottom: 5px; }
+        .subtitle { color: #888; font-size: 0.8em; margin-bottom: 30px; text-transform: uppercase; }
         
-        .btn-portal {
-            display: block;
-            width: 100%;
-            padding: 20px;
-            margin: 15px 0;
-            background: transparent;
-            color: #00d4ff;
-            border: 2px solid #00d4ff;
-            border-radius: 12px;
-            font-weight: bold;
-            text-decoration: none;
-            text-transform: uppercase;
-            transition: 0.3s;
-            box-sizing: border-box;
-        }
+        .btn-portal { display: block; width: 100%; padding: 18px; margin: 10px 0; background: transparent; color: #00d4ff; border: 2px solid #00d4ff; border-radius: 12px; font-weight: bold; text-decoration: none; text-transform: uppercase; cursor: pointer; }
+        .btn-primary { background: #00d4ff; color: #000; }
         
-        .btn-portal:hover {
-            background: #00d4ff;
-            color: #000;
-            box-shadow: 0 0 20px #00d4ff;
-        }
-
-        .btn-primary {
-            background: #00d4ff;
-            color: #000;
-        }
-
-        .footer { font-size: 0.7em; margin-top: 40px; color: #444; letter-spacing: 1px; }
+        #login-box { display: none; margin-top: 20px; border-top: 1px solid #333; padding-top: 20px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; background: #151515; border: 1px solid #333; color: #00d4ff; border-radius: 8px; box-sizing: border-box; }
+        #error-msg { color: #ff4444; font-size: 0.8em; margin-top: 10px; display: none; }
+        .footer { font-size: 0.7em; margin-top: 30px; color: #444; }
     </style>
 </head>
 <body>
@@ -46,21 +25,58 @@
         <h1>TRATO™</h1>
         <div class="subtitle">Seguridad RichardBro</div>
         
-        <p style="color: #ccc; font-size: 0.9em; margin-bottom: 30px;">Seleccione su nivel de acceso al búnker:</p>
+        <a href="registro.html" class="btn-portal">🛡️ SOLICITAR ACCESO (NUEVOS)</a>
+        
+        <button onclick="mostrarLogin()" class="btn-portal btn-primary" id="btn-main">🚀 ENTRAR AL BÚNKER</button>
 
-        <a href="registro.html" class="btn-portal">
-            🛡️ Solicitar Acceso (DNI)
-        </a>
-
-        <a href="generador.html" class="btn-portal btn-primary">
-            🚀 Entrar al Búnker
-        </a>
-
-        <div class="footer">
-            SISTEMA DE CUSTODIA DIGITAL V1.0<br>
-            TU DINERO Y SEGURIDAD NOS IMPORTAN
+        <div id="login-box">
+            <p style="font-size: 0.9em; color: #ccc;">INGRESE SUS CREDENCIALES</p>
+            <input type="email" id="email" placeholder="Email Registrado">
+            <input type="password" id="pass" placeholder="Contraseña">
+            <button class="btn-portal btn-primary" id="btn-login">VALIDAR IDENTIDAD</button>
+            <div id="error-msg">Credenciales incorrectas o usuario no registrado.</div>
         </div>
+
+        <div class="footer">SISTEMA DE CUSTODIA DIGITAL V1.0</div>
     </div>
 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+
+        // TUS LLAVES REALES
+        const firebaseConfig = {
+          apiKey: "AIzaSyBqu3cMDwQ7e9oGIpmOidSTq5iD3kKK5bs",
+          authDomain: "trato-bakend.firebaseapp.com",
+          projectId: "trato-bakend",
+          storageBucket: "trato-bakend.firebasestorage.app",
+          messagingSenderId: "250720316763",
+          appId: "1:250720316763:web:c6979823797176be413e7e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        window.mostrarLogin = () => {
+            document.getElementById('login-box').style.display = 'block';
+            document.getElementById('btn-main').style.display = 'none';
+        };
+
+        document.getElementById('btn-login').addEventListener('click', async () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('pass').value;
+            const error = document.getElementById('error-msg');
+
+            try {
+                // VERIFICACIÓN CONTRA EL BÚNKER
+                await signInWithEmailAndPassword(auth, email, pass);
+                // Si es correcto, lo mandamos al generador
+                window.location.href = "generador.html";
+            } catch (e) {
+                error.style.display = "block";
+                console.error(e);
+            }
+        });
+    </script>
 </body>
 </html>
