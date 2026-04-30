@@ -28,9 +28,24 @@
         <div id="mensaje"></div>
     </div>
 
-    <script>
-        // 🚀 REEMPLAZÁ ESTA URL POR LA TUYA DE RENDER
-        const RENDER_URL = "https://trato-backend.onrender.com/registrar-trato";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+        import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+
+        // Configuración directa de tu app limpia
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqu3cMDwQ7e9oGIpmOiDsTq5iD3kKK5bs",
+            authDomain: "comprablok.firebaseapp.com",
+            projectId: "comprablok",
+            storageBucket: "comprablok.appspot.com",
+            messagingSenderId: "1065109328503"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
 
         document.getElementById('registroForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -38,38 +53,45 @@
             btn.innerText = "PROCESANDO...";
             btn.disabled = true;
 
-            const datos = {
-                nombre: document.getElementById('nombre').value,
-                dni: document.getElementById('dni').value,
-                tel: document.getElementById('tel').value,
-                email: document.getElementById('email').value,
-                pass: document.getElementById('pass').value, // El server se encarga de crear el usuario
-                vendedorId: "RichardBro_Admin" // Identificador para tu control
-            };
+            const nombre = document.getElementById('nombre').value;
+            const dni = document.getElementById('dni').value;
+            const tel = document.getElementById('tel').value;
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('pass').value;
 
             try {
-                const respuesta = await fetch(RENDER_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(datos)
+                // 1. Crear usuario en Firebase Authentication
+                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                const uid = userCredential.user.uid;
+
+                // 2. Crear una referencia única para el trato en la base de datos
+                const nuevoTratoRef = push(ref(db, 'tratos'));
+                const tratoId = nuevoTratoRef.key;
+
+                // 3. Guardar la información en la base de datos
+                await set(nuevoTratoRef, {
+                    uid: uid,
+                    nombre: nombre,
+                    dni: dni,
+                    tel: tel,
+                    email: email,
+                    vendedorId: "RichardBro_Admin",
+                    estado: "pendiente",
+                    fecha: new Date().toISOString()
                 });
 
-                const resultado = await respuesta.json();
-
-                if (resultado.success) {
-                    document.getElementById('registroForm').style.display = "none";
-                    document.getElementById('mensaje').style.display = "block";
-                    document.getElementById('mensaje').innerHTML = `
-                        <p style="color: #00ff00;">¡BÚNKER ACTIVADO!</p>
-                        <p>Tu ID de Trato es:</p>
-                        <div class="token-box">${resultado.id}</div>
-                        <p style="font-size: 0.8em; margin-top: 10px;">Los datos han sido respaldados en Firebase.</p>
-                    `;
-                } else {
-                    throw new Error(resultado.error);
-                }
+                // 4. Mostrar mensaje de éxito en pantalla
+                document.getElementById('registroForm').style.display = "none";
+                document.getElementById('mensaje').style.display = "block";
+                document.getElementById('mensaje').innerHTML = `
+                    <p style="color: #00ff00;">¡BÚNKER ACTIVADO!</p>
+                    <p>Tu ID de Trato es:</p>
+                    <div class="token-box">${tratoId}</div>
+                    <p style="font-size: 0.8em; margin-top: 10px;">Los datos han sido respaldados en Firebase.</p>
+                `;
+                
             } catch (error) {
-                alert("Error de conexión con el búnker: " + error.message);
+                alert("Error en el búnker: " + error.message);
                 btn.innerText = "SOLICITAR ACCESO";
                 btn.disabled = false;
             }
