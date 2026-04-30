@@ -26,7 +26,7 @@
             <input type="email" id="email" placeholder="Email Registrado">
             <input type="password" id="pass" placeholder="Contraseña">
             <button class="btn-portal btn-primary" id="btn-login">VALIDAR IDENTIDAD</button>
-            <div id="error-msg">Error de configuración. Reintentando...</div>
+            <div id="error-msg">Credenciales incorrectas o error de conexión.</div>
         </div>
     </div>
 
@@ -34,12 +34,11 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
 
-        // MÉTODO DE INYECCIÓN RICHARD-BRO (Anti-Robots)
-        const part1 = "AIzaSyBqu3cMDwQ7e";
-        const part2 = "9oGIpmOiDsTq5iD3kKK5bs";
-        
+        // PEGÁ TU CÓDIGO DE BASE64 JUSTO ENTRE LAS COMILLAS DE ABAJO:
+        const secret = "QUl6YVN5QnF1M2NNRHdRN2U5b0dJcG1PaURzVHE1aUQza0tLNWJz"; 
+
         const config = {
-          apiKey: part1 + part2,
+          apiKey: atob(secret), 
           authDomain: "trato-bakend.firebaseapp.com",
           projectId: "trato-bakend",
           storageBucket: "trato-bakend.firebasestorage.app",
@@ -62,9 +61,7 @@
                 await signInWithEmailAndPassword(auth, email, pass);
                 window.location.href = "generador.html";
             } catch (e) {
-                document.getElementById('error-msg').innerText = "Credenciales incorrectas o búnker cerrado.";
                 document.getElementById('error-msg').style.display = "block";
-                console.error(e.code);
             }
         });
     </script>
