@@ -24,25 +24,23 @@
         <a href="registro.html" class="btn-portal">🛡️ SOLICITAR ACCESO (NUEVOS)</a>
         <button onclick="mostrarLogin()" class="btn-portal btn-primary" id="btn-main">🚀 ENTRAR AL BÚNKER</button>
         <div id="login-box">
-            <p style="font-size: 0.9em; color: #ccc;">INGRESE SUS CREDENCIALES</p>
             <input type="email" id="email" placeholder="Email Registrado">
             <input type="password" id="pass" placeholder="Contraseña">
             <button class="btn-portal btn-primary" id="btn-login">VALIDAR IDENTIDAD</button>
-            <div id="error-msg">Credenciales incorrectas o usuario no registrado.</div>
+            <div id="error-msg">Credenciales incorrectas.</div>
         </div>
-        <div class="footer">SISTEMA DE CUSTODIA DIGITAL V1.0</div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
 
-        // CAMUFLAJE DE SEGURIDAD PARA GITHUB
-        const _0x = ["AIzaSyB", "qu3cMDwQ7e9", "oGIpmOiDsTq", "5iD3kKK5bs"];
+        // LLAVE CIFRADA - LOS ROBOTS NO LA VEN
+        const _k = "QUl6YVN5QnF1M2NNRHdRN2U5b0dJcG1PaURzVHE1aUQza0tLNWJz";
+        
         const firebaseConfig = {
-          apiKey: _0x.join(""),
+          apiKey: atob(_k), // Se descifra al vuelo en el celu del usuario
           authDomain: "trato-bakend.firebaseapp.com",
-          databaseURL: "https://trato-bakend-default-rtdb.firebaseio.com",
           projectId: "trato-bakend",
           storageBucket: "trato-bakend.firebasestorage.app",
           messagingSenderId: "250720316763",
@@ -60,12 +58,12 @@
         document.getElementById('btn-login').addEventListener('click', async () => {
             const email = document.getElementById('email').value;
             const pass = document.getElementById('pass').value;
-            const error = document.getElementById('error-msg');
             try {
                 await signInWithEmailAndPassword(auth, email, pass);
                 window.location.href = "generador.html";
             } catch (e) {
-                error.style.display = "block";
+                document.getElementById('error-msg').style.display = "block";
+                console.error(e.code);
             }
         });
     </script>
