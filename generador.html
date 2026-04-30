@@ -116,7 +116,7 @@
 
     <div class="bunker-container">
         <h1>TRATO™</h1>
-        <div class="subtitle">Generador de Links</div>
+        <div class="subtitle">Generador de Operaciones</div>
         
         <div id="formulario">
             <input type="text" id="prod" placeholder="¿Qué vas a vender?">
@@ -132,15 +132,31 @@
         <div class="footer">SISTEMA DE CUSTODIA ACTIVO<br>15% COSTO DE PROTECCIÓN</div>
     </div>
 
-    <script>
-        async function generarLink() {
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+
+        // Configuración de tu aplicación limpia
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqu3cMDwQ7e9oGIpmOiDsTq5iD3kKK5bs",
+            authDomain: "comprablok.firebaseapp.com",
+            projectId: "comprablok",
+            storageBucket: "comprablok.appspot.com",
+            messagingSenderId: "1065109328503"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Hacemos la función accesible de forma global para el botón
+        window.generarLink = async function() {
             const producto = document.getElementById('prod').value;
             const precioBase = document.getElementById('monto').value;
             const btn = document.getElementById('btn-blindar');
             const status = document.getElementById('status');
             const resultado = document.getElementById('resultado');
             
-            if(!producto || !precioBase) {
+            if (!producto || !precioBase) {
                 return alert("Richard, completá los datos.");
             }
             
@@ -148,58 +164,54 @@
             status.style.display = "block";
 
             try {
-                const respuesta = await fetch('https://trato-backend-99on.onrender.com/crear-pago', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        producto: producto, 
-                        precioBase: parseFloat(precioBase) 
-                    })
+                // Generación de ID de operación local
+                const opID = Math.floor(Math.random() * 900000) + 100000;
+                
+                // Guardar en la base de datos de Firebase directamente
+                const nuevoTratoRef = push(ref(db, 'tratos'));
+                await set(nuevoTratoRef, {
+                    idTrato: opID,
+                    producto: producto,
+                    monto: parseFloat(precioBase),
+                    estado: "pendiente",
+                    fecha: new Date().toISOString()
                 });
 
-                const data = await respuesta.json();
+                status.style.display = "none";
+                document.getElementById('formulario').style.display = "none";
+                
+                const mensajeWA = `🛡️ *CERTIFICADO DE PROTECCIÓN TRATO™*\n` +
+                                 `*Operación RichardBro N°:* ${opID}\n\n` +
+                                 `Se ha iniciado la custodia de fondos. Al aceptar, usted se compromete a cumplir con los términos y protocolos de seguridad.\n\n` +
+                                 `📦 *PRODUCTO:* ${producto.toUpperCase()}\n` +
+                                 `💰 *MONTO:* $${precioBase}\n` +
+                                 `🛡️ *GARANTÍA:* Compra Protegida RichardBro\n\n` +
+                                 `⚖️ *PROTOCOLO LEGAL OBLIGATORIO:*\n` +
+                                 `1. *CUSTODIA:* Los fondos quedan retenidos. En envíos, el vendedor debe cargar Tracking. Una vez entregado, hay 24hs hábiles (o 48hs corridas en feriados) para validar antes de la liberación automática.\n` +
+                                 `2. *VIDEO UNBOXING:* Es condición OBLIGATORIA grabar un video sin cortes abriendo el paquete sellado. Sin video, no hay derecho a reclamo.\n` +
+                                 `3. *VENDEDOR:* Debe registrar fotos/video del despacho para proteger su cobro.\n` +
+                                 `4. *EL PIN:* El ID de Operación es su PIN de desbloqueo. Entregarlo implica conformidad irrevocable.\n` +
+                                 `5. *RESPONSABILIDAD:* TRATO™ actúa como mediador tecnológico de pago, no otorga garantía técnica sobre el bien.\n\n` +
+                                 `_Sistema Blindado TRATO™ RichardBro_`;
 
-                if(data.url) {
-                    status.style.display = "none";
-                    document.getElementById('formulario').style.display = "none";
-                    
-                    const opID = Math.floor(Math.random() * 900000) + 100000;
-                    
-                    const mensajeWA = `🛡️ *CERTIFICADO DE PROTECCIÓN TRATO™*\n` +
-                                     `*Operación RichardBro N°:* ${opID}\n\n` +
-                                     `Se ha iniciado la custodia de fondos. Al pagar, usted acepta los términos y protocolos de seguridad.\n\n` +
-                                     `📦 *PRODUCTO:* ${producto.toUpperCase()}\n` +
-                                     `🛡️ *GARANTÍA:* Compra Protegida RichardBro\n\n` +
-                                     `🔗 *LINK DE PAGO OFICIAL:*\n${data.url}\n\n` +
-                                     `⚖️ *PROTOCOLO LEGAL OBLIGATORIO:*\n` +
-                                     `1. *CUSTODIA:* Los fondos quedan retenidos. En envíos, el vendedor debe cargar Tracking. Una vez entregado, hay 24hs hábiles (o 48hs corridas en feriados) para validar antes de la liberación automática.\n` +
-                                     `2. *VIDEO UNBOXING:* Es condición OBLIGATORIA grabar un video sin cortes abriendo el paquete sellado. Sin video, no hay derecho a reclamo.\n` +
-                                     `3. *VENDEDOR:* Debe registrar fotos/video del despacho para proteger su cobro.\n` +
-                                     `4. *EL PIN:* El ID de Operación es su PIN de desbloqueo. Entregarlo implica conformidad irrevocable.\n` +
-                                     `5. *RESPONSABILIDAD:* TRATO™ actúa como mediador tecnológico de pago, no otorga garantía técnica sobre el bien.\n\n` +
-                                     `_Sistema Blindado TRATO™ RichardBro_`;
-
-                    resultado.innerHTML = `
-                        <div class="resultado-link">
-                            <p style="color:#00ff00; font-size:14px; font-weight:bold;">🛡️ BÚNKER ACTIVADO</p>
-                            <span class="url-text">${data.url}</span>
-                            <a href="https://wa.me/?text=${encodeURIComponent(mensajeWA)}" target="_blank" class="btn-whatsapp">
-                                📱 ENVIAR CERTIFICADO LEGAL
-                            </a>
-                            <a href="index.html" style="color:#00d4ff; text-decoration:none; font-size:11px; font-weight:bold;">NUEVO LINK</a>
-                        </div>
-                    `;
-                } else {
-                    throw new Error("No hay URL");
-                }
+                resultado.innerHTML = `
+                    <div class="resultado-link">
+                        <p style="color:#00ff00; font-size:14px; font-weight:bold;">🛡️ BÚNKER ACTIVADO</p>
+                        <span class="url-text">Operación guardada en Firebase (N°: ${opID})</span>
+                        <a href="https://wa.me/?text=${encodeURIComponent(mensajeWA)}" target="_blank" class="btn-whatsapp">
+                            📱 ENVIAR CERTIFICADO LEGAL
+                        </a>
+                        <a href="index.html" style="color:#00d4ff; text-decoration:none; font-size:11px; font-weight:bold;">NUEVO LINK</a>
+                    </div>
+                `;
 
             } catch (error) {
                 console.error(error);
-                alert("ERROR: El búnker no responde. Revisá Render.");
+                alert("ERROR: El búnker no responde con Firebase.");
                 btn.disabled = false;
                 status.style.display = "none";
             }
-        }
+        };
     </script>
 </body>
 </html>
