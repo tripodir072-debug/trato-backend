@@ -30,9 +30,22 @@
         </div>
     </div>
 
-    <script>
-        // 🚀 URL DE TU SERVIDOR EN RENDER
-        const RENDER_URL = "https://trato-backend.onrender.com/login"; 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+
+        // Configuración de tu aplicación limpia
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqu3cMDwQ7e9oGIpmOiDsTq5iD3kKK5bs",
+            authDomain: "comprablok.firebaseapp.com",
+            projectId: "comprablok",
+            storageBucket: "comprablok.appspot.com",
+            messagingSenderId: "1065109328503"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
 
         window.mostrarLogin = () => {
             document.getElementById('login-box').style.display = 'block';
@@ -50,25 +63,14 @@
             errorDiv.style.display = "none";
 
             try {
-                const respuesta = await fetch(RENDER_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email, pass })
-                });
-
-                const resultado = await respuesta.json();
-
-                if (resultado.success) {
-                    // Si el búnker autoriza, pasamos al generador
-                    window.location.href = "generador.html";
-                } else {
-                    errorDiv.style.display = "block";
-                    btn.innerText = "VALIDAR IDENTIDAD";
-                    btn.disabled = false;
-                }
+                // Autenticación directa con Firebase
+                await signInWithEmailAndPassword(auth, email, pass);
+                
+                // Si la sesión es válida, redirigimos al generador
+                window.location.href = "generador.html";
             } catch (e) {
                 console.error(e);
-                errorDiv.innerText = "Error de conexión con el búnker.";
+                errorDiv.innerText = "Credenciales incorrectas o error de conexión con el búnker.";
                 errorDiv.style.display = "block";
                 btn.innerText = "VALIDAR IDENTIDAD";
                 btn.disabled = false;
