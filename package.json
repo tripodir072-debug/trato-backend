@@ -1,6 +1,7 @@
 {
   "name": "trato-backend",
   "version": "1.0.0",
+  "description": "Búnker de Seguridad RichardBro",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -9,6 +10,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "mercadopago": "^1.5.13"
+    "mercadopago": "^1.5.13",
+    "firebase-admin": "^11.11.1"
   }
 }
