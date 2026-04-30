@@ -26,28 +26,13 @@
             <input type="email" id="email" placeholder="Email Registrado">
             <input type="password" id="pass" placeholder="Contraseña">
             <button class="btn-portal btn-primary" id="btn-login">VALIDAR IDENTIDAD</button>
-            <div id="error-msg">Credenciales incorrectas o error de conexión.</div>
+            <div id="error-msg">Credenciales incorrectas o error de conexión con el búnker.</div>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
-
-        // PEGÁ TU CÓDIGO DE BASE64 JUSTO ENTRE LAS COMILLAS DE ABAJO:
-        const secret = "QUl6YVN5QnF1M2NNRHdRN2U5b0dJcG1PaURzVHE1aUQza0tLNWJz"; 
-
-        const config = {
-          apiKey: atob(secret), 
-          authDomain: "trato-bakend.firebaseapp.com",
-          projectId: "trato-bakend",
-          storageBucket: "trato-bakend.firebasestorage.app",
-          messagingSenderId: "250720316763",
-          appId: "1:250720316763:web:c6979823797176be413e7e"
-        };
-
-        const app = initializeApp(config);
-        const auth = getAuth(app);
+    <script>
+        // 🚀 URL DE TU SERVIDOR EN RENDER
+        const RENDER_URL = "https://trato-backend.onrender.com/login"; 
 
         window.mostrarLogin = () => {
             document.getElementById('login-box').style.display = 'block';
@@ -57,11 +42,36 @@
         document.getElementById('btn-login').addEventListener('click', async () => {
             const email = document.getElementById('email').value;
             const pass = document.getElementById('pass').value;
+            const btn = document.getElementById('btn-login');
+            const errorDiv = document.getElementById('error-msg');
+
+            btn.innerText = "VERIFICANDO...";
+            btn.disabled = true;
+            errorDiv.style.display = "none";
+
             try {
-                await signInWithEmailAndPassword(auth, email, pass);
-                window.location.href = "generador.html";
+                const respuesta = await fetch(RENDER_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, pass })
+                });
+
+                const resultado = await respuesta.json();
+
+                if (resultado.success) {
+                    // Si el búnker autoriza, pasamos al generador
+                    window.location.href = "generador.html";
+                } else {
+                    errorDiv.style.display = "block";
+                    btn.innerText = "VALIDAR IDENTIDAD";
+                    btn.disabled = false;
+                }
             } catch (e) {
-                document.getElementById('error-msg').style.display = "block";
+                console.error(e);
+                errorDiv.innerText = "Error de conexión con el búnker.";
+                errorDiv.style.display = "block";
+                btn.innerText = "VALIDAR IDENTIDAD";
+                btn.disabled = false;
             }
         });
     </script>
