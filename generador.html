@@ -197,6 +197,13 @@
             line-height: 1.4;
         }
 
+        .btn-success {
+            background-color: #00ff9d;
+            color: #050810;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 255, 157, 0.3);
+        }
+
         /* Estilos del Modal */
         .modal {
             display: none;
@@ -258,6 +265,28 @@
             padding-left: 15px;
             margin: 5px 0 15px 0;
         }
+
+        .output-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--accent-color);
+            border-radius: 10px;
+            display: none;
+            text-align: left;
+        }
+
+        .token-box {
+            background: var(--accent-color);
+            color: #000;
+            font-weight: 800;
+            font-size: 1em;
+            padding: 8px;
+            margin: 5px 0 15px 0;
+            border-radius: 5px;
+            text-align: center;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body>
@@ -278,7 +307,16 @@
 
             <div class="input-group">
                 <label for="monto">Monto base (ARS)</label>
-                <input type="number" id="monto" placeholder="Ej. 150000">
+                <input type="number" id="monto" placeholder="Ej. 150000" oninput="calcularTotal()">
+            </div>
+
+            <div class="input-group">
+                <label for="cbu-alias">Tu CBU o Alias (Obligatorio)</label>
+                <input type="text" id="cbu-alias" placeholder="Ej. alias.banco o CBU">
+            </div>
+
+            <div class="cost-info" id="precio-detalle" style="margin-bottom: 16px;">
+                ℹ️ Monto total con comisión (15%): $ 0
             </div>
 
             <div class="checkbox-group">
@@ -288,11 +326,16 @@
                 </label>
             </div>
 
-            <button id="btn-blindar" onclick="generarLink()" disabled>BLINDAR OPERACIÓN</button>
+            <button id="btn-soporte" class="btn-success" onclick="enviarDatosSoporte()" disabled>📤 1. ENVIAR CBU Y DATOS A SOPORTE</button>
+            <button id="btn-blindar" onclick="generarLinkPago()" disabled style="background-color: var(--accent-color); color: #050810;">🔗 2. GENERAR LINK PARA COMPRADOR</button>
             <div id="status">Procesando encriptación en el búnker...</div>
         </div>
 
-        <div id="resultado"></div>
+        <div id="resultado" class="output-box">
+            <p style="color: var(--accent-color); font-weight: bold; margin-bottom: 5px;">Link de la operación:</p>
+            <div class="token-box" id="link-texto"></div>
+            <button onclick="copiarLink()" class="btn-whatsapp" style="background-color: var(--accent-color); color: #050810; width: 100%; border: none; padding: 12px; font-weight: bold;">📋 Copiar Link</button>
+        </div>
 
         <div class="legal-notice">
             Al generar el certificado, se acepta el protocolo de protección y las condiciones de intermediación de fondos de la red RichardBro. <a onclick="abrirTerminos()">Ver términos legales completos</a>.
@@ -336,8 +379,8 @@
 
     <script type="module">
         const RENDER_URL = "https://bunker-trato-api.onrender.com/crear-pago";
+        const opID = Math.floor(100000 + Math.random() * 900000);
 
-        // Funciones del Modal
         window.abrirTerminos = function() {
             document.getElementById('modalTerminos').style.display = 'flex';
         };
@@ -346,17 +389,40 @@
             document.getElementById('modalTerminos').style.display = 'none';
         };
 
+        window.calcularTotal = function() {
+            const precioBase = parseFloat(document.getElementById('monto').value) || 0;
+            const total = precioBase * 1.15;
+            document.getElementById('precio-detalle').innerText = `ℹ️ Monto total con comisión (15%): $ ${total.toFixed(2)}`;
+        };
+
         window.toggleBoton = function() {
             const acepta = document.getElementById('acepta-terminos').checked;
             document.getElementById('btn-blindar').disabled = !acepta;
+            document.getElementById('btn-soporte').disabled = !acepta;
         };
 
-        window.generarLink = async function() {
+        window.enviarDatosSoporte = function() {
+            const producto = document.getElementById('prod').value;
+            const precioBase = parseFloat(document.getElementById('monto').value) || 0;
+            const precioFinal = (precioBase * 1.15).toFixed(2);
+            const cbuAlias = document.getElementById('cbu-alias').value;
+
+            if (!producto || !precioBase || !cbuAlias) {
+                alert("Por favor, completá todos los campos, incluyendo el CBU o Alias, para enviar los datos.");
+                return;
+            }
+
+            const numeroSoporte = "5493456528480";
+            const mensajeSoporte = `🛡️ *NUEVA VENTA - TRATO™*\n\nInformación de liquidación de la operación:\n\n*ID de Operación:* ${opID}\n*Producto:* ${producto}\n*Precio Base:* $ ${precioBase}\n*Monto Total (con 15%):* $ ${precioFinal}\n*CBU / Alias Vendedor:* ${cbuAlias}\n\nConfirmo que se cumplieron los términos.`;
+
+            window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensajeSoporte)}`, '_blank');
+        };
+
+        window.generarLinkPago = async function() {
             const producto = document.getElementById('prod').value;
             const montoIngresado = document.getElementById('monto').value;
             const btn = document.getElementById('btn-blindar');
             const status = document.getElementById('status');
-            const resultado = document.getElementById('resultado');
             const acepta = document.getElementById('acepta-terminos').checked;
 
             if (!acepta) {
@@ -372,7 +438,6 @@
 
             try {
                 const precioBase = parseFloat(montoIngresado) * 1.15;
-                const opID = Math.floor(Math.random() * 900000) + 100000;
 
                 const respuesta = await fetch(RENDER_URL, {
                     method: 'POST',
@@ -387,28 +452,12 @@
 
                 if (data.url) {
                     status.style.display = "none";
-                    document.getElementById('formulario').style.display = "none";
+                    
+                    const link = `https://tripodir072-debug.github.io/trato-backend/pago_confirmado.html?external_reference=${encodeURIComponent(producto)}&precio=${precioBase.toFixed(2)}&id=${opID}`;
 
-                    const mensajeWA = `🛡️ *CERTIFICADO DE PROTECCIÓN TRATO™*\n` +
-                                     `*Operación N°:* ${opID}\n\n` +
-                                     `La red actúa exclusivamente como agente de custodia de fondos. No se asume responsabilidad por el funcionamiento, fallas o estado del producto.\n\n` +
-                                     `📦 *PRODUCTO:* ${producto.toUpperCase()}\n` +
-                                     `💰 *MONTO:* $${precioBase.toFixed(2)}\n` +
-                                     `🛡️ *GARANTÍA:* Compra Protegida RichardBro\n\n` +
-                                     `🔗 *LINK DE PAGO OFICIAL:*\n${data.url}\n\n` +
-                                     `_Sistema Blindado TRATO™_`;
-
-                    resultado.innerHTML = `
-                        <div class="resultado-link">
-                            <p style="color:#00ff9d; font-size:12px; font-weight:bold;">🛡️ BÚNKER ACTIVADO</p>
-                            <span class="url-text">${data.url}</span>
-                            <a href="https://wa.me/?text=${encodeURIComponent(mensajeWA)}" target="_blank" class="btn-whatsapp">
-                                📱 ENVIAR CERTIFICADO LEGAL
-                            </a>
-                            <br>
-                            <a href="generador.html" style="color:#00d4ff; text-decoration:none; font-size:10px; font-weight:bold; display:block; margin-top:12px;">🔄 NUEVA OPERACIÓN</a>
-                        </div>
-                    `;
+                    document.getElementById('resultado').style.display = "block";
+                    document.getElementById('link-texto').innerText = link;
+                    btn.disabled = false;
                 } else {
                     throw new Error(data.error || "Error al conectar con la pasarela de pagos.");
                 }
@@ -417,6 +466,13 @@
                 btn.disabled = false;
                 status.style.display = "none";
             }
+        };
+
+        window.copiarLink = function() {
+            const linkTexto = document.getElementById('link-texto').innerText;
+            navigator.clipboard.writeText(linkTexto).then(() => {
+                alert("¡Link copiado al portapapeles con éxito!");
+            });
         };
     </script>
 </body>
