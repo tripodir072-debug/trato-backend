@@ -11,7 +11,7 @@
             --primary-color: #00ff9d;
             --text-color: #e2e8f0;
             --accent-color: #00d4ff;
-            --danger-color: #ff3333;
+            --danger-color: #ff3b30;
         }
 
         body {
@@ -239,7 +239,7 @@
         <h2>🛡️ Búnker TRATO™</h2>
         
         <div class="cost-info">
-            ℹ️ <strong>Costo y Alcance del Servicio:</strong> El recargo del 15% corresponde al uso de la plataforma y el servicio de gestión en el búnker. <strong>No nos hacemos responsables por el funcionamiento, calidad o estado físico del producto</strong>; la cobertura garantiza la recepción de lo operado y la protección del pago.
+            ℹ️ <strong>Costo y Alcance del Servicio:</strong> Se aplica un <strong>recargo del 15%</strong> al monto del producto. La red actúa <em>únicamente</em> como intermediaria en la custodia de fondos. <strong>No nos hacemos responsables por el funcionamiento, calidad o estado físico del producto</strong>; la cobertura garantiza la recepción de lo operado y la protección del pago.
         </div>
 
         <div id="formulario">
@@ -354,7 +354,6 @@
 
         window.abrirTerminos = function() {
             document.getElementById('modalTerminos').style.display = 'flex';
-            // Se habilita el checkbox al mostrar el modal
             document.getElementById('acepta-terminos').disabled = false;
         };
 
@@ -460,7 +459,16 @@
                         window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(mensajeSoporte)}`, '_blank');
 
                     } else if (tipo === 'comprador') {
-                        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(data.url)}`, '_blank');
+                        const mensajeComprador = `🛡️ *TRATO™ | TÉRMINOS Y CONDICIONES Y LINK DE PAGO*\n\n` +
+                                               `¡Hola! Estás por realizar una compra con el sistema blindado TRATO™ (RichardBro). Tu seguridad es nuestra prioridad. Por favor, lee atentamente las condiciones de protección:\n\n` +
+                                               `• *🔒 Protección del Comprador:* Tu dinero queda resguardado en el búnker de TRATO™ y no se libera al vendedor hasta que recibas el producto y verifiques que todo está en orden.\n\n` +
+                                               `• *📸 Validación de la operación:* El vendedor debe adjuntar fotos/videos del producto junto a un código único de 4 dígitos para certificar su existencia y estado antes de enviarlo.\n\n` +
+                                               `• *⚖️ Naturaleza del Servicio:* TRATO™ actúa exclusivamente como agente intermediario y custodio de fondos. No asumimos responsabilidad sobre el estado, calidad, funcionamiento o vicios ocultos del producto.\n\n` +
+                                               `• *🔄 Cancelaciones y Devoluciones:* El costo de gestión del 15% no es reembolsable en caso de cancelación una vez iniciada la custodia. En caso de reclamo, deberás devolver el producto al vendedor para validar el reintegro de tu dinero base.\n\n` +
+                                               `🔗 *Link de pago seguro:* ${data.url}\n\n` +
+                                               `Al realizar el pago, aceptás las condiciones del servicio de TRATO™ y las políticas de custodia de fondos.`;
+
+                        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensajeComprador)}`, '_blank');
                     }
 
                     btnSoporte.disabled = false;
