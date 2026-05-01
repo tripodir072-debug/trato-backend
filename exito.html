@@ -6,14 +6,17 @@
     <title>TRATO™ | Pago Confirmado</title>
     <style>
         body { background-color: #050505; color: #ffffff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .exito-container { border: 2px solid #00ff00; background: #0a0a0a; padding: 40px; border-radius: 20px; box-shadow: 0 0 30px #00ff0033; text-align: center; width: 90%; max-width: 450px; }
-        .icon-check { font-size: 60px; color: #00ff00; margin-bottom: 20px; text-shadow: 0 0 20px #00ff00; }
-        h1 { color: #00ff00; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 10px; font-size: 1.8em; }
-        p { color: #ccc; line-height: 1.6; font-size: 1.1em; }
-        .btn-whatsapp { display: block; width: 100%; padding: 18px; background: #25d366; color: #000; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; text-decoration: none; text-transform: uppercase; margin-top: 25px; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4); font-size: 1.1em; }
-        .btn-whatsapp:hover { background: #1ebe57; transform: translateY(-3px); transition: 0.3s; }
-        .footer { font-size: 0.7em; margin-top: 35px; color: #444; letter-spacing: 1px; }
-        .info-pago { background: #111; padding: 15px; border-radius: 10px; border: 1px dashed #333; margin: 20px 0; }
+        .exito-container { border: 2px solid #00ff00; background: #0a0a0a; padding: 30px; border-radius: 20px; box-shadow: 0 0 30px #00ff0033; text-align: center; width: 90%; max-width: 450px; }
+        .icon-check { font-size: 50px; color: #00ff00; margin-bottom: 15px; text-shadow: 0 0 20px #00ff00; }
+        h1 { color: #00ff00; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; font-size: 1.6em; }
+        p { color: #ccc; line-height: 1.5; font-size: 0.95em; }
+        .btn-action { display: block; width: 100%; padding: 16px; background: #25d366; color: #000; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; text-decoration: none; margin-top: 15px; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); font-size: 1em; transition: 0.3s; }
+        .btn-action:hover { background: #1ebe57; transform: translateY(-2px); }
+        .btn-secondary { background: #111; border: 1px solid #00d4ff; color: #00d4ff; box-shadow: none; margin-top: 10px; }
+        .btn-secondary:hover { background: #1a2333; }
+        .footer { font-size: 0.65em; margin-top: 25px; color: #444; letter-spacing: 1px; }
+        .info-pago { background: #111; padding: 12px; border-radius: 10px; border: 1px dashed #333; margin: 15px 0; }
+        #copiado-mensaje { display: none; color: #00ff00; font-size: 0.85em; font-weight: bold; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -22,29 +25,66 @@
         <div class="icon-check">✔</div>
         <h1>PAGO ASEGURADO</h1>
         <div class="info-pago">
-            <p style="margin:0; font-size: 0.9em; color: #00ff00;">ESTADO: CUSTODIA ACTIVA</p>
+            <p style="margin:0; font-size: 0.85em; color: #00ff00;">ESTADO: CUSTODIA ACTIVA</p>
             <p id="detalle-prod" style="margin:5px 0 0 0; font-weight: bold; color: #fff;">Cargando producto...</p>
         </div>
-        <p>El dinero ya entró al búnker. Avisale al vendedor para que prepare el despacho.</p>
+        <p>El dinero ya entró al búnker. Elegí una opción para notificar al vendedor bajo el protocolo de seguridad:</p>
+
+        <div id="copiado-mensaje">¡Texto copiado! Ahora envíalo por WhatsApp.</div>
+
+        <button class="btn-action" onclick="enviarMensaje('envio')">
+            📦 NOTIFICAR ENVÍO POR CORREO
+        </button>
         
-        <a id="linkWhatsapp" href="#" class="btn-whatsapp">
-            📱 NOTIFICAR AL VENDEDOR
+        <button class="btn-action btn-secondary" onclick="enviarMensaje('personal')">
+            🤝 NOTIFICAR ENCUENTRO EN PERSONA
+        </button>
+
+        <a href="generador.html" class="btn-action" style="background: #222; color: #fff; margin-top: 20px;">
+            🔄 NUEVA OPERACIÓN
         </a>
 
         <div class="footer">TRATO™ BY RICHARDBRO - SEGURIDAD TOTAL</div>
     </div>
 
     <script>
-        // Leemos el nombre del producto de la URL
         const urlParams = new URLSearchParams(window.location.search);
-        const producto = urlParams.get('external_reference') || "mi compra";
-        
-        const textoWA = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n` +
-                        `¡Hola! Ya realicé el pago por el producto: *${producto.toUpperCase()}*.\n\n` +
-                        `El dinero ya está en custodia de TRATO™. Por favor, confirmame cuando realices el despacho o la entrega.`;
-        
+        const producto = urlParams.get('external_reference') || "Producto / Servicio";
+        const opID = Math.floor(Math.random() * 900000) + 100000;
+
         document.getElementById('detalle-prod').innerText = producto.toUpperCase();
-        document.getElementById('linkWhatsapp').href = `https://wa.me/?text=${encodeURIComponent(textoWA)}`;
+
+        const mensajes = {
+            envio: `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n` +
+                   `¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podés proceder con el despacho del producto.\n\n` +
+                   `Para validar la operación y realizar el seguimiento, por favor enviame a mí o al equipo de TRATO™ el número de tracking o los datos del transporte una vez despachado.\n\n` +
+                   `* Respaldo: Te sugiero tomar fotos y un video del producto antes de embalarlo como constancia de su estado.\n` +
+                   `* Liberación de fondos: El ID de operación (${opID}) funcionará como código de seguridad para autorizar el pago. El equipo liberará los fondos dentro de las 24 a 48 horas posteriores a la confirmación de la recepción.\n\n` +
+                   `Estamos protegidos los dos. ¡Quedo a la espera del envío y te aviso ni bien llegue!`,
+
+            personal: `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n` +
+                      `¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podemos coordinar el encuentro para la entrega en un lugar público y seguro.\n\n` +
+                      `Al momento del intercambio:\n\n` +
+                      `* Revisión: Verificaremos el artículo juntos en el lugar.\n` +
+                      `* Liberación de fondos: El ID de operación (${opID}) será requerido como código de seguridad para liberar el dinero. Una vez que tenga el producto y te proporcione dicho código, el equipo liberará los fondos en un plazo de 24 a 48 horas.\n\n` +
+                      `De esta forma estamos protegidos los dos. ¡Quedo a la espera para coordinar el punto de encuentro!`
+        };
+
+        window.enviarMensaje = function(tipo) {
+            const texto = mensajes[tipo];
+            
+            // Copia al portapapeles y abre WhatsApp
+            navigator.clipboard.writeText(texto).then(() => {
+                const mensajeDiv = document.getElementById('copiado-mensaje');
+                mensajeDiv.style.display = 'block';
+                
+                setTimeout(() => {
+                    mensajeDiv.style.display = 'none';
+                }, 6000);
+
+                window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
+            });
+        };
     </script>
 </body>
 </html>
