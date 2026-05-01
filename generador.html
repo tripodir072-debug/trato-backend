@@ -317,7 +317,8 @@
 
     <script type="module">
         const RENDER_URL = "https://bunker-trato-api.onrender.com/crear-pago";
-        const opID = Math.floor(100000 + Math.random() * 900000);
+        // Ya no se crea un número aleatorio, el ID se validará en la pantalla de éxito con los parámetros de MP.
+        const opID = "PENDIENTE DE PAGO";
 
         window.abrirTerminos = function() {
             document.getElementById('modalTerminos').style.display = 'flex';
