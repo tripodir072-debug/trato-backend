@@ -257,10 +257,10 @@
                 <label for="cbu-alias">Tu CBU o Alias (Importado)</label>
                 <input type="text" id="cbu-alias" placeholder="Cargado desde el registro..." readonly>
             </div>
-            
+
             <div class="input-group">
                 <label for="vendedor-dni">Tu DNI / Identificación</label>
-                <input type="text" id="vendedor-dni" placeholder="Ej. 35123456" readonly>
+                <input type="text" id="vendedor-dni" placeholder="Cargado desde el registro..." readonly>
             </div>
 
             <div class="cost-info" id="precio-detalle" style="margin-bottom: 16px;">
@@ -312,28 +312,36 @@
         const RENDER_URL = "https://bunker-trato-api.onrender.com/crear-pago";
         const opID = "PENDIENTE DE PAGO";
 
-        // Obtenemos los datos del vendedor desde la URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const vendedorNombre = urlParams.get('nombre') || 'RichardBro';
-        const vendedorEmail = urlParams.get('email') || 'sin-correo@trato.com';
-        const vendedorTelefono = urlParams.get('telefono') || 'Sin Teléfono';
-        const vendedorCbu = urlParams.get('cbu') || 'Sin CBU asignado';
-        const vendedorDni = urlParams.get('dni') || 'Sin DNI';
+        const urlParams();
 
-        // Imprimimos en el header y los inputs correspondientes
-        document.getElementById('session-header').innerText = `👤 Sesión: ${vendedorNombre}`;
-        document.getElementById('cbu-alias').value = vendedorCbu;
-        document.getElementById('vendedor-dni').value = vendedorDni;
+        function constParams() {
+            // Obtenemos los datos del vendedor desde la URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const vendedorNombre = urlParams.get('nombre') || 'RichardBro';
+            const vendedorEmail = urlParams.get('email') || 'sin-correo@trato.com';
+            const vendedorTelefono = urlParams.get('telefono') || 'Sin Teléfono';
+            const vendedorCbu = urlParams.get('cbu') || 'Sin CBU asignado';
+            const vendedorDni = urlParams.get('dni') || 'Sin DNI';
 
-        // Autocompletado del producto y monto en caso de regresar desde el link
-        const prodParam = urlParams.get('prod');
-        const montoParam = urlParams.get('monto');
-        if (prodParam) {
-            document.getElementById('prod').value = decodeURIComponent(prodParam);
-        }
-        if (montoParam) {
-            document.getElementById('monto').value = decodeURIComponent(montoParam);
-            calcularTotal();
+            // Imprimimos en el header y el campo
+            document.getElementById('session-header').innerText = `👤 Sesión: ${vendedorNombre}`;
+            document.getElementById('cbu-alias').value = vendedorCbu;
+            document.getElementById('vendedor-dni').value = vendedorDni;
+
+            // Autocompletado del producto y monto en caso de regresar desde el link
+            const prodParam = urlParams.get('prod');
+            const montoParam = urlParams.get('monto');
+            if (prodParam) {
+                document.getElementById('prod').value = decodeURIComponent(prodParam);
+            }
+            if (montoParam) {
+                document.getElementById('monto').value = decodeURIComponent(montoParam);
+                calcularTotal();
+                
+                // Habilitar la casilla y los botones de inmediato al retornar
+                document.getElementById('acepta-terminos').checked = true;
+                toggleBoton();
+            }
         }
 
         window.abrirTerminos = function() {
@@ -375,6 +383,13 @@
             btnSoporte.disabled = true;
             btnBlindar.disabled = true;
             status.style.display = "block";
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const vendedorNombre = urlParams.get('nombre') || 'RichardBro';
+            const vendedorEmail = urlParams.get('email') || 'sin-correo@trato.com';
+            const vendedorTelefono = urlParams.get('telefono') || 'Sin Teléfono';
+            const vendedorCbu = urlParams.get('cbu') || 'Sin CBU asignado';
+            const vendedorDni = urlParams.get('dni') || 'Sin DNI';
 
             try {
                 const precioBase = parseFloat(montoIngresado) * 1.15;
