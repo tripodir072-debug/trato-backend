@@ -141,25 +141,6 @@
             font-style: italic;
         }
 
-        .btn-whatsapp {
-            display: block;
-            background-color: #25d366;
-            color: #fff;
-            padding: 12px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: bold;
-            margin-top: 12px;
-            font-size: 13px;
-            text-align: center;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-whatsapp:hover {
-            background-color: #1ebe57;
-        }
-
         .user-header {
             font-size: 9px;
             text-align: right;
@@ -249,16 +230,6 @@
             padding-left: 15px;
             margin: 5px 0 15px 0;
         }
-
-        .output-box {
-            margin-top: 15px;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid var(--accent-color);
-            border-radius: 10px;
-            display: none;
-            text-align: left;
-        }
     </style>
 </head>
 <body>
@@ -298,17 +269,10 @@
                 </label>
             </div>
 
-            <button id="btn-soporte" class="btn-success" onclick="enviarDatosSoporte()" disabled>📤 1. ENVIAR CBU Y DATOS A SOPORTE</button>
-            <button id="btn-blindar" onclick="generarLinkPago()" disabled style="background-color: var(--accent-color); color: #050810;">🔗 2. GENERAR LINK PARA COMPRADOR</button>
+            <button id="btn-soporte" class="btn-success" onclick="procesarOperacion('soporte')" disabled>📤 1. ENVIAR CBU Y DATOS A SOPORTE</button>
+            <button id="btn-blindar" onclick="procesarOperacion('comprador')" disabled style="background-color: var(--accent-color); color: #050810; margin-top: 12px;">🔗 2. GENERAR Y ENVIAR AL COMPRADOR</button>
+            
             <div id="status">Procesando encriptación en el búnker...</div>
-        </div>
-
-        <div id="resultado" class="output-box">
-            <p style="color: var(--accent-color); font-weight: bold; margin-bottom: 5px;">🛡️ BÚNKER ACTIVADO</p>
-            <p style="color: var(--text-color); font-size: 11px; margin-bottom: 10px;">Compartí el link para gestionar el pago con el comprador por WhatsApp:</p>
-            <a id="link-whatsapp-btn" href="#" target="_blank" class="btn-whatsapp">
-                📱 ENVIAR LINK AL COMPRADOR
-            </a>
         </div>
 
         <div class="legal-notice">
@@ -375,27 +339,12 @@
             document.getElementById('btn-soporte').disabled = !acepta;
         };
 
-        window.enviarDatosSoporte = function() {
-            const producto = document.getElementById('prod').value;
-            const precioBase = parseFloat(document.getElementById('monto').value) || 0;
-            const precioFinal = (precioBase * 1.15).toFixed(2);
-            const cbuAlias = document.getElementById('cbu-alias').value;
-
-            if (!producto || !precioBase || !cbuAlias) {
-                alert("Por favor, completá todos los campos, incluyendo el CBU o Alias, para enviar los datos.");
-                return;
-            }
-
-            const numeroSoporte = "5493456528480";
-            const mensajeSoporte = `🛡️ *NUEVA VENTA - TRATO™*\n\nInformación de liquidación de la operación:\n\n*ID de Operación:* ${opID}\n*Producto:* ${producto}\n*Precio Base:* $ ${precioBase}\n*Monto Total (con 15%):* $ ${precioFinal}\n*CBU / Alias Vendedor:* ${cbuAlias}\n\nConfirmo que se cumplieron los términos.`;
-
-            window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensajeSoporte)}`, '_blank');
-        };
-
-        window.generarLinkPago = async function() {
+        window.procesarOperacion = async function(tipo) {
             const producto = document.getElementById('prod').value;
             const montoIngresado = document.getElementById('monto').value;
-            const btn = document.getElementById('btn-blindar');
+            const cbuAlias = document.getElementById('cbu-alias').value;
+            const btnSoporte = document.getElementById('btn-soporte');
+            const btnBlindar = document.getElementById('btn-blindar');
             const status = document.getElementById('status');
             const acepta = document.getElementById('acepta-terminos').checked;
 
@@ -403,11 +352,12 @@
                 return alert("Debes aceptar el recargo y las condiciones de servicio para continuar.");
             }
 
-            if (!producto || !montoIngresado) {
-                return alert("Completa todos los campos para continuar.");
+            if (!producto || !montoIngresado || !cbuAlias) {
+                return alert("Por favor, completa todos los campos (incluyendo el CBU/Alias) para continuar.");
             }
 
-            btn.disabled = true;
+            btnSoporte.disabled = true;
+            btnBlindar.disabled = true;
             status.style.display = "block";
 
             try {
@@ -426,30 +376,36 @@
 
                 if (data.url) {
                     status.style.display = "none";
-                    
-                    const link = `https://tripodir072-debug.github.io/trato-backend/pago_confirmado.html?external_reference=${encodeURIComponent(producto)}&precio=${precioBase.toFixed(2)}&id=${opID}`;
 
-                    const mensajeComprador = `🛡️ *ENLACE DE GESTIÓN Y PROTECCIÓN TRATO™*\n` +
-                                     `*Operación N°:* ${opID}\n\n` +
-                                     `La red actúa exclusivamente como agente de custodia de fondos. No se asume responsabilidad por el funcionamiento, fallas o estado del producto.\n\n` +
-                                     `📦 *PRODUCTO:* ${producto.toUpperCase()}\n` +
-                                     `💰 *MONTO:* $${precioBase.toFixed(2)}\n` +
-                                     `🛡️ *GARANTÍA:* Compra Protegida RichardBro\n\n` +
-                                     `🔗 *LINK DE PAGO OFICIAL:*\n${data.url}\n\n` +
-                                     `_Sistema Blindado TRATO™_`;
+                    if (tipo === 'soporte') {
+                        // Mensaje para el equipo de Trato
+                        const mensajeSoporte = `🛡️ *NUEVA VENTA - TRATO™*\n\nInformación de liquidación de la operación:\n\n*ID de Operación:* ${opID}\n*Producto:* ${producto}\n*Monto Total (con 15%):* $ ${precioBase.toFixed(2)}\n*CBU / Alias Vendedor:* ${cbuAlias}\n\nConfirmo que se cumplieron los términos.\n\n🔗 *Link de Pago:* ${data.url}`;
+                        
+                        window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(mensajeSoporte)}`, '_blank');
 
-                    document.getElementById('resultado').style.display = "block";
-                    
-                    const whatsappLink = `https://wa.me/?text=${encodeURIComponent(mensajeComprador)}`;
-                    document.getElementById('link-whatsapp-btn').href = whatsappLink;
+                    } else if (tipo === 'comprador') {
+                        // Mensaje para el comprador (sin datos bancarios del vendedor)
+                        const mensajeComprador = `🛡️ *ENLACE DE GESTIÓN Y PROTECCIÓN TRATO™*\n` +
+                                         `*Operación N°:* ${opID}\n\n` +
+                                         `La red actúa exclusivamente como agente de custodia de fondos. No se asume responsabilidad por el funcionamiento, fallas o estado del producto.\n\n` +
+                                         `📦 *PRODUCTO:* ${producto.toUpperCase()}\n` +
+                                         `💰 *MONTO:* $${precioBase.toFixed(2)}\n` +
+                                         `🛡️ *GARANTÍA:* Compra Protegida RichardBro\n\n` +
+                                         `🔗 *LINK DE PAGO OFICIAL:*\n${data.url}\n\n` +
+                                         `_Sistema Blindado TRATO™_`;
+                        
+                        window.open(`https://wa.me/?text=${encodeURIComponent(mensajeComprador)}`, '_blank');
+                    }
 
-                    btn.disabled = false;
+                    btnSoporte.disabled = false;
+                    btnBlindar.disabled = false;
                 } else {
                     throw new Error(data.error || "Error al conectar con la pasarela de pagos.");
                 }
             } catch (e) {
                 alert("Error en el búnker: " + e.message);
-                btn.disabled = false;
+                btnSoporte.disabled = false;
+                btnBlindar.disabled = false;
                 status.style.display = "none";
             }
         };
