@@ -77,24 +77,19 @@
     </div>
 
     <script>
-        // Obtenemos los parámetros de la URL
         const urlParams = new URLSearchParams(window.location.search);
         const producto = urlParams.get('external_reference') || 'Producto no especificado';
         const precio = urlParams.get('precio') || 'Monto no especificado';
-        
-        // Obtenemos el ID de Mercado Pago
-        const opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación (usar ID de MP)';
+        const opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación';
 
-        // Mostrar la información en el contenedor
         document.getElementById('info-operacion').innerHTML = `
             <strong>Producto:</strong> ${decodeURIComponent(producto)} <br>
             <strong>Monto en Custodia:</strong> $ ${precio} <br>
             <strong>ID de Operación / Comprobante:</strong> ${opID}
         `;
 
-        // Función para enviar el comprobante obligatorio con los términos legales
         window.enviarComprobanteObligatorio = () => {
-            const numeroSoporte = "5493456528480"; // WhatsApp de soporte de Trato
+            const numeroSoporte = "5493456528480";
             const mensajeComprobante = `🛡️ *DECLARACIÓN Y COMPROBANTE DE PAGO - TRATO™*\n\n` +
                                        `¡Hola! Envío el presente comprobante para activar formalmente el protocolo de custodia de fondos.\n\n` +
                                        `*Datos de la operación:*\n` +
@@ -104,22 +99,18 @@
                                        `🔗 *Accedé a tu cuenta de Mercado Pago aquí:* \nhttps://www.mercadopago.com.ar\n\n` +
                                        `⚠️ *AVISO LEGAL Y CONDICIONES OBLIGATORIAS:*\n` +
                                        `1. Es de carácter OBLIGATORIO enviar la captura o comprobante de pago emitido por Mercado Pago o la entidad bancaria utilizada para esta transacción.\n` +
-                                       `2. Sin la recepción y validación de dicho comprobante, no se activará la custodia y el comprador no tendrá ningún derecho a reclamo, reembolso o disputa legal, independientemente de la situación o de un posible arrepentimiento.\n` +
+                                       `2. Sin la recepción y validación de dicho comprobante, no se activará la custodia y el comprador no tendrá ningún derecho a reclamo, reembolso o disputa legal sobre el monto del producto, quedando el recargo del 15% por servicio de gestión como no reembolsable en caso de arrepentimiento.\n` +
                                        `3. El usuario declara que, al utilizar el sistema TRATO™ (RichardBro), acepta de forma irrevocable que los fondos quedarán retenidos bajo las condiciones del búnker hasta que se confirme la operación o finalice el plazo legal estipulado.\n\n` +
                                        `*(Adjuntá tu captura o foto del comprobante de pago aquí abajo 👇)*`;
 
             window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensajeComprobante)}`, '_blank');
-            
-            // Habilitar el botón para continuar en el modal
             document.getElementById('btn-continuar').disabled = false;
         };
 
-        // Función para destrabar el uso de la pantalla
         window.desbloquearPantalla = () => {
             document.getElementById('pantalla-bloqueo').style.display = 'none';
         };
 
-        // Función para los botones del comprador
         window.notificar = (tipo) => {
             let mensaje = "";
             const numeroSoporte = "5493456528480";
