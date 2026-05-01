@@ -149,8 +149,8 @@
             </div>
             
             <div class="input-group">
-                <label for="dni">Tu DNI / Identificación</label>
-                <input type="text" id="dni" placeholder="Ej. 35123456" required>
+                <label for="dni">Cumpla con su DNI aquí</label>
+                <input type="tel" id="dni" placeholder="Ej. 35123456" pattern="[0-9]*" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
             </div>
 
             <div class="checkbox-group">
@@ -187,6 +187,7 @@
             const cbu = document.getElementById('cbu').value;
             const dni = document.getElementById('dni').value;
 
+            // Enviar los datos completos a generador.html por URL
             const url = `generador.html?nombre=${encodeURIComponent(nombre)}&email=${encodeURIComponent(email)}&telefono=${encodeURIComponent(tel)}&cbu=${encodeURIComponent(cbu)}&dni=${encodeURIComponent(dni)}`;
             window.location.href = url;
         };
