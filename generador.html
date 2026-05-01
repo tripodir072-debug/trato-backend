@@ -258,6 +258,11 @@
                 <input type="text" id="cbu-alias" placeholder="Cargado desde el registro..." readonly>
             </div>
 
+            <div class="input-group">
+                <label for="vendedor-dni">Tu DNI / Identificación</label>
+                <input type="text" id="vendedor-dni" placeholder="Ej. 35123456">
+            </div>
+
             <div class="cost-info" id="precio-detalle" style="margin-bottom: 16px;">
                 ℹ️ Monto total con comisión (15%): $ 0
             </div>
@@ -285,14 +290,15 @@
             <span class="close-modal" onclick="cerrarTerminos()">&times;</span>
             <h3 class="modal-title">🛡️ Términos y Condiciones Legales - TRATO™</h3>
             <div class="modal-text">
-                <p><strong>1. Naturaleza del Servicio:</strong> TRATO™ (plataforma operada por RichardBro) actúa exclusivamente como agente intermediario y custodio de fondos. La plataforma no otorga garantías ni asume responsabilidad civil, comercial o penal sobre el estado, calidad, funcionamiento, vicios ocultos o legalidad del producto o servicio. <em>El recargo del 15% en concepto de servicio y gestión no es reembolsable ni sujeto a reclamo bajo ninguna circunstancia.</em> La cobertura garantiza únicamente la protección y el resguardo de los fondos durante el proceso de transacción.</p>
-                <p><strong>2. Sistema de Custodia de Fondos:</strong> El dinero abonado se retiene en el búnker de garantía hasta que la operación se concrete y se verifique.</p>
-                <p><strong>3. Protocolo de Envíos y Entregas:</strong></p>
+                <p><strong>1. Naturaleza del Servicio:</strong> TRATO™ (plataforma operada por RichardBro) actúa exclusivamente como agente intermediario y custodio de fondos. La plataforma no otorga garantías ni asume responsabilidad civil, comercial o penal sobre el estado, calidad, funcionamiento, vicios ocultos o legalidad del producto o servicio. <em>El recargo del 15% en concepto de servicio y gestión no es reembolsable ni sujeto a reclamo bajo ninguna circunstancia.</em></p>
+                <p><strong>2. Validación de Identidad y Prevención de Fraude:</strong> Es de carácter OBLIGATORIO para vendedor y comprador presentar su documento de identidad (DNI o similar). En caso de que el comprador realice un pago desde una cuenta de titularidad de terceros, debe informar los datos de identidad y DNI del titular de dicha cuenta. El uso de estos datos está destinado exclusivamente a la validación de identidad y posible exposición ante autoridades en caso de disputas legales.</p>
+                <p><strong>3. Sistema de Custodia de Fondos:</strong> El dinero abonado se retiene en el búnker de garantía hasta que la operación se concrete y se verifique.</p>
+                <p><strong>4. Protocolo de Envíos y Entregas:</strong></p>
                 <ul>
                     <li><em>Envíos por Correo o Transporte:</em> El vendedor tiene la obligación de registrar en video el estado del producto antes de embalarlo y enviar el número de <em>tracking</em> o datos del transporte al equipo de TRATO™. El comprador deberá notificar la recepción al recibirlo.</li>
                     <li><em>Encuentros en Persona:</em> Se sugiere coordinar el intercambio en un lugar público, iluminado y concurrido. El comprador debe revisar el artículo <em>in situ</em> antes de validar la conformidad.</li>
                 </ul>
-                <p><strong>4. Liberación de Fondos y Plazos de Custodia:</strong></p>
+                <p><strong>5. Liberación de Fondos y Plazos de Custodia:</strong></p>
                 <ul>
                     <li><em>Liberación Inmediata:</em> Una vez que el correo o el sistema de transporte confirma la entrega del producto o se realiza el intercambio, se procede a liberar el dinero hacia el vendedor.</li>
                     <li><em>Plazo de Custodia (24/48 horas):</em> Si el comprador no comunica la conformidad tras la confirmación de la entrega por el correo, los fondos se mantendrán en custodia hasta 48 horas, liberándose automáticamente si no hay reclamos.</li>
@@ -338,6 +344,7 @@
         window.procesarOperacion = async function(tipo) {
             const producto = document.getElementById('prod').value;
             const montoIngresado = document.getElementById('monto').value;
+            const vendedorDni = document.getElementById('vendedor-dni').value;
             const btnSoporte = document.getElementById('btn-soporte');
             const btnBlindar = document.getElementById('btn-blindar');
             const status = document.getElementById('status');
@@ -347,8 +354,8 @@
                 return alert("Debes aceptar el recargo y las condiciones de servicio para continuar.");
             }
 
-            if (!producto || !montoIngresado) {
-                return alert("Por favor, completa los campos para continuar.");
+            if (!producto || !montoIngresado || !vendedorDni) {
+                return alert("Por favor, completa todos los campos (incluyendo tu DNI) para continuar.");
             }
 
             btnSoporte.disabled = true;
@@ -378,6 +385,7 @@
                         const mensajeSoporte = `🛡️ *NUEVA VENTA - TRATO™*\n\n` +
                                                `*Datos del Vendedor:*\n` +
                                                `- Nombre: ${vendedorNombre}\n` +
+                                               `- DNI / Identificación: ${vendedorDni}\n` +
                                                `- Correo: ${vendedorEmail}\n` +
                                                `- Teléfono: ${vendedorTelefono}\n` +
                                                `- CBU / Alias: ${vendedorCbu}\n\n` +
@@ -401,7 +409,7 @@
                                                `• TRATO™ actúa exclusivamente como agente de custodia y resguardo de fondos.\n` +
                                                `• No nos hacemos responsables del estado, funcionamiento o vicios ocultos del producto, el resguardo es sobre la operación de compra y el dinero.\n` +
                                                `• El recargo del 15% en concepto de servicio y gestión no es reembolsable ni sujeto a reclamo bajo ninguna circunstancia.\n` +
-                                               `• El uso del canal de soporte es estrictamente por mensajes. No se atienden llamadas telefónicas. El uso indebido o saturación es motivo de anulación de la custodia.`;
+                                               `• El uso del canal de soporte es estrictamente por mensajes. No se atienden llamadas telefónicas.`;
                         
                         window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(mensajeSoporte)}`, '_blank');
 
@@ -413,6 +421,7 @@
                                                  `💰 *MONTO:* $${precioBase.toFixed(2)}\n` +
                                                  `🛡️ *GARANTÍA:* Compra Protegida RichardBro\n` +
                                                  `📞 *Soporte Oficial TRATO:* +54 9 3456 528480\n\n` +
+                                                 `⚠️ *AVISO PARA EL COMPRADOR:* Para activar la custodia de la operación es obligatorio presentar su DNI y, en caso de pagar desde la cuenta de un tercero, el DNI del titular de la cuenta.\n\n` +
                                                  `🔗 *LINK DE PAGO OFICIAL:*\n${data.url}\n\n` +
                                                  `_Sistema Blindado TRATO™_`;
                         
