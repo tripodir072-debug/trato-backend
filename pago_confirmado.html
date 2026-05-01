@@ -67,6 +67,10 @@
         <div class="status-box">
             <p class="status-text">🔒 ESTADO: CUSTODIA ACTIVA</p>
             <p id="info-operacion" style="font-size: 0.9em; color: #aaa;">Cargando detalles de la operación...</p>
+            
+            <p style="font-size: 0.75em; color: #00ff9d; margin-top: 15px; border-top: 1px dashed #00d4ff; padding-top: 10px; line-height: 1.35;">
+                <strong>⚠️ INSTRUCCIÓN AL VENDEDOR:</strong> El número de operación (ID) debe estar anotado en un papel y pegado visiblemente en el producto o paquete. <em>Enviar la foto/video al soporte es obligatorio para blindar la operación.</em>
+            </p>
         </div>
 
         <button onclick="enviarComprobanteObligatorio()" class="btn-portal btn-danger">📤 ENVIAR COMPROBANTE A TRATO</button>
@@ -107,12 +111,13 @@
                                        `- Producto: ${decodeURIComponent(producto)}\n` +
                                        `- Monto total: $ ${precio}\n` +
                                        `- DNI del Comprador/Titular de Pago: ${compradorDni}\n\n` +
+                                       `📸 *VALIDACIÓN OBLIGATORIA (FOTO/VIDEO):* \nPor favor adjuntá la foto o video del producto/paquete que muestre el código de operación pegado para blindar la operación y validar su existencia.\n\n` +
                                        `🔗 *Accedé a tu cuenta de Mercado Pago aquí:* \nhttps://www.mercadopago.com.ar\n\n` +
                                        `⚠️ *AVISO LEGAL Y CONDICIONES OBLIGATORIAS:*\n` +
                                        `1. Es de carácter OBLIGATORIO enviar la captura o comprobante de pago emitido por Mercado Pago o la entidad bancaria utilizada para esta transacción.\n` +
                                        `2. Sin la recepción y validación de dicho comprobante, no se activará la custodia y el comprador no tendrá ningún derecho a reclamo, reembolso o disputa legal sobre el monto del producto, quedando el recargo del 15% por servicio de gestión como no reembolsable en caso de arrepentimiento.\n` +
                                        `3. El usuario declara que, al utilizar el sistema TRATO™ (RichardBro), acepta de forma irrevocable que los fondos quedarán retenidos bajo las condiciones del búnker hasta que se confirme la operación o finalice el plazo legal estipulado.\n\n` +
-                                       `*(Adjuntá tu captura o foto del comprobante de pago aquí abajo 👇)*`;
+                                       `*(Adjuntá tu captura o foto del comprobante de pago y la foto/video del producto aquí abajo 👇)*`;
 
             window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensajeComprobante)}`, '_blank');
             document.getElementById('btn-continuar').disabled = false;
