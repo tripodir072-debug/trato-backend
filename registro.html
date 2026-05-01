@@ -5,107 +5,186 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRATO™ | Registro Blindado</title>
     <style>
-        body { background-color: #050505; color: #ffffff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .registro-container { border: 2px solid #00d4ff; background: #0a0a0a; padding: 30px; border-radius: 20px; box-shadow: 0 0 30px #00d4ff33; text-align: center; width: 90%; max-width: 400px; }
-        h1 { color: #00d4ff; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; background: #151515; border: 1px solid #333; color: #00d4ff; border-radius: 8px; box-sizing: border-box; outline: none; }
-        button { width: 100%; padding: 15px; background: #00d4ff; color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 15px; }
-        button:disabled { background-color: #2d3748; color: #64748b; cursor: not-allowed; opacity: 0.6; }
-        #mensaje { margin-top: 15px; font-size: 0.9em; padding: 15px; border-radius: 10px; display: none; }
-        #error-msg { margin-top: 10px; color: #ff3333; font-size: 0.85em; display: none; }
-        .token-box { background: #00d4ff; color: #000; font-weight: 800; font-size: 1.5em; padding: 10px; margin-top: 10px; border-radius: 5px; display: inline-block; }
+        :root {
+            --bg-color: #050505;
+            --primary-color: #00d4ff;
+            --text-color: #e2e8f0;
+            --panel-bg: #0a0a0a;
+        }
+
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            font-family: 'Segoe UI', sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+        }
+
+        .registro-container { 
+            border: 2px solid var(--primary-color); 
+            background: var(--panel-bg); 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2); 
+            text-align: center; 
+            width: 90%; 
+            max-width: 400px; 
+        }
+
+        h1 { 
+            color: var(--primary-color); 
+            text-transform: uppercase; 
+            letter-spacing: 3px; 
+            margin-bottom: 25px; 
+            font-size: 1.8em;
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 10px;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input, select { 
+            width: 100%; 
+            padding: 12px; 
+            background: #151515; 
+            border: 1px solid #333; 
+            color: var(--primary-color); 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            outline: none; 
+            font-size: 0.95em;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: #00ff9d;
+        }
+
+        .checkbox-group {
+            font-size: 0.75em; 
+            color: #888; 
+            text-align: left; 
+            margin: 18px 0;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .checkbox-group input {
+            width: auto;
+            margin-top: 2px;
+            margin-right: 8px;
+        }
+
+        button { 
+            width: 100%; 
+            padding: 15px; 
+            background: var(--primary-color); 
+            color: #000; 
+            border: none; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            margin-top: 10px;
+            transition: all 0.2s;
+        }
+
+        button:hover { 
+            opacity: 0.9; 
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+        }
+
+        button:disabled { 
+            background-color: #2d3748; 
+            color: #64748b; 
+            cursor: not-allowed; 
+            box-shadow: none;
+            opacity: 0.6; 
+        }
+
+        .footer-note {
+            font-size: 0.65em;
+            color: #444;
+            margin-top: 25px;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
     <div class="registro-container">
         <h1>TRATO™</h1>
-        <form id="registroForm">
-            <input type="text" id="nombre" placeholder="Nombre Real" required autocomplete="name">
-            <input type="text" id="dni" placeholder="DNI" required>
-            <input type="tel" id="tel" placeholder="WhatsApp" required autocomplete="tel">
-            <input type="email" id="email" placeholder="Email" required autocomplete="email">
-            <input type="password" id="pass" placeholder="Contraseña" required>
-            <button type="submit" id="btn-submit">SOLICITAR ACCESO</button>
+        
+        <form id="registroForm" onsubmit="iniciarSesion(event)">
+            <div class="input-group">
+                <label for="nombre">Nombre o Empresa</label>
+                <input type="text" id="nombre" placeholder="Juan Pérez o RichardBro" required autocomplete="name">
+            </div>
+
+            <div class="input-group">
+                <label for="email">Correo Electrónico</label>
+                <input type="email" id="email" placeholder="contacto@empresa.com" required autocomplete="email">
+            </div>
+
+            <div class="input-group">
+                <label for="tel">Número de Teléfono (WhatsApp)</label>
+                <input type="tel" id="tel" placeholder="5493456... (sin + ni espacios)" required autocomplete="tel">
+            </div>
+
+            <div class="input-group">
+                <label for="cbu">Tu CBU o Alias</label>
+                <input type="text" id="cbu" placeholder="Ej. alias.banco" required>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="acepta-terminos" onchange="toggleBoton()">
+                <label for="acepta-terminos" style="cursor:pointer;">
+                    Comprendo que TRATO™ opera como agente de custodia y acepto los términos del protocolo de seguridad.
+                </label>
+            </div>
+
+            <button type="submit" id="btn-submit" disabled>🔑 INGRESAR AL BÚNKER</button>
         </form>
-        <div id="error-msg"></div>
-        <div id="mensaje"></div>
+
+        <div class="footer-note">
+            TRATO™ BY RICHARDBRO - 2026
+        </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
-        import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
-
-        // Configuración directa de tu app
-        const firebaseConfig = {
-            apiKey: "AIzaSyBqu3cMDwQ7e9oGIpmOiDsTq5iD3kKK5bs",
-            authDomain: "comprablok.firebaseapp.com",
-            projectId: "comprablok",
-            storageBucket: "comprablok.appspot.com",
-            messagingSenderId: "1065109328503"
+    <script>
+        window.toggleBoton = function() {
+            const acepta = document.getElementById('acepta-terminos').checked;
+            document.getElementById('btn-submit').disabled = !acepta;
         };
 
-        // Inicializar Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
-
-        document.getElementById('registroForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        window.iniciarSesion = function(event) {
+            event.preventDefault();
             const btn = document.getElementById('btn-submit');
-            const errorDiv = document.getElementById('error-msg');
-            const mensajeDiv = document.getElementById('mensaje');
-            
-            btn.innerText = "PROCESANDO...";
+
+            btn.innerText = "Ingresando...";
             btn.disabled = true;
-            errorDiv.style.display = "none";
-            mensajeDiv.style.display = "none";
 
             const nombre = document.getElementById('nombre').value;
-            const dni = document.getElementById('dni').value;
-            const tel = document.getElementById('tel').value;
             const email = document.getElementById('email').value;
-            const pass = document.getElementById('pass').value;
+            const tel = document.getElementById('tel').value;
+            const cbu = document.getElementById('cbu').value;
 
-            try {
-                // 1. Crear usuario en Firebase Authentication
-                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-                const uid = userCredential.user.uid;
-
-                // 2. Crear una referencia única para el trato en la base de datos
-                const nuevoTratoRef = push(ref(db, 'tratos'));
-                const tratoId = nuevoTratoRef.key;
-
-                // 3. Guardar la información en la base de datos
-                await set(nuevoTratoRef, {
-                    uid: uid,
-                    nombre: nombre,
-                    dni: dni,
-                    tel: tel,
-                    email: email,
-                    vendedorId: "RichardBro_Admin",
-                    estado: "pendiente",
-                    fecha: new Date().toISOString()
-                });
-
-                // 4. Mostrar mensaje de éxito en pantalla
-                document.getElementById('registroForm').style.display = "none";
-                mensajeDiv.style.display = "block";
-                mensajeDiv.innerHTML = `
-                    <p style="color: #00ff00; font-weight: bold;">¡BÚNKER ACTIVADO!</p>
-                    <p>Tu ID de Trato es:</p>
-                    <div class="token-box">${tratoId}</div>
-                    <p style="font-size: 0.8em; margin-top: 10px;">Los datos han sido respaldados en Firebase.</p>
-                `;
-                
-            } catch (error) {
-                console.error("Error en el búnker:", error);
-                errorDiv.innerText = "Error en el búnker: " + error.message;
-                errorDiv.style.display = "block";
-                btn.innerText = "SOLICITAR ACCESO";
-                btn.disabled = false;
-            }
-        });
+            // Enviar los datos directamente a generador.html por URL
+            const url = `generador.html?nombre=${encodeURIComponent(nombre)}&email=${encodeURIComponent(email)}&telefono=${encodeURIComponent(tel)}&cbu=${encodeURIComponent(cbu)}`;
+            window.location.href = url;
+        };
     </script>
 </body>
 </html>
