@@ -64,6 +64,11 @@
             <p id="info-operacion" style="font-size: 0.9em; color: #aaa;">Cargando detalles de la operación...</p>
         </div>
 
+        <div class="input-group" style="margin-bottom: 20px; text-align: left;">
+            <label for="comprador-dni" style="color: #00d4ff; font-size: 0.8em; margin-bottom: 5px; display: block;">DECLARACIÓN DE IDENTIDAD (DNI)</label>
+            <input type="text" id="comprador-dni" placeholder="Tu DNI o el titular de la cuenta" style="width: 92%; padding: 10px; border: 1px solid #00d4ff; background: #050505; color: #fff; border-radius: 8px;">
+        </div>
+
         <button onclick="enviarComprobanteObligatorio()" class="btn-portal btn-danger">📤 ENVIAR COMPROBANTE A TRATO</button>
 
         <button onclick="notificar('envio')" class="btn-portal btn-primary">📦 NOTIFICAR ENVÍO POR CORREO</button>
@@ -89,13 +94,19 @@
         `;
 
         window.enviarComprobanteObligatorio = () => {
+            const compradorDni = document.getElementById('comprador-dni').value;
+            if (!compradorDni) {
+                return alert("Por favor, ingresa tu DNI o el del titular de la cuenta antes de enviar el comprobante.");
+            }
+            
             const numeroSoporte = "5493456528480";
             const mensajeComprobante = `🛡️ *DECLARACIÓN Y COMPROBANTE DE PAGO - TRATO™*\n\n` +
                                        `¡Hola! Envío el presente comprobante para activar formalmente el protocolo de custodia de fondos.\n\n` +
                                        `*Datos de la operación:*\n` +
                                        `- ID de Operación / Comprobante: ${opID}\n` +
                                        `- Producto: ${decodeURIComponent(producto)}\n` +
-                                       `- Monto total: $ ${precio}\n\n` +
+                                       `- Monto total: $ ${precio}\n` +
+                                       `- DNI del Comprador/Titular de Pago: ${compradorDni}\n\n` +
                                        `🔗 *Accedé a tu cuenta de Mercado Pago aquí:* \nhttps://www.mercadopago.com.ar\n\n` +
                                        `⚠️ *AVISO LEGAL Y CONDICIONES OBLIGATORIAS:*\n` +
                                        `1. Es de carácter OBLIGATORIO enviar la captura o comprobante de pago emitido por Mercado Pago o la entidad bancaria utilizada para esta transacción.\n` +
@@ -114,11 +125,12 @@
         window.notificar = (tipo) => {
             let mensaje = "";
             const numeroSoporte = "5493456528480";
+            const compradorDni = document.getElementById('comprador-dni').value;
             
             if (tipo === 'envio') {
-                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podés proceder con el despacho del producto.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${decodeURIComponent(producto)}\n* Monto: $ ${precio}\n\nQuedo a la espera del envío.`;
+                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podés proceder con el despacho del producto.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${decodeURIComponent(producto)}\n* Monto: $ ${precio}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera del envío.`;
             } else {
-                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podemos coordinar el encuentro para la entrega.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${decodeURIComponent(producto)}\n* Monto: $ ${precio}\n\nQuedo a la espera para coordinar el punto de encuentro.`;
+                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podemos coordinar el encuentro para la entrega.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${decodeURIComponent(producto)}\n* Monto: $ ${precio}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera para coordinar el punto de encuentro.`;
             }
 
             window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensaje)}`, '_blank');
