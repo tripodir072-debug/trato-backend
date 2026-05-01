@@ -244,8 +244,8 @@
 
         <div id="formulario">
             <div class="input-group">
-                <label for="prod">Producto o Servicio</label>
-                <input type="text" id="prod" placeholder="Ej. Bicicleta rodado 29">
+                <label for="prod">Número de Paquete o Producto (4 dígitos)</label>
+                <input type="number" id="prod" placeholder="Ej. 1234" min="0" max="9999" oninput="if(this.value.length > 4) this.value = this.value.slice(0, 4);" inputmode="numeric">
             </div>
 
             <div class="input-group">
@@ -259,13 +259,8 @@
             </div>
 
             <div class="input-group">
-                <label for="vendedor-dni">Tu DNI / Identificación</label>
-                <input type="text" id="vendedor-dni" placeholder="Cargado desde el registro..." readonly>
-            </div>
-
-            <div class="input-group">
-                <label for="pin-operacion">PIN de Seguridad (4 dígitos numéricos)</label>
-                <input type="number" id="pin-operacion" placeholder="Ej. 7480" min="0" max="9999" oninput="if(this.value.length > 4) this.value = this.value.slice(0, 4);" inputmode="numeric">
+                <label for="vendedor-dni">Tu DNI / Identificación (Solo números)</label>
+                <input type="number" id="vendedor-dni" placeholder="Cargado desde el registro..." readonly>
             </div>
 
             <div class="cost-info" id="precio-detalle" style="margin-bottom: 16px;">
@@ -315,6 +310,7 @@
 
     <script type="module">
         const RENDER_URL = "https://bunker-trato-api.onrender.com/crear-pago";
+        const opID = "PENDIENTE DE PAGO";
 
         function constParams() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -330,8 +326,6 @@
 
             const prodParam = urlParams.get('prod');
             const montoParam = urlParams.get('monto');
-            const pinParam = urlParams.get('pin');
-
             if (prodParam) {
                 document.getElementById('prod').value = decodeURIComponent(prodParam);
             }
@@ -340,9 +334,6 @@
                 calcularTotal();
                 document.getElementById('acepta-terminos').checked = true;
                 toggleBoton();
-            }
-            if (pinParam) {
-                document.getElementById('pin-operacion').value = decodeURIComponent(pinParam);
             }
         }
 
@@ -371,7 +362,6 @@
         window.procesarOperacion = async function(tipo) {
             const producto = document.getElementById('prod').value;
             const montoIngresado = document.getElementById('monto').value;
-            const pinIngresado = document.getElementById('pin-operacion').value;
             const btnSoporte = document.getElementById('btn-soporte');
             const btnBlindar = document.getElementById('btn-blindar');
             const status = document.getElementById('status');
@@ -381,8 +371,8 @@
                 return alert("Debes aceptar el recargo y las condiciones de servicio para continuar.");
             }
 
-            if (!producto || !montoIngresado || !pinIngresado || pinIngresado.length !== 4) {
-                return alert("Por favor, completa todos los campos y asegúrate de que el PIN tenga exactamente 4 dígitos numéricos.");
+            if (!producto || !montoIngresado) {
+                return alert("Por favor, completa todos los campos para continuar.");
             }
 
             btnSoporte.disabled = true;
@@ -412,10 +402,8 @@
 
                 if (data.url) {
                     status.style.display = "none";
-                    
-                    const opID = pinIngresado;
 
-                    const returnUrl = `${window.location.origin}${window.location.pathname}?nombre=${encodeURIComponent(vendedorNombre)}&email=${encodeURIComponent(vendedorEmail)}&telefono=${encodeURIComponent(vendedorTelefono)}&cbu=${encodeURIComponent(vendedorCbu)}&dni=${encodeURIComponent(vendedorDni)}&prod=${encodeURIComponent(producto)}&monto=${encodeURIComponent(montoIngresado)}&pin=${encodeURIComponent(pinIngresado)}`;
+                    const returnUrl = `${window.location.origin}${window.location.pathname}?nombre=${encodeURIComponent(vendedorNombre)}&email=${encodeURIComponent(vendedorEmail)}&telefono=${encodeURIComponent(vendedorTelefono)}&cbu=${encodeURIComponent(vendedorCbu)}&dni=${encodeURIComponent(vendedorDni)}&prod=${encodeURIComponent(producto)}&monto=${encodeURIComponent(montoIngresado)}`;
 
                     if (tipo === 'soporte') {
                         const mensajeSoporte = `🛡️ *NUEVA VENTA - TRATO™*\n\n` +
@@ -426,8 +414,8 @@
                                                `- Teléfono: ${vendedorTelefono}\n` +
                                                `- CBU / Alias: ${vendedorCbu}\n\n` +
                                                `*Datos de la Operación:*\n` +
-                                               `- PIN de Operación: ${opID}\n` +
-                                               `- Producto: ${producto}\n` +
+                                               `- ID Operación: ${opID}\n` +
+                                               `- Número de Paquete o Producto: ${producto}\n` +
                                                `- Monto Total (con 15%): $ ${precioBase.toFixed(2)}\n\n` +
                                                `🔗 *Link de Pago (Principal):* ${data.url}\n\n` +
                                                `🔗 *Volver al generador de operaciones:*\n` +
