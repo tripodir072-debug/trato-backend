@@ -141,39 +141,23 @@
             font-style: italic;
         }
 
-        #resultado {
-            margin-top: 20px;
-        }
-
-        .resultado-link {
-            background-color: rgba(0, 255, 157, 0.05);
-            border: 1px solid var(--primary-color);
-            padding: 14px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .url-text {
-            display: block;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            color: var(--text-color);
-            word-break: break-all;
-            margin: 10px 0;
-        }
-
         .btn-whatsapp {
             display: block;
             background-color: #25d366;
             color: #fff;
-            padding: 11px;
+            padding: 12px;
             border-radius: 6px;
             text-decoration: none;
             font-weight: bold;
             margin-top: 12px;
             font-size: 13px;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-whatsapp:hover {
+            background-color: #1ebe57;
         }
 
         .user-header {
@@ -275,18 +259,6 @@
             display: none;
             text-align: left;
         }
-
-        .token-box {
-            background: var(--accent-color);
-            color: #000;
-            font-weight: 800;
-            font-size: 1em;
-            padding: 8px;
-            margin: 5px 0 15px 0;
-            border-radius: 5px;
-            text-align: center;
-            word-break: break-all;
-        }
     </style>
 </head>
 <body>
@@ -332,9 +304,11 @@
         </div>
 
         <div id="resultado" class="output-box">
-            <p style="color: var(--accent-color); font-weight: bold; margin-bottom: 5px;">Link de la operación:</p>
-            <div class="token-box" id="link-texto"></div>
-            <button onclick="copiarLink()" class="btn-whatsapp" style="background-color: var(--accent-color); color: #050810; width: 100%; border: none; padding: 12px; font-weight: bold;">📋 Copiar Link</button>
+            <p style="color: var(--accent-color); font-weight: bold; margin-bottom: 5px;">🛡️ BÚNKER ACTIVADO</p>
+            <p style="color: var(--text-color); font-size: 11px; margin-bottom: 10px;">Compartí el link para gestionar el pago con el comprador por WhatsApp:</p>
+            <a id="link-whatsapp-btn" href="#" target="_blank" class="btn-whatsapp">
+                📱 ENVIAR LINK AL COMPRADOR
+            </a>
         </div>
 
         <div class="legal-notice">
@@ -455,8 +429,20 @@
                     
                     const link = `https://tripodir072-debug.github.io/trato-backend/pago_confirmado.html?external_reference=${encodeURIComponent(producto)}&precio=${precioBase.toFixed(2)}&id=${opID}`;
 
+                    const mensajeComprador = `🛡️ *ENLACE DE GESTIÓN Y PROTECCIÓN TRATO™*\n` +
+                                     `*Operación N°:* ${opID}\n\n` +
+                                     `La red actúa exclusivamente como agente de custodia de fondos. No se asume responsabilidad por el funcionamiento, fallas o estado del producto.\n\n` +
+                                     `📦 *PRODUCTO:* ${producto.toUpperCase()}\n` +
+                                     `💰 *MONTO:* $${precioBase.toFixed(2)}\n` +
+                                     `🛡️ *GARANTÍA:* Compra Protegida RichardBro\n\n` +
+                                     `🔗 *LINK DE PAGO OFICIAL:*\n${data.url}\n\n` +
+                                     `_Sistema Blindado TRATO™_`;
+
                     document.getElementById('resultado').style.display = "block";
-                    document.getElementById('link-texto').innerText = link;
+                    
+                    const whatsappLink = `https://wa.me/?text=${encodeURIComponent(mensajeComprador)}`;
+                    document.getElementById('link-whatsapp-btn').href = whatsappLink;
+
                     btn.disabled = false;
                 } else {
                     throw new Error(data.error || "Error al conectar con la pasarela de pagos.");
@@ -466,13 +452,6 @@
                 btn.disabled = false;
                 status.style.display = "none";
             }
-        };
-
-        window.copiarLink = function() {
-            const linkTexto = document.getElementById('link-texto').innerText;
-            navigator.clipboard.writeText(linkTexto).then(() => {
-                alert("¡Link copiado al portapapeles con éxito!");
-            });
         };
     </script>
 </body>
