@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRATO™ | Pago Confirmado</title>
+    <title>TRATO™ | Estado de la Operación</title>
     <style>
         body { background-color: #050505; color: #ffffff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .exito-container { border: 2px solid #00ff00; background: #0a0a0a; padding: 30px; border-radius: 20px; box-shadow: 0 0 30px #00ff0033; text-align: center; width: 90%; max-width: 450px; }
@@ -16,12 +16,47 @@
         .btn-secondary:hover { background: #1a2333; }
         .btn-support { background: #25d366; color: #000; border: none; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); margin-top: 15px; }
         .btn-support:hover { background: #1ebe57; }
+        .btn-danger { background: #ff3333; color: #fff; border: none; box-shadow: 0 4px 15px rgba(255, 51, 51, 0.3); }
+        .btn-danger:hover { background: #e60000; }
         .footer { font-size: 0.65em; margin-top: 25px; color: #444; letter-spacing: 1px; }
         .info-pago { background: #111; padding: 12px; border-radius: 10px; border: 1px dashed #333; margin: 15px 0; }
         #copiado-mensaje { display: none; color: #00ff00; font-size: 0.85em; font-weight: bold; margin: 10px 0; }
+
+        /* Estilos del Bloqueo Obligatorio */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 5, 5, 0.98);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .overlay-content {
+            border: 2px solid #ff3333;
+            background: #0a0a0a;
+            padding: 35px;
+            border-radius: 15px;
+            text-align: center;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 0 30px rgba(255, 51, 51, 0.2);
+        }
     </style>
 </head>
 <body>
+
+    <div id="pantalla-bloqueo" class="overlay">
+        <div class="overlay-content">
+            <h2 style="color: #ff3333; text-transform: uppercase; font-size: 1.3em; margin-bottom: 5px;">⚠️ PASO OBLIGATORIO</h2>
+            <p style="font-size: 0.85em; color: #aaa; margin-bottom: 25px;">Para activar la custodia y resguardar tu dinero, debés enviar el comprobante de pago al equipo de TRATO™ antes de continuar.</p>
+            
+            <button onclick="enviarComprobanteObligatorio()" class="btn-action btn-danger">📤 ENVIAR COMPROBANTE A TRATO</button>
+            <button id="btn-continuar" onclick="desbloquearPantalla()" class="btn-action btn-secondary" style="border-color: #00d4ff; color: #00d4ff; margin-top: 15px;" disabled>✅ YA LO ENVIÉ, CONTINUAR</button>
+            
+            <p style="font-size: 0.7em; color: #666; margin-top: 20px;">TRATO™ | Sistema Blindado RichardBro</p>
+        </div>
+    </div>
 
     <div class="exito-container">
         <div class="icon-check">✔</div>
@@ -29,10 +64,15 @@
         <div class="info-pago">
             <p style="margin:0; font-size: 0.85em; color: #00ff00;">ESTADO: CUSTODIA ACTIVA</p>
             <p id="detalle-prod" style="margin:5px 0 0 0; font-weight: bold; color: #fff;">Cargando producto...</p>
+            <p id="info-operacion" style="margin:5px 0 0 0; font-size: 0.8em; color: #888;">ID: Cargando...</p>
         </div>
         <p>El dinero ya entró al búnker. Elegí una opción para notificar al vendedor bajo el protocolo de seguridad:</p>
 
         <div id="copiado-mensaje">¡Texto copiado! Ahora envíalo por WhatsApp.</div>
+
+        <button class="btn-action btn-danger" onclick="enviarComprobanteObligatorio()">
+            📤 ENVIAR COMPROBANTE A TRATO
+        </button>
 
         <button class="btn-action" onclick="enviarMensaje('envio')">
             📦 NOTIFICAR ENVÍO POR CORREO
@@ -60,23 +100,27 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const producto = urlParams.get('external_reference') || "Producto / Servicio";
-        const opID = Math.floor(Math.random() * 900000) + 100000;
+        const precio = urlParams.get('precio') || "Monto no especificado";
+
+        // Obtenemos el ID de Mercado Pago, eliminando la generación aleatoria.
+        const opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación';
 
         document.getElementById('detalle-prod').innerText = producto.toUpperCase();
+        document.getElementById('info-operacion').innerText = `ID de Operación / Comprobante: ${opID}`;
 
         const mensajes = {
             envio: `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n` +
                    `¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podés proceder con el despacho del producto.\n\n` +
                    `Para validar la operación y realizar el seguimiento, por favor enviame a mí o al equipo de TRATO™ el número de tracking o los datos del transporte una vez despachado.\n\n` +
                    `* Respaldo: Te sugiero tomar fotos y un video del producto antes de embalarlo como constancia de su estado.\n` +
-                   `* Liberación de fondos: El dinero se libera ni bien se confirma la recepción. El ID de operación (${opID}) funcionará como código de seguridad para autorizar el pago. En caso de que el comprador no comunique la conformidad ni ingrese el PIN de seguridad tras la confirmación de entrega, los fondos se mantendrán en custodia preventiva hasta por 48 horas, liberándose automáticamente si no hay reclamos.\n\n` +
+                   `* Liberación de fondos: El dinero se libera ni bien se confirma la recepción. El ID de operación/comprobante (${opID}) funcionará como código de seguridad para autorizar el pago. En caso de que el comprador no comunique la conformidad ni ingrese el PIN de seguridad tras la confirmación de entrega, los fondos se mantendrán en custodia preventiva hasta por 48 horas, liberándose automáticamente si no hay reclamos.\n\n` +
                    `Estamos protegidos los dos. ¡Quedo a la espera del envío y te aviso ni bien llegue!`,
 
             personal: `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n` +
                       `¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podemos coordinar el encuentro para la entrega en un lugar público y seguro.\n\n` +
                       `Al momento del intercambio:\n\n` +
                       `* Revisión: Verificaremos el artículo juntos en el lugar.\n` +
-                      `* Liberación de fondos: El dinero se libera ni bien se confirma la entrega. El ID de operación (${opID}) será requerido como código de seguridad. En caso de que el comprador no comunique la conformidad ni ingrese el PIN de seguridad tras la entrega, los fondos se mantendrán en custodia preventiva hasta por 48 horas, liberándose automáticamente si no hay reclamos.\n\n` +
+                      `* Liberación de fondos: El dinero se libera ni bien se confirma la entrega. El ID de operación/comprobante (${opID}) será requerido como código de seguridad. En caso de que el comprador no comunique la conformidad ni ingrese el PIN de seguridad tras la entrega, los fondos se mantendrán en custodia preventiva hasta por 48 horas, liberándose automáticamente si no hay reclamos.\n\n` +
                       `De esta forma estamos protegidos los dos. ¡Quedo a la espera para coordinar el punto de encuentro!`
         };
 
@@ -94,6 +138,28 @@
 
                 window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
             });
+        };
+
+        // Función para enviar el comprobante obligatorio al equipo
+        window.enviarComprobanteObligatorio = () => {
+            const numeroSoporte = "5493456528480"; // WhatsApp de soporte de Trato
+            const mensajeComprobante = `🛡️ *COMPROBANTE DE PAGO - TRATO™*\n\n` +
+                                       `¡Hola! Les envío el comprobante para activar el protocolo de custodia y protección legal de los fondos.\n\n` +
+                                       `*ID de Operación / Comprobante:* ${opID}\n` +
+                                       `*Producto:* ${decodeURIComponent(producto)}\n` +
+                                       `*Precio Total:* $ ${precio}\n\n` +
+                                       `🔗 *Accedé a tu cuenta de Mercado Pago aquí:* \nhttps://www.mercadopago.com.ar\n\n` +
+                                       `*(Por favor, adjuntá tu captura o foto del comprobante de pago aquí abajo 👇)*`;
+
+            window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensajeComprobante)}`, '_blank');
+            
+            // Habilitar el botón para continuar en el modal
+            document.getElementById('btn-continuar').disabled = false;
+        };
+
+        // Función para destrabar el uso de la pantalla
+        window.desbloquearPantalla = () => {
+            document.getElementById('pantalla-bloqueo').style.display = 'none';
         };
     </script>
 </body>
