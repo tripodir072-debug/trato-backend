@@ -129,6 +129,7 @@
         .legal-notice a {
             color: var(--accent-color);
             text-decoration: none;
+            cursor: pointer;
         }
 
         #status {
@@ -195,6 +196,68 @@
             border-left: 4px solid var(--primary-color);
             line-height: 1.4;
         }
+
+        /* Estilos del Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--panel-bg);
+            margin: auto;
+            padding: 25px;
+            border: 1px solid var(--accent-color);
+            width: 85%;
+            max-width: 450px;
+            border-radius: 12px;
+            max-height: 75vh;
+            overflow-y: auto;
+            color: var(--text-color);
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.2);
+        }
+
+        .close-modal {
+            color: var(--danger-color);
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-modal:hover {
+            color: #ff5252;
+        }
+
+        .modal-title {
+            color: var(--accent-color);
+            margin-top: 0;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            padding-bottom: 8px;
+            text-align: left;
+        }
+
+        .modal-text {
+            font-size: 11px;
+            line-height: 1.5;
+            color: #a0aec0;
+            text-align: left;
+        }
+
+        .modal-text ul {
+            padding-left: 15px;
+            margin: 5px 0 15px 0;
+        }
     </style>
 </head>
 <body>
@@ -232,12 +295,56 @@
         <div id="resultado"></div>
 
         <div class="legal-notice">
-            Al generar el certificado, se acepta el protocolo de protección y las condiciones de intermediación de fondos de la red RichardBro. <a href="#">Ver términos legales completos</a>.
+            Al generar el certificado, se acepta el protocolo de protección y las condiciones de intermediación de fondos de la red RichardBro. <a onclick="abrirTerminos()">Ver términos legales completos</a>.
+        </div>
+    </div>
+
+    <div id="modalTerminos" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="cerrarTerminos()">&times;</span>
+            <h3 class="modal-title">🛡️ Términos y Condiciones Legales - TRATO™</h3>
+            <div class="modal-text">
+                <p><strong>1. Naturaleza del Servicio:</strong> TRATO™ (plataforma operada por RichardBro) actúa exclusivamente como agente intermediario y custodio de fondos. La plataforma no otorga garantías ni asume responsabilidad civil, comercial o penal sobre el estado, calidad, funcionamiento, vicios ocultos o legalidad del producto o servicio. La cobertura garantiza únicamente la protección y el resguardo de los fondos durante el proceso de transacción.</p>
+                
+                <p><strong>2. Sistema de Custodia de Fondos:</strong> El dinero abonado se retiene en el búnker de garantía hasta que la operación se concrete y se verifique.</p>
+                
+                <p><strong>3. Protocolo de Envíos y Entregas:</strong></p>
+                <ul>
+                    <li><em>Envíos por Correo o Transporte:</em> El vendedor tiene la obligación de registrar en video el estado del producto antes de embalarlo y enviar el número de <em>tracking</em> o datos del transporte al equipo de TRATO™. El comprador deberá notificar la recepción al recibirlo.</li>
+                    <li><em>Encuentros en Persona:</em> Se sugiere coordinar el intercambio en un lugar público, iluminado y concurrido. El comprador debe revisar el artículo <em>in situ</em> antes de validar la conformidad.</li>
+                </ul>
+                
+                <p><strong>4. Liberación de Fondos y Plazos de Custodia:</strong> La retención de fondos es una medida de seguridad y no genera demoras innecesarias para el vendedor:</p>
+                <ul>
+                    <li><em>Liberación Inmediata:</em> Una vez que el correo o el sistema de transporte confirma la entrega del producto, o se realiza el intercambio en persona y se verifica la conformidad, se procede a la liberación del dinero hacia el vendedor.</li>
+                    <li><em>Plazo de Custodia (24/48 horas):</em> En caso de que el comprador no comunique la conformidad ni ingrese el PIN de seguridad tras la confirmación de entrega por parte del correo, los fondos se mantendrán en custodia preventiva hasta por 48 horas. Si durante este plazo no se inicia ningún reclamo, el dinero se deposita automáticamente en la cuenta del vendedor.</li>
+                    <li><em>Reclamos:</em> Si el comprador inicia un reclamo dentro de las 24-48 horas, la custodia se extiende hasta que el equipo de TRATO™ resuelva la controversia utilizando las evidencias correspondientes.</li>
+                </ul>
+
+                <p><strong>5. Reportes y Evidencias:</strong></p>
+                <ul>
+                    <li><em>Vendedor:</em> Debe conservar el registro fotográfico y en video del despacho del producto como constancia.</li>
+                    <li><em>Comprador:</em> En caso de reclamo, debe presentar el video al abrir el paquete (unboxing) y fotos de la falla dentro del plazo establecido.</li>
+                </ul>
+                
+                <p><strong>6. Contacto de Soporte y Uso del Canal:</strong> Para emergencias o validaciones, contacte al WhatsApp oficial <strong>+54 9 3456 528480</strong>.</p>
+                
+                <p style="color: var(--danger-color); line-height: 1.4;"><strong>Aviso importante:</strong> Solo se responden mensajes (no se atienden llamadas). El envío de datos de seguimiento y de confirmación de recepción es obligatorio para validar la custodia. El uso indebido, los mensajes fuera de operaciones en curso o la saturación del canal están sujetos a bloqueo y a la anulación de la protección en el sistema.</p>
+            </div>
         </div>
     </div>
 
     <script type="module">
         const RENDER_URL = "https://bunker-trato-api.onrender.com/crear-pago";
+
+        // Funciones del Modal
+        window.abrirTerminos = function() {
+            document.getElementById('modalTerminos').style.display = 'flex';
+        };
+
+        window.cerrarTerminos = function() {
+            document.getElementById('modalTerminos').style.display = 'none';
+        };
 
         window.toggleBoton = function() {
             const acepta = document.getElementById('acepta-terminos').checked;
