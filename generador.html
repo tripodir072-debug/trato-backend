@@ -245,7 +245,7 @@
         <div id="formulario">
             <div class="input-group">
                 <label for="prod">Número de Paquete o Producto (4 dígitos)</label>
-                <input type="number" id="prod" placeholder="Ej. 1234" min="0" max="9999" oninput="if(this.value.length > 4) this.value = this.value.slice(0, 4);" inputmode="numeric">
+                <input type="text" id="prod" placeholder="Ej. 1234" maxlength="4" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);" inputmode="numeric">
             </div>
 
             <div class="input-group">
@@ -260,7 +260,7 @@
 
             <div class="input-group">
                 <label for="vendedor-dni">Tu DNI / Identificación (Solo números)</label>
-                <input type="number" id="vendedor-dni" placeholder="Cargado desde el registro..." readonly>
+                <input type="text" id="vendedor-dni" placeholder="Cargado desde el registro..." oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric" readonly>
             </div>
 
             <div class="cost-info" id="precio-detalle" style="margin-bottom: 16px;">
