@@ -10,7 +10,9 @@
         h1 { color: #00d4ff; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 5px; }
         input, select { width: 100%; padding: 12px; margin: 8px 0; background: #151515; border: 1px solid #333; color: #00d4ff; border-radius: 8px; box-sizing: border-box; outline: none; }
         button { width: 100%; padding: 15px; background: #00d4ff; color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 15px; }
+        button:disabled { background-color: #2d3748; color: #64748b; cursor: not-allowed; opacity: 0.6; }
         #mensaje { margin-top: 15px; font-size: 0.9em; padding: 15px; border-radius: 10px; display: none; }
+        #error-msg { margin-top: 10px; color: #ff3333; font-size: 0.85em; display: none; }
         .token-box { background: #00d4ff; color: #000; font-weight: 800; font-size: 1.5em; padding: 10px; margin-top: 10px; border-radius: 5px; display: inline-block; }
     </style>
 </head>
@@ -18,13 +20,14 @@
     <div class="registro-container">
         <h1>TRATO™</h1>
         <form id="registroForm">
-            <input type="text" id="nombre" placeholder="Nombre Real" required>
-            <input type="number" id="dni" placeholder="DNI" required>
-            <input type="tel" id="tel" placeholder="WhatsApp" required>
-            <input type="email" id="email" placeholder="Email" required>
+            <input type="text" id="nombre" placeholder="Nombre Real" required autocomplete="name">
+            <input type="text" id="dni" placeholder="DNI" required>
+            <input type="tel" id="tel" placeholder="WhatsApp" required autocomplete="tel">
+            <input type="email" id="email" placeholder="Email" required autocomplete="email">
             <input type="password" id="pass" placeholder="Contraseña" required>
             <button type="submit" id="btn-submit">SOLICITAR ACCESO</button>
         </form>
+        <div id="error-msg"></div>
         <div id="mensaje"></div>
     </div>
 
@@ -33,7 +36,7 @@
         import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
         import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
 
-        // Configuración directa de tu app limpia
+        // Configuración directa de tu app
         const firebaseConfig = {
             apiKey: "AIzaSyBqu3cMDwQ7e9oGIpmOiDsTq5iD3kKK5bs",
             authDomain: "comprablok.firebaseapp.com",
@@ -50,8 +53,13 @@
         document.getElementById('registroForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btn-submit');
+            const errorDiv = document.getElementById('error-msg');
+            const mensajeDiv = document.getElementById('mensaje');
+            
             btn.innerText = "PROCESANDO...";
             btn.disabled = true;
+            errorDiv.style.display = "none";
+            mensajeDiv.style.display = "none";
 
             const nombre = document.getElementById('nombre').value;
             const dni = document.getElementById('dni').value;
@@ -82,16 +90,18 @@
 
                 // 4. Mostrar mensaje de éxito en pantalla
                 document.getElementById('registroForm').style.display = "none";
-                document.getElementById('mensaje').style.display = "block";
-                document.getElementById('mensaje').innerHTML = `
-                    <p style="color: #00ff00;">¡BÚNKER ACTIVADO!</p>
+                mensajeDiv.style.display = "block";
+                mensajeDiv.innerHTML = `
+                    <p style="color: #00ff00; font-weight: bold;">¡BÚNKER ACTIVADO!</p>
                     <p>Tu ID de Trato es:</p>
                     <div class="token-box">${tratoId}</div>
                     <p style="font-size: 0.8em; margin-top: 10px;">Los datos han sido respaldados en Firebase.</p>
                 `;
                 
             } catch (error) {
-                alert("Error en el búnker: " + error.message);
+                console.error("Error en el búnker:", error);
+                errorDiv.innerText = "Error en el búnker: " + error.message;
+                errorDiv.style.display = "block";
                 btn.innerText = "SOLICITAR ACCESO";
                 btn.disabled = false;
             }
