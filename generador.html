@@ -285,7 +285,7 @@
             <span class="close-modal" onclick="cerrarTerminos()">&times;</span>
             <h3 class="modal-title">🛡️ Términos y Condiciones Legales - TRATO™</h3>
             <div class="modal-text">
-                <p><strong>1. Naturaleza del Servicio:</strong> TRATO™ (plataforma operada por RichardBro) actúa exclusivamente como agente intermediario y custodio de fondos. La plataforma no otorga garantías ni asume responsabilidad civil, comercial o penal sobre el estado, calidad, funcionamiento, vicios ocultos o legalidad del producto o servicio. La cobertura garantiza únicamente la protección y el resguardo de los fondos durante el proceso de transacción.</p>
+                <p><strong>1. Naturaleza del Service:</strong> TRATO™ (plataforma operada por RichardBro) actúa exclusivamente como agente intermediario y custodio de fondos. La plataforma no otorga garantías ni asume responsabilidad civil, comercial o penal sobre el estado, calidad, funcionamiento, vicios ocultos o legalidad del producto o servicio. La cobertura garantiza únicamente la protección y el resguardo de los fondos durante el proceso de transacción.</p>
                 <p><strong>2. Sistema de Custodia de Fondos:</strong> El dinero abonado se retiene en el búnker de garantía hasta que la operación se concrete y se verifique.</p>
                 <p><strong>3. Protocolo de Envíos y Entregas:</strong></p>
                 <ul>
@@ -375,7 +375,9 @@
                     status.style.display = "none";
 
                     if (tipo === 'soporte') {
-                        // Enviamos los datos y el instructivo detallado
+                        // Construimos un link de retorno para que el usuario no se pierda
+                        const returnUrl = `${window.location.origin}${window.location.pathname}?nombre=${encodeURIComponent(vendedorNombre)}&email=${encodeURIComponent(vendedorEmail)}&telefono=${encodeURIComponent(vendedorTelefono)}&cbu=${encodeURIComponent(vendedorCbu)}`;
+
                         const mensajeSoporte = `🛡️ *NUEVA VENTA - TRATO™*\n\n` +
                                                `*Datos del Vendedor:*\n` +
                                                `- Nombre: ${vendedorNombre}\n` +
@@ -387,6 +389,8 @@
                                                `- Producto: ${producto}\n` +
                                                `- Monto Total (con 15%): $ ${precioBase.toFixed(2)}\n\n` +
                                                `🔗 *Link de Pago:* ${data.url}\n\n` +
+                                               `🔗 *Volver al generador de operaciones:*\n` +
+                                               `${returnUrl}\n\n` +
                                                `⚠️ *INSTRUCTIVO Y PROTOCOLO DE SEGURIDAD (VENDEDOR):*\n\n` +
                                                `📦 *1. OPERACIÓN CON ENVÍO POR ENCOMIENDA/CORREO:* \n` +
                                                `• Es OBLIGATORIO grabar un video y tomar fotografías del estado del producto antes y durante el embalaje como prueba legal.\n` +
