@@ -257,10 +257,10 @@
                 <label for="cbu-alias">Tu CBU o Alias (Importado)</label>
                 <input type="text" id="cbu-alias" placeholder="Cargado desde el registro..." readonly>
             </div>
-
+            
             <div class="input-group">
                 <label for="vendedor-dni">Tu DNI / Identificación</label>
-                <input type="text" id="vendedor-dni" placeholder="Ej. 35123456">
+                <input type="text" id="vendedor-dni" placeholder="Ej. 35123456" readonly>
             </div>
 
             <div class="cost-info" id="precio-detalle" style="margin-bottom: 16px;">
@@ -312,14 +312,29 @@
         const RENDER_URL = "https://bunker-trato-api.onrender.com/crear-pago";
         const opID = "PENDIENTE DE PAGO";
 
+        // Obtenemos los datos del vendedor desde la URL
         const urlParams = new URLSearchParams(window.location.search);
         const vendedorNombre = urlParams.get('nombre') || 'RichardBro';
         const vendedorEmail = urlParams.get('email') || 'sin-correo@trato.com';
         const vendedorTelefono = urlParams.get('telefono') || 'Sin Teléfono';
         const vendedorCbu = urlParams.get('cbu') || 'Sin CBU asignado';
+        const vendedorDni = urlParams.get('dni') || 'Sin DNI';
 
+        // Imprimimos en el header y los inputs correspondientes
         document.getElementById('session-header').innerText = `👤 Sesión: ${vendedorNombre}`;
         document.getElementById('cbu-alias').value = vendedorCbu;
+        document.getElementById('vendedor-dni').value = vendedorDni;
+
+        // Autocompletado del producto y monto en caso de regresar desde el link
+        const prodParam = urlParams.get('prod');
+        const montoParam = urlParams.get('monto');
+        if (prodParam) {
+            document.getElementById('prod').value = decodeURIComponent(prodParam);
+        }
+        if (montoParam) {
+            document.getElementById('monto').value = decodeURIComponent(montoParam);
+            calcularTotal();
+        }
 
         window.abrirTerminos = function() {
             document.getElementById('modalTerminos').style.display = 'flex';
@@ -344,7 +359,6 @@
         window.procesarOperacion = async function(tipo) {
             const producto = document.getElementById('prod').value;
             const montoIngresado = document.getElementById('monto').value;
-            const vendedorDni = document.getElementById('vendedor-dni').value;
             const btnSoporte = document.getElementById('btn-soporte');
             const btnBlindar = document.getElementById('btn-blindar');
             const status = document.getElementById('status');
@@ -354,8 +368,8 @@
                 return alert("Debes aceptar el recargo y las condiciones de servicio para continuar.");
             }
 
-            if (!producto || !montoIngresado || !vendedorDni) {
-                return alert("Por favor, completa todos los campos (incluyendo tu DNI) para continuar.");
+            if (!producto || !montoIngresado) {
+                return alert("Por favor, completa los campos para continuar.");
             }
 
             btnSoporte.disabled = true;
@@ -379,9 +393,10 @@
                 if (data.url) {
                     status.style.display = "none";
 
-                    if (tipo === 'soporte') {
-                        const returnUrl = `${window.location.origin}${window.location.pathname}?nombre=${encodeURIComponent(vendedorNombre)}&email=${encodeURIComponent(vendedorEmail)}&telefono=${encodeURIComponent(vendedorTelefono)}&cbu=${encodeURIComponent(vendedorCbu)}`;
+                    // Crear la URL de retorno incluyendo los datos del producto y del monto para que sea idéntica
+                    const returnUrl = `${window.location.origin}${window.location.pathname}?nombre=${encodeURIComponent(vendedorNombre)}&email=${encodeURIComponent(vendedorEmail)}&telefono=${encodeURIComponent(vendedorTelefono)}&cbu=${encodeURIComponent(vendedorCbu)}&dni=${encodeURIComponent(vendedorDni)}&prod=${encodeURIComponent(producto)}&monto=${encodeURIComponent(montoIngresado)}`;
 
+                    if (tipo === 'soporte') {
                         const mensajeSoporte = `🛡️ *NUEVA VENTA - TRATO™*\n\n` +
                                                `*Datos del Vendedor:*\n` +
                                                `- Nombre: ${vendedorNombre}\n` +
