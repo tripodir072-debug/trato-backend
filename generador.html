@@ -3,211 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRATO™ | Búnker de Seguridad</title>
+    <title>TRATO™ - Generador de Operaciones</title>
     <style>
-        /* ESTILO BLINDADO - NEGRO Y AZUL NEÓN RICHARD BRO */
-        body { 
-            background-color: #050505; 
-            color: #ffffff; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            margin: 0; 
+        :root {
+            --bg-color: #0a0e17;
+            --panel-bg: #121824;
+            --primary-color: #00ff9d;
+            --text-color: #e2e8f0;
+            --accent-color: #00d4ff;
+            --danger-color: #ff3b30;
         }
-        .bunker-container { 
-            border: 2px solid #00d4ff; 
-            background: #0a0a0a; 
-            padding: 40px; 
-            border-radius: 20px; 
-            box-shadow: 0 0 30px #00d4ff33; 
-            text-align: center; 
-            width: 90%; 
-            max-width: 350px; 
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
-        h1 { 
-            color: #00d4ff; 
-            text-transform: uppercase; 
-            font-size: 2.2em; 
-            margin-bottom: 5px; 
-            letter-spacing: 3px;
+
+        .container {
+            background-color: var(--panel-bg);
+            padding: 24px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 212, 255, 0.15);
         }
-        .subtitle { 
-            color: #888; 
-            font-size: 0.9em; 
-            margin-bottom: 30px; 
+
+        h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 20px;
+            text-align: center;
             text-transform: uppercase;
-        }
-        input { 
-            width: 100%; 
-            padding: 12px; 
-            margin: 10px 0; 
-            background: #151515; 
-            border: 1px solid #333; 
-            color: #00d4ff; 
-            border-radius: 8px; 
-            box-sizing: border-box;
-            outline: none;
-        }
-        input:focus { border-color: #00d4ff; }
-        
-        button { 
-            width: 100%; 
-            padding: 15px; 
-            background: #00d4ff; 
-            color: #000; 
-            border: none; 
-            border-radius: 8px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            text-transform: uppercase; 
-            margin-top: 15px;
-            transition: 0.3s;
-        }
-        button:hover { background: #00b8e6; box-shadow: 0 0 15px #00d4ff; }
-        button:disabled { background: #444; cursor: not-allowed; box-shadow: none; }
-        
-        .footer { 
-            font-size: 0.7em; 
-            margin-top: 25px; 
-            color: #444; 
             letter-spacing: 1px;
         }
-        #status { margin-top: 10px; font-size: 0.8em; color: #00d4ff; display: none; }
-        
-        .resultado-link {
-            margin-top: 20px;
-            padding: 15px;
-            background: #111;
-            border: 1px solid #00ff00;
-            border-radius: 10px;
+
+        .input-group {
+            margin-bottom: 16px;
         }
-        .url-text {
-            font-size: 10px;
-            word-break: break-all;
-            color: #ccc;
-            margin-bottom: 10px;
+
+        label {
             display: block;
-        }
-        .btn-whatsapp {
-            background: #25d366;
-            color: black;
-            padding: 12px;
-            width: 100%;
-            border-radius: 5px;
-            font-weight: bold;
-            text-decoration: none;
-            display: inline-block;
+            font-size: 11px;
+            color: var(--accent-color);
+            margin-bottom: 6px;
             text-transform: uppercase;
-            font-size: 13px;
-            margin-bottom: 10px;
         }
-        .btn-volver {
-            color: #888;
+
+        input {
+            width: 100%;
+            padding: 12px;
+            background-color: #050810;
+            border: 1px solid #2d3748;
+            border-radius: 6px;
+            color: var(--text-color);
+            font-size: 15px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            font-size: 10px;
+            color: var(--text-color);
+            margin-top: 16px;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .checkbox-group input {
+            width: auto;
+            margin-top: 2px;
+            margin-right: 8px;
+            accent-color: var(--primary-color);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary-color);
+            color: #050810;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            box-shadow: 0 0 15px rgba(0, 255, 157, 0.3);
+        }
+
+        button:disabled {
+            background-color: #2d3748;
+            color: #64748b;
+            cursor: not-allowed;
+            box-shadow: none;
+            opacity: 0.6;
+        }
+
+        .legal-notice {
+            font-size: 9px;
+            color: #64748b;
+            text-align: center;
+            margin-top: 16px;
+            line-height: 1.4;
+        }
+
+        .legal-notice a {
+            color: var(--accent-color);
             text-decoration: none;
+        }
+
+        #status {
+            display: none;
+            text-align: center;
+            color: var(--accent-color);
             font-size: 12px;
+            margin-top: 12px;
+            font-style: italic;
+        }
+
+        #resultado {
+            margin-top: 20px;
+        }
+
+        .resultado-link {
+            background-color: rgba(0, 255, 157, 0.05);
+            border: 1px solid var(--primary-color);
+            padding: 14px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .url-text {
             display: block;
-            margin-top: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            color: var(--text-color);
+            word-break: break-all;
+            margin: 10px 0;
+        }
+
+        .btn-whatsapp {
+            display: block;
+            background-color: #25d366;
+            color: #fff;
+            padding: 11px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 12px;
+            font-size: 13px;
+        }
+
+        .user-header {
+            font-size: 9px;
+            text-align: right;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .cost-info {
+            font-size: 11px;
+            color: var(--primary-color);
+            margin-bottom: 16px;
+            background: rgba(0, 255, 157, 0.05);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: left;
+            border-left: 4px solid var(--primary-color);
+            line-height: 1.4;
         }
     </style>
 </head>
 <body>
 
-    <div class="bunker-container">
-        <h1>TRATO™</h1>
-        <div class="subtitle">Generador de Operaciones</div>
+    <div class="container">
+        <div class="user-header">👤 Sesión: RichardBro</div>
+        <h2>🛡️ Búnker TRATO™</h2>
         
-        <div id="formulario">
-            <input type="text" id="prod" placeholder="¿Qué vas a vender?">
-            <input type="number" id="monto" placeholder="Precio acordado ($)">
-            <button id="btn-blindar" onclick="generarLink()">BLINDAR OPERACIÓN</button>
-            <a href="index.html" class="btn-volver">← Volver al Portal Central</a>
+        <div class="cost-info">
+            ℹ️ <strong>Costo y Alcance del Servicio:</strong> Se aplica un <strong>recargo del 15%</strong> al monto del producto. La red actúa <em>únicamente</em> como intermediaria en la custodia de fondos. <strong>No nos hacemos responsables por el funcionamiento, calidad o estado físico del producto</strong>; la cobertura garantiza la recepción de lo operado y la protección del pago.
         </div>
 
-        <div id="status">ESTABLECIENDO CONEXIÓN SEGURA...</div>
-        
+        <div id="formulario">
+            <div class="input-group">
+                <label for="prod">Producto o Servicio</label>
+                <input type="text" id="prod" placeholder="Ej. Bicicleta rodado 29">
+            </div>
+
+            <div class="input-group">
+                <label for="monto">Monto base (ARS)</label>
+                <input type="number" id="monto" placeholder="Ej. 150000">
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="acepta-terminos" onchange="toggleBoton()">
+                <label for="acepta-terminos" style="color:var(--text-color); text-transform:none; cursor:pointer;">
+                    Comprendo que TRATO™ es agente de custodia de fondos y no otorga garantías sobre el funcionamiento del artículo. Acepto el recargo del 15% y los términos del protocolo.
+                </label>
+            </div>
+
+            <button id="btn-blindar" onclick="generarLink()" disabled>BLINDAR OPERACIÓN</button>
+            <div id="status">Procesando encriptación en el búnker...</div>
+        </div>
+
         <div id="resultado"></div>
-        
-        <div class="footer">SISTEMA DE CUSTODIA ACTIVO<br>15% COSTO DE PROTECCIÓN</div>
+
+        <div class="legal-notice">
+            Al generar el certificado, se acepta el protocolo de protección y las condiciones de intermediación de fondos de la red RichardBro. <a href="#">Ver términos legales completos</a>.
+        </div>
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-        import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+        const RENDER_URL = "https://bunker-trato-api.onrender.com/crear-pago";
 
-        // Configuración de tu aplicación limpia
-        const firebaseConfig = {
-            apiKey: "AIzaSyBqu3cMDwQ7e9oGIpmOiDsTq5iD3kKK5bs",
-            authDomain: "comprablok.firebaseapp.com",
-            projectId: "comprablok",
-            storageBucket: "comprablok.appspot.com",
-            messagingSenderId: "1065109328503"
+        window.toggleBoton = function() {
+            const acepta = document.getElementById('acepta-terminos').checked;
+            document.getElementById('btn-blindar').disabled = !acepta;
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        // Hacemos la función accesible de forma global para el botón
         window.generarLink = async function() {
             const producto = document.getElementById('prod').value;
-            const precioBase = document.getElementById('monto').value;
+            const montoIngresado = document.getElementById('monto').value;
             const btn = document.getElementById('btn-blindar');
             const status = document.getElementById('status');
             const resultado = document.getElementById('resultado');
-            
-            if (!producto || !precioBase) {
-                return alert("Richard, completá los datos.");
+            const acepta = document.getElementById('acepta-terminos').checked;
+
+            if (!acepta) {
+                return alert("Debes aceptar el recargo y las condiciones de servicio para continuar.");
             }
-            
+
+            if (!producto || !montoIngresado) {
+                return alert("Completa todos los campos para continuar.");
+            }
+
             btn.disabled = true;
             status.style.display = "block";
 
             try {
-                // Generación de ID de operación local
+                const precioBase = parseFloat(montoIngresado) * 1.15;
                 const opID = Math.floor(Math.random() * 900000) + 100000;
-                
-                // Guardar en la base de datos de Firebase directamente
-                const nuevoTratoRef = push(ref(db, 'tratos'));
-                await set(nuevoTratoRef, {
-                    idTrato: opID,
-                    producto: producto,
-                    monto: parseFloat(precioBase),
-                    estado: "pendiente",
-                    fecha: new Date().toISOString()
+
+                const respuesta = await fetch(RENDER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        producto: producto, 
+                        precioBase: precioBase 
+                    })
                 });
 
-                status.style.display = "none";
-                document.getElementById('formulario').style.display = "none";
-                
-                const mensajeWA = `🛡️ *CERTIFICADO DE PROTECCIÓN TRATO™*\n` +
-                                 `*Operación RichardBro N°:* ${opID}\n\n` +
-                                 `Se ha iniciado la custodia de fondos. Al aceptar, usted se compromete a cumplir con los términos y protocolos de seguridad.\n\n` +
-                                 `📦 *PRODUCTO:* ${producto.toUpperCase()}\n` +
-                                 `💰 *MONTO:* $${precioBase}\n` +
-                                 `🛡️ *GARANTÍA:* Compra Protegida RichardBro\n\n` +
-                                 `⚖️ *PROTOCOLO LEGAL OBLIGATORIO:*\n` +
-                                 `1. *CUSTODIA:* Los fondos quedan retenidos. En envíos, el vendedor debe cargar Tracking. Una vez entregado, hay 24hs hábiles (o 48hs corridas en feriados) para validar antes de la liberación automática.\n` +
-                                 `2. *VIDEO UNBOXING:* Es condición OBLIGATORIA grabar un video sin cortes abriendo el paquete sellado. Sin video, no hay derecho a reclamo.\n` +
-                                 `3. *VENDEDOR:* Debe registrar fotos/video del despacho para proteger su cobro.\n` +
-                                 `4. *EL PIN:* El ID de Operación es su PIN de desbloqueo. Entregarlo implica conformidad irrevocable.\n` +
-                                 `5. *RESPONSABILIDAD:* TRATO™ actúa como mediador tecnológico de pago, no otorga garantía técnica sobre el bien.\n\n` +
-                                 `_Sistema Blindado TRATO™ RichardBro_`;
+                const data = await respuesta.json();
 
-                resultado.innerHTML = `
-                    <div class="resultado-link">
-                        <p style="color:#00ff00; font-size:14px; font-weight:bold;">🛡️ BÚNKER ACTIVADO</p>
-                        <span class="url-text">Operación guardada en Firebase (N°: ${opID})</span>
-                        <a href="https://wa.me/?text=${encodeURIComponent(mensajeWA)}" target="_blank" class="btn-whatsapp">
-                            📱 ENVIAR CERTIFICADO LEGAL
-                        </a>
-                        <a href="index.html" style="color:#00d4ff; text-decoration:none; font-size:11px; font-weight:bold;">NUEVO LINK</a>
-                    </div>
-                `;
+                if (data.url) {
+                    status.style.display = "none";
+                    document.getElementById('formulario').style.display = "none";
 
-            } catch (error) {
-                console.error(error);
-                alert("ERROR: El búnker no responde con Firebase.");
+                    const mensajeWA = `🛡️ *CERTIFICADO DE PROTECCIÓN TRATO™*\n` +
+                                     `*Operación N°:* ${opID}\n\n` +
+                                     `La red actúa exclusivamente como agente de custodia de fondos. No se asume responsabilidad por el funcionamiento, fallas o estado del producto.\n\n` +
+                                     `📦 *PRODUCTO:* ${producto.toUpperCase()}\n` +
+                                     `💰 *MONTO:* $${precioBase.toFixed(2)}\n` +
+                                     `🛡️ *GARANTÍA:* Compra Protegida RichardBro\n\n` +
+                                     `🔗 *LINK DE PAGO OFICIAL:*\n${data.url}\n\n` +
+                                     `_Sistema Blindado TRATO™_`;
+
+                    resultado.innerHTML = `
+                        <div class="resultado-link">
+                            <p style="color:#00ff9d; font-size:12px; font-weight:bold;">🛡️ BÚNKER ACTIVADO</p>
+                            <span class="url-text">${data.url}</span>
+                            <a href="https://wa.me/?text=${encodeURIComponent(mensajeWA)}" target="_blank" class="btn-whatsapp">
+                                📱 ENVIAR CERTIFICADO LEGAL
+                            </a>
+                            <br>
+                            <a href="generador.html" style="color:#00d4ff; text-decoration:none; font-size:10px; font-weight:bold; display:block; margin-top:12px;">🔄 NUEVA OPERACIÓN</a>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(data.error || "Error al conectar con la pasarela de pagos.");
+                }
+            } catch (e) {
+                alert("Error en el búnker: " + e.message);
                 btn.disabled = false;
                 status.style.display = "none";
             }
