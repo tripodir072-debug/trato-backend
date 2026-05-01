@@ -285,7 +285,7 @@
             <span class="close-modal" onclick="cerrarTerminos()">&times;</span>
             <h3 class="modal-title">🛡️ Términos y Condiciones Legales - TRATO™</h3>
             <div class="modal-text">
-                <p><strong>1. Naturaleza del Service:</strong> TRATO™ (plataforma operada por RichardBro) actúa exclusivamente como agente intermediario y custodio de fondos. La plataforma no otorga garantías ni asume responsabilidad civil, comercial o penal sobre el estado, calidad, funcionamiento, vicios ocultos o legalidad del producto o servicio. La cobertura garantiza únicamente la protección y el resguardo de los fondos durante el proceso de transacción.</p>
+                <p><strong>1. Naturaleza del Servicio:</strong> TRATO™ (plataforma operada por RichardBro) actúa exclusivamente como agente intermediario y custodio de fondos. La plataforma no otorga garantías ni asume responsabilidad civil, comercial o penal sobre el estado, calidad, funcionamiento, vicios ocultos o legalidad del producto o servicio. <em>El recargo del 15% en concepto de servicio y gestión no es reembolsable ni sujeto a reclamo bajo ninguna circunstancia.</em> La cobertura garantiza únicamente la protección y el resguardo de los fondos durante el proceso de transacción.</p>
                 <p><strong>2. Sistema de Custodia de Fondos:</strong> El dinero abonado se retiene en el búnker de garantía hasta que la operación se concrete y se verifique.</p>
                 <p><strong>3. Protocolo de Envíos y Entregas:</strong></p>
                 <ul>
@@ -306,14 +306,12 @@
         const RENDER_URL = "https://bunker-trato-api.onrender.com/crear-pago";
         const opID = "PENDIENTE DE PAGO";
 
-        // Obtenemos los datos del vendedor desde la URL
         const urlParams = new URLSearchParams(window.location.search);
         const vendedorNombre = urlParams.get('nombre') || 'RichardBro';
         const vendedorEmail = urlParams.get('email') || 'sin-correo@trato.com';
         const vendedorTelefono = urlParams.get('telefono') || 'Sin Teléfono';
         const vendedorCbu = urlParams.get('cbu') || 'Sin CBU asignado';
 
-        // Imprimimos en el header y el campo
         document.getElementById('session-header').innerText = `👤 Sesión: ${vendedorNombre}`;
         document.getElementById('cbu-alias').value = vendedorCbu;
 
@@ -375,7 +373,6 @@
                     status.style.display = "none";
 
                     if (tipo === 'soporte') {
-                        // Construimos un link de retorno para que el usuario no se pierda
                         const returnUrl = `${window.location.origin}${window.location.pathname}?nombre=${encodeURIComponent(vendedorNombre)}&email=${encodeURIComponent(vendedorEmail)}&telefono=${encodeURIComponent(vendedorTelefono)}&cbu=${encodeURIComponent(vendedorCbu)}`;
 
                         const mensajeSoporte = `🛡️ *NUEVA VENTA - TRATO™*\n\n` +
@@ -403,12 +400,12 @@
                                                `⚖️ *TÉRMINOS LEGALES Y REGLAMENTO:*\n` +
                                                `• TRATO™ actúa exclusivamente como agente de custodia y resguardo de fondos.\n` +
                                                `• No nos hacemos responsables del estado, funcionamiento o vicios ocultos del producto, el resguardo es sobre la operación de compra y el dinero.\n` +
+                                               `• El recargo del 15% en concepto de servicio y gestión no es reembolsable ni sujeto a reclamo bajo ninguna circunstancia.\n` +
                                                `• El uso del canal de soporte es estrictamente por mensajes. No se atienden llamadas telefónicas. El uso indebido o saturación es motivo de anulación de la custodia.`;
                         
                         window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(mensajeSoporte)}`, '_blank');
 
                     } else if (tipo === 'comprador') {
-                        // Mensaje para el comprador (sin datos bancarios, pero sí el contacto de soporte)
                         const mensajeComprador = `🛡️ *ENLACE DE GESTIÓN Y PROTECCIÓN TRATO™*\n` +
                                                  `*Operación N°:* ${opID}\n\n` +
                                                  `La red actúa como agente de custodia de fondos. No se asume responsabilidad sobre el estado físico del producto.\n\n` +
