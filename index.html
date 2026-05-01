@@ -9,10 +9,12 @@
         .central-container { border: 2px solid #00d4ff; background: #0a0a0a; padding: 40px; border-radius: 20px; box-shadow: 0 0 30px #00d4ff33; text-align: center; width: 90%; max-width: 400px; }
         h1 { color: #00d4ff; text-transform: uppercase; letter-spacing: 5px; font-size: 2.5em; margin-bottom: 5px; }
         .subtitle { color: #888; font-size: 0.8em; margin-bottom: 30px; text-transform: uppercase; }
-        .btn-portal { display: block; width: 100%; padding: 18px; margin: 10px 0; background: transparent; color: #00d4ff; border: 2px solid #00d4ff; border-radius: 12px; font-weight: bold; text-decoration: none; text-transform: uppercase; cursor: pointer; }
+        .btn-portal { display: block; width: 100%; padding: 18px; margin: 10px 0; background: transparent; color: #00d4ff; border: 2px solid #00d4ff; border-radius: 12px; font-weight: bold; text-decoration: none; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
+        .btn-portal:hover { opacity: 0.9; box-shadow: 0 0 10px rgba(0, 212, 255, 0.3); }
         .btn-primary { background: #00d4ff; color: #000; }
         #login-box { display: none; margin-top: 20px; border-top: 1px solid #333; padding-top: 20px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; background: #151515; border: 1px solid #333; color: #00d4ff; border-radius: 8px; box-sizing: border-box; outline: none; }
+        input { width: 100%; padding: 12px; margin: 8px 0; background: #151515; border: 1px solid #333; color: #00d4ff; border-radius: 8px; box-sizing: border-box; outline: none; transition: border-color 0.2s; }
+        input:focus { border-color: #00ff9d; }
         #error-msg { color: #ff4444; font-size: 0.8em; margin-top: 10px; display: none; }
     </style>
 </head>
@@ -23,8 +25,8 @@
         <a href="registro.html" class="btn-portal">🛡️ SOLICITAR ACCESO (NUEVOS)</a>
         <button onclick="mostrarLogin()" class="btn-portal btn-primary" id="btn-main">🚀 ENTRAR AL BÚNKER</button>
         <div id="login-box">
-            <input type="email" id="email" placeholder="Email Registrado">
-            <input type="password" id="pass" placeholder="Contraseña">
+            <input type="email" id="email" placeholder="Email Registrado" autocomplete="username">
+            <input type="password" id="pass" placeholder="Contraseña" autocomplete="current-password">
             <button class="btn-portal btn-primary" id="btn-login">VALIDAR IDENTIDAD</button>
             <div id="error-msg">Credenciales incorrectas o error de conexión con el búnker.</div>
         </div>
@@ -34,7 +36,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
 
-        // Configuración de tu aplicación limpia
+        // Configuración de tu aplicación unificada y limpia
         const firebaseConfig = {
             apiKey: "AIzaSyBqu3cMDwQ7e9oGIpmOiDsTq5iD3kKK5bs",
             authDomain: "comprablok.firebaseapp.com",
@@ -47,12 +49,15 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
+        // Hacemos la función accesible desde el atributo 'onclick'
         window.mostrarLogin = () => {
             document.getElementById('login-box').style.display = 'block';
             document.getElementById('btn-main').style.display = 'none';
+            // Foco automático en el input
+            document.getElementById('email').focus();
         };
 
-        document.getElementById('btn-login').addEventListener('click', async () => {
+        const procesarLogin = async () => {
             const email = document.getElementById('email').value;
             const pass = document.getElementById('pass').value;
             const btn = document.getElementById('btn-login');
@@ -62,11 +67,16 @@
             btn.disabled = true;
             errorDiv.style.display = "none";
 
+            if (!email || !pass) {
+                errorDiv.innerText = "Por favor, completa todos los campos.";
+                errorDiv.style.display = "block";
+                btn.innerText = "VALIDAR IDENTIDAD";
+                btn.disabled = false;
+                return;
+            }
+
             try {
-                // Autenticación directa con Firebase
                 await signInWithEmailAndPassword(auth, email, pass);
-                
-                // Si la sesión es válida, redirigimos al generador
                 window.location.href = "generador.html";
             } catch (e) {
                 console.error(e);
@@ -74,6 +84,15 @@
                 errorDiv.style.display = "block";
                 btn.innerText = "VALIDAR IDENTIDAD";
                 btn.disabled = false;
+            }
+        };
+
+        document.getElementById('btn-login').addEventListener('click', procesarLogin);
+
+        // Habilitar el inicio de sesión con Enter
+        document.getElementById('pass').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                procesarLogin();
             }
         });
     </script>
