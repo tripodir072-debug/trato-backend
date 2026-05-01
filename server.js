@@ -32,8 +32,9 @@ app.post("/crear-pago", async (req, res) => {
                     unit_price: parseFloat(precioBase),
                     currency_id: "ARS"
                 }],
+                // Modificamos la URL para pasar el parámetro del producto a la pantalla de éxito
                 back_urls: {
-                    success: "https://tripodir072-debug.github.io/trato-backend/pago_confirmado.html"
+                    success: `https://tripodir072-debug.github.io/trato-backend/pago_confirmado.html?external_reference=${encodeURIComponent(producto)}`
                 },
                 auto_return: "approved"
             })
