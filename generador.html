@@ -314,7 +314,7 @@
                 <p><strong>7. Privacidad y Tratamiento de Datos Personales:</strong> Todos los datos personales recopilados (DNI, CBU, correo, teléfono y evidencia fotográfica) son tratados con estricta confidencialidad y utilizados única y exclusivamente para la validación de identidad y la seguridad de las transacciones dentro de la plataforma TRATO™.</p>
                 <ul>
                     <li><em>Uso Exclusivo:</em> Nos comprometemos a no compartir, vender ni utilizar la información con fines comerciales o maliciosos.</li>
-                    <li><em>Retención Temporal:</em> Los datos estarán alojados en nuestros servidores únicamente durante el tiempo que dure la operación.</li>
+                    <li><em>Retention Temporal:</em> Los datos estarán alojados en nuestros servidores únicamente durante el tiempo que dure la operación.</li>
                     <li><em>Eliminación Segura:</em> Una vez que la transacción se complete con éxito, o que cualquier disputa o reclamo finalice con una resolución, todos los datos personales asociados a dicha transacción serán eliminados de forma permanente.</li>
                 </ul>
                 <p style="color: var(--danger-color); line-height: 1.4;"><strong>Aviso importante:</strong> Solo se responden mensajes (no se atienden llamadas). El uso indebido está sujeto a bloqueo y anulación de protección.</p>
@@ -330,7 +330,6 @@
             const urlParams = new URLSearchParams(window.location.search);
             const vendedorNombre = urlParams.get('nombre') || 'RichardBro';
             const vendedorEmail = urlParams.get('email') || 'sin-correo@trato.com';
-            const vendedorTelefono = urlParams.get('telefono') || 'Sin Teléfono';
             const vendedorTelefono = urlParams.get('telefono') || 'Sin Teléfono';
             const vendedorCbu = urlParams.get('cbu') || 'Sin CBU asignado';
             const vendedorDni = urlParams.get('dni') || 'Sin DNI';
