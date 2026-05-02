@@ -274,7 +274,7 @@
                 </label>
             </div>
 
-            <button id="btn-soporte" class="btn-success" onclick="procesarOperacion('soporte')" disabled>📤 1. ENVIAR CBU Y DATOS A SOPORTE</button>
+            <button id="btn-soporte" class="btn-success" onclick="enviarSoporteDirecto()" disabled>📤 1. ENVIAR DATOS POR WHATSAPP A SOPORTE</button>
             <button id="btn-blindar" onclick="procesarOperacion('comprador')" disabled style="background-color: var(--accent-color); color: #050810; margin-top: 12px;">🔗 2. GENERAR Y ENVIAR AL COMPRADOR</button>
             
             <div id="status">Procesando encriptación en el búnker...</div>
@@ -310,7 +310,7 @@
                     <li><em>Verificación Cruzada:</em> El equipo de soporte se comunicará con el vendedor para confirmar la recepción del artículo en su estado original. Si se confirma la recepción, se reintegra el valor base al comprador (descontando el 15%). Si el vendedor no confirma la recepción, se retienen los fondos según las pruebas documentadas en el Búnker.</li>
                     <li><em>Plazo de Custodia (24/48 horas):</em> Si el comprador no comunica la conformidad tras la confirmación de la entrega por el correo, los fondos se mantendrán en custodia hasta 48 horas, liberándose automáticamente si no hay reclamos.</li>
                 </ul>
-                <p><strong>7. Privacidad y Tratamiento de Datos Personales:</strong> Todos los datos personales recopilados (DNI, CBU, correo, teléfono y evidencia fotográfica) son tratados con estricta confidencialidad y utilizeda única y exclusivamente para la validación de identidad y la seguridad de las transacciones dentro de la plataforma TRATO™.</p>
+                <p><strong>7. Privacidad y Tratamiento de Datos Personales:</strong> Todos los datos personales recopilados (DNI, CBU, correo, teléfono y evidencia fotográfica) son tratados con estricta confidencialidad y utilizados única y exclusivamente para la validación de identidad y la seguridad de las transacciones dentro de la plataforma TRATO™.</p>
                 <ul>
                     <li><em>Uso Exclusivo:</em> Nos comprometemos a no compartir, vender ni utilizar la información con fines comerciales o maliciosos.</li>
                     <li><em>Retención Temporal:</em> Los datos estarán alojados en nuestros servidores únicamente durante el tiempo que dure la operación.</li>
@@ -380,6 +380,45 @@
             }
         };
 
+        window.enviarSoporteDirecto = function() {
+            const producto = document.getElementById('prod').value;
+            const montoIngresado = document.getElementById('monto').value;
+            const acepta = document.getElementById('acepta-terminos').checked;
+
+            if (!acepta) {
+                return alert("Debes aceptar el recargo y las condiciones de servicio para continuar.");
+            }
+
+            if (!producto || !montoIngresado) {
+                return alert("Por favor, completa todos los campos para continuar.");
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const vendedorNombre = urlParams.get('nombre') || 'RichardBro';
+            const vendedorEmail = urlParams.get('email') || 'sin-correo@trato.com';
+            const vendedorTelefono = urlParams.get('telefono') || 'Sin Teléfono';
+            const vendedorCbu = urlParams.get('cbu') || 'Sin CBU asignado';
+            const vendedorDni = urlParams.get('dni') || 'Sin DNI';
+
+            const precioBase = parseFloat(montoIngresado) * 1.15;
+
+            const mensajeSoporte = `🛡️ *NUEVA VENTA - TRATO™*\n\n` +
+                                   `*Datos del Vendedor:*\n` +
+                                   `- Nombre: ${vendedorNombre}\n` +
+                                   `- DNI / Identificación: ${vendedorDni}\n` +
+                                   `- Correo: ${vendedorEmail}\n` +
+                                   `- Teléfono: ${vendedorTelefono}\n` +
+                                   `- CBU / Alias: ${vendedorCbu}\n\n` +
+                                   `*Datos de la Operación:*\n` +
+                                   `- ID Operación: ${opID}\n` +
+                                   `- Número de Paquete o Producto: ${producto}\n` +
+                                   `- Monto Total (con 15%): $ ${precioBase.toFixed(2)}\n\n` +
+                                   `ℹ️ *VALIDACIÓN DE IDENTIDAD Y DEPÓSITO:*\n` +
+                                   `Los datos del vendedor han sido verificados para procesar el depósito del pago en caso de una transacción exitosa.`;
+                        
+            window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(mensajeSoporte)}`, '_blank');
+        };
+
         window.procesarOperacion = async function(tipo) {
             const producto = document.getElementById('prod').value;
             const montoIngresado = document.getElementById('monto').value;
@@ -426,27 +465,7 @@
 
                     const returnUrl = `${window.location.origin}${window.location.pathname}?nombre=${encodeURIComponent(vendedorNombre)}&email=${encodeURIComponent(vendedorEmail)}&telefono=${encodeURIComponent(vendedorTelefono)}&cbu=${encodeURIComponent(vendedorCbu)}&dni=${encodeURIComponent(vendedorDni)}&prod=${encodeURIComponent(producto)}&monto=${encodeURIComponent(montoIngresado)}`;
 
-                    if (tipo === 'soporte') {
-                        const mensajeSoporte = `🛡️ *NUEVA VENTA - TRATO™*\n\n` +
-                                               `*Datos del Vendedor:*\n` +
-                                               `- Nombre: ${vendedorNombre}\n` +
-                                               `- DNI / Identificación: ${vendedorDni}\n` +
-                                               `- Correo: ${vendedorEmail}\n` +
-                                               `- Teléfono: ${vendedorTelefono}\n` +
-                                               `- CBU / Alias: ${vendedorCbu}\n\n` +
-                                               `*Datos de la Operación:*\n` +
-                                               `- ID Operación: ${opID}\n` +
-                                               `- Número de Paquete o Producto: ${producto}\n` +
-                                               `- Monto Total (con 15%): $ ${precioBase.toFixed(2)}\n\n` +
-                                               `🔗 *Link de Pago (Principal):* ${data.url}\n\n` +
-                                               `🔗 *Volver al generador de operaciones:*\n` +
-                                               `${returnUrl}\n\n` +
-                                               `ℹ️ *VALIDACIÓN DE IDENTIDAD Y DEPÓSITO:*\n` +
-                                               `Los datos del vendedor han sido verificados para procesar el depósito del pago en caso de una transacción exitosa.`;
-                        
-                        window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(mensajeSoporte)}`, '_blank');
-
-                    } else if (tipo === 'comprador') {
+                    if (tipo === 'comprador') {
                         const mensajeComprador = `🛡️ *TRATO™ | TÉRMINOS Y CONDICIONES Y LINK DE PAGO*\n\n` +
                                                `¡Hola! Estás por realizar una compra con el sistema blindado TRATO™ (RichardBro). Tu seguridad es nuestra prioridad. Por favor, lee atentamente las condiciones de protección:\n\n` +
                                                `• *🔒 Protección del Comprador:* Tu dinero queda resguardado en el búnker de TRATO™ y no se libera al vendedor hasta que recibas el producto y verifiques que todo está en orden.\n\n` +
