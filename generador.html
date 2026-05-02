@@ -298,7 +298,7 @@
                 <p><strong>5. Protocolo de Envíos, Entregas y Validación Obligatoria de Producto:</strong> Para proteger a ambas partes contra fraudes (tales como el reemplazo de productos, el envío de artículos dañados o estafas), se establece de manera estricta el siguiente protocolo:</p>
                 <ul>
                     <li><em>Identificación del Paquete:</em> Es de carácter <strong>OBLIGATORIO</strong> que el vendedor anote el número de operación (ID de 4 dígitos) en un papel visible y lo adhiera al producto o paquete.</li>
-                    <li><em>Evidencia Fotográfica y/o Video:</em> El vendedor debe tomar una fotografía o video donde se vea el producto físico junto con código adherido antes del despacho. Esta prueba debe enviarse al soporte de TRATO™ para validar la existencia real del artículo antes de liberar el dinero.</li>
+                    <li><em>Evidencia Fotográfica y/o Video:</em> El vendedor debe tomar una fotografía o video donde se vea el producto físico junto al código adherido antes del despacho. Esta prueba debe enviarse al soporte de TRATO™ para validar la existencia real del artículo antes de liberar el dinero.</li>
                     <li><em>Envíos por Correo o Transporte:</em> El vendedor tiene la obligación de registrar en video el estado del producto antes de embalarlo y enviar el número de <em>tracking</em> o datos del transporte al equipo de TRATO™. El comprador deberá notificar la recepción y constatar que el código coincide al recibirlo.</li>
                     <li><em>Encuentros en Persona:</em> Se sugiere coordinar el intercambio en un lugar público, iluminado y concurrido. El comprador debe revisar el artículo <em>in situ</em> antes de validar la conformidad, constatando que el código y el producto coincidan con la evidencia registrada previamente.</li>
                     <li><em>Finalidad de la medida:</em> Esta medida tiene como fin verificar la existencia y el estado original del producto, evitando estafas por reemplazo o desconocimiento de la transacción. Sin el cumplimiento estricto de este punto, el búnker de TRATO™ no habilitará la protección ni la liberación de los fondos.</li>
@@ -330,6 +330,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const vendedorNombre = urlParams.get('nombre') || 'RichardBro';
             const vendedorEmail = urlParams.get('email') || 'sin-correo@trato.com';
+            const vendedorTelefono = urlParams.get('telefono') || 'Sin Teléfono';
             const vendedorTelefono = urlParams.get('telefono') || 'Sin Teléfono';
             const vendedorCbu = urlParams.get('cbu') || 'Sin CBU asignado';
             const vendedorDni = urlParams.get('dni') || 'Sin DNI';
@@ -392,10 +393,6 @@
             }
         };
 
-        window.enviarSoporteDirecto = function() { // Alias para evitar problemas
-            enviarSoporteDirecto();
-        };
-
         window.enviarSoporteDirecto = function() {
             const producto = document.getElementById('prod').value;
             const montoIngresado = document.getElementById('monto').value;
@@ -418,6 +415,9 @@
 
             const precioBase = parseFloat(montoIngresado) * 1.15;
 
+            // Link de retorno para poder volver desde el soporte
+            const returnUrl = `${window.location.origin}${window.location.pathname}?nombre=${encodeURIComponent(vendedorNombre)}&email=${encodeURIComponent(vendedorEmail)}&telefono=${encodeURIComponent(vendedorTelefono)}&cbu=${encodeURIComponent(vendedorCbu)}&dni=${encodeURIComponent(vendedorDni)}&prod=${encodeURIComponent(producto)}&monto=${encodeURIComponent(montoIngresado)}`;
+
             const mensajeSoporte = `🛡️ *NUEVA VENTA - TRATO™*\n\n` +
                                    `*Datos del Vendedor:*\n` +
                                    `- Nombre: ${vendedorNombre}\n` +
@@ -429,6 +429,7 @@
                                    `- ID Operación: ${opID}\n` +
                                    `- Número de Paquete o Producto: ${producto}\n` +
                                    `- Monto Total (con 15%): $ ${precioBase.toFixed(2)}\n\n` +
+                                   `*Link de retorno:* ${returnUrl}\n\n` +
                                    `ℹ️ *VALIDACIÓN DE IDENTIDAD Y DEPÓSITO:*\n` +
                                    `Los datos del vendedor han sido verificados para procesar el depósito del pago en caso de una transacción exitosa.`;
                         
