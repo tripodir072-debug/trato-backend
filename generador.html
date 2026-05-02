@@ -310,7 +310,7 @@
                     <li><em>Verificación Cruzada:</em> El equipo de soporte se comunicará con el vendedor para confirmar la recepción del artículo en su estado original. Si se confirma la recepción, se reintegra el valor base al comprador (descontando el 15%). Si el vendedor no confirma la recepción, se retienen los fondos según las pruebas documentadas en el Búnker.</li>
                     <li><em>Plazo de Custodia (24/48 horas):</em> Si el comprador no comunica la conformidad tras la confirmación de la entrega por el correo, los fondos se mantendrán en custodia hasta 48 horas, liberándose automáticamente si no hay reclamos.</li>
                 </ul>
-                <p><strong>7. Privacidad y Tratamiento de Datos Personales:</strong> Todos los datos personales recopilados (DNI, CBU, correo, teléfono y evidencia fotográfica) son tratados con estricta confidencialidad y utilizados única y exclusivamente para la validación de identidad y la seguridad de las transacciones dentro de la plataforma TRATO™.</p>
+                <p><strong>7. Privacidad y Tratamiento de Datos Personales:</strong> Todos los datos personales recopilados (DNI, CBU, correo, teléfono y evidencia fotográfica) son tratados con estricta confidencialidad y utilizeda única y exclusivamente para la validación de identidad y la seguridad de las transacciones dentro de la plataforma TRATO™.</p>
                 <ul>
                     <li><em>Uso Exclusivo:</em> Nos comprometemos a no compartir, vender ni utilizar la información con fines comerciales o maliciosos.</li>
                     <li><em>Retención Temporal:</em> Los datos estarán alojados en nuestros servidores únicamente durante el tiempo que dure la operación.</li>
@@ -441,20 +441,8 @@
                                                `🔗 *Link de Pago (Principal):* ${data.url}\n\n` +
                                                `🔗 *Volver al generador de operaciones:*\n` +
                                                `${returnUrl}\n\n` +
-                                               `⚠️ *INSTRUCTIVO Y PROTOCOLO DE SEGURIDAD (VENDEDOR):*\n\n` +
-                                               `📦 *1. OPERACIÓN CON ENVÍO POR ENCOMIENDA/CORREO:* \n` +
-                                               `• Es OBLIGATORIO grabar un video y tomar fotografías del estado del producto antes y durante el embalaje como prueba legal.\n` +
-                                               `• Es OBLIGATORIO enviar el número de tracking o guía de la empresa de transporte al equipo de TRATO™ antes de que se libere el dinero.\n` +
-                                               `• Los fondos permanecerán en el Búnker TRATO™ hasta que el comprador notifique y valide la recepción del artículo.\n\n` +
-                                               `🤝 *2. OPERACIÓN CON ENTREGA PRESENCIAL:* \n` +
-                                               `• Se sugiere coordinar en un lugar público, seguro e iluminado (estaciones, locales comerciales, etc.).\n` +
-                                               `• El comprador debe revisar el artículo en presencia del vendedor antes de dar su conformidad.\n` +
-                                               `• La liberación de fondos se autoriza una vez validada la entrega física con el PIN / ID de la operación.\n\n` +
-                                               `⚖️ *TÉRMINOS LEGALES Y REGLAMENTO:*\n` +
-                                               `• TRATO™ actúa exclusivamente como agente de custodia y resguardo de fondos.\n` +
-                                               `• No nos hacemos responsables del estado, funcionamiento o vicios ocultos del producto, el resguardo es sobre la operación de compra y el dinero.\n` +
-                                               `• El recargo del 15% en concepto de servicio y gestión no es reembolsable ni sujeto a reclamo bajo ninguna circunstancia.\n` +
-                                               `• El uso del canal de soporte es estrictamente por mensajes. No se atienden llamadas telefónicas.`;
+                                               `ℹ️ *VALIDACIÓN DE IDENTIDAD Y DEPÓSITO:*\n` +
+                                               `Los datos del vendedor han sido verificados para procesar el depósito del pago en caso de una transacción exitosa.`;
                         
                         window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(mensajeSoporte)}`, '_blank');
 
@@ -465,6 +453,8 @@
                                                `• *📸 Validación de la operación:* El vendedor debe adjuntar fotos/videos del producto junto a un código único de 4 dígitos para certificar su existencia y estado antes de enviarlo.\n\n` +
                                                `• *⚖️ Naturaleza del Servicio:* TRATO™ actúa exclusivamente como agente intermediario y custodio de fondos. No asumimos responsabilidad sobre el estado, calidad, funcionamiento o vicios ocultos del producto.\n\n` +
                                                `• *🔄 Cancelaciones y Devoluciones:* El costo de gestión del 15% no es reembolsable en caso de cancelación una vez iniciada la custodia. En caso de reclamo, deberás devolver el producto al vendedor para validar el reintegro de tu dinero base.\n\n` +
+                                               `🔴 *¡ATENCIÓN OBLIGATORIA!* 🔴\n` +
+                                               `*Después de concretar el pago, reenviar este mensaje con la captura de pantalla/comprobante de pago al equipo de TRATO™ para blindar la operación. Este paso es obligatorio.*\n\n` +
                                                `🔗 *Link de pago seguro:* ${data.url}\n\n` +
                                                `Al realizar el pago, aceptás las condiciones del servicio de TRATO™ y las políticas de custodia de fondos.`;
 
