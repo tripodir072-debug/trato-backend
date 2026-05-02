@@ -337,17 +337,9 @@
             document.getElementById('cbu-alias').value = vendedorCbu;
             document.getElementById('vendedor-dni').value = vendedorDni;
 
-            const prodParam = urlParams.get('prod');
-            const montoParam = urlParams.get('monto');
-            if (prodParam) {
-                document.getElementById('prod').value = decodeURIComponent(prodParam);
-            }
-            if (montoParam) {
-                document.getElementById('monto').value = decodeURIComponent(montoParam);
-                calcularTotal();
-                document.getElementById('acepta-terminos').checked = false;
-                toggleBoton();
-            }
+            // Limpiamos los campos editables para que el formulario siempre comience vacío.
+            document.getElementById('prod').value = "";
+            document.getElementById('monto').value = "";
         }
 
         window.addEventListener('DOMContentLoaded', constParams);
@@ -379,6 +371,10 @@
                 document.getElementById('btn-soporte').disabled = !acepta;
             }
         };
+
+        window.enviarSoporteDirecto = function() { // alias o método
+            enviarSoporteDirecto();
+        }
 
         window.enviarSoporteDirecto = function() {
             const producto = document.getElementById('prod').value;
@@ -462,8 +458,6 @@
 
                 if (data.url) {
                     status.style.display = "none";
-
-                    const returnUrl = `${window.location.origin}${window.location.pathname}?nombre=${encodeURIComponent(vendedorNombre)}&email=${encodeURIComponent(vendedorEmail)}&telefono=${encodeURIComponent(vendedorTelefono)}&cbu=${encodeURIComponent(vendedorCbu)}&dni=${encodeURIComponent(vendedorDni)}&prod=${encodeURIComponent(producto)}&monto=${encodeURIComponent(montoIngresado)}`;
 
                     if (tipo === 'comprador') {
                         const mensajeComprador = `🛡️ *TRATO™ | TÉRMINOS Y CONDICIONES Y LINK DE PAGO*\n\n` +
