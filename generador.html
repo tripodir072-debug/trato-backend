@@ -312,7 +312,7 @@
                 </ul>
                 <p><strong>7. Privacidad y Tratamiento de Datos Personales:</strong> Todos los datos personales recopilados (DNI, CBU, correo, teléfono y evidencia fotográfica) son tratados con estricta confidencialidad y utilizados única y exclusivamente para la validación de identidad y la seguridad de las transacciones dentro de la plataforma TRATO™.</p>
                 <ul>
-                    <li><em>Uso Exclusivo:</em> Nos comprometemos a no compartir, vender ni utilizar la información con fines comerciales o maliciosos.</li>
+                    <li><em>Uso Exclivo:</em> Nos comprometemos a no compartir, vender ni utilizar la información con fines comerciales o maliciosos.</li>
                     <li><em>Retención Temporal:</em> Los datos estarán alojados en nuestros servidores únicamente durante el tiempo que dure la operación.</li>
                     <li><em>Eliminación Segura:</em> Una vez que la transacción se complete con éxito, o que cualquier disputa o reclamo finalice con una resolución, todos los datos personales asociados a dicha transacción serán eliminados de forma permanente.</li>
                 </ul>
@@ -348,8 +348,6 @@
                 document.getElementById('acepta-terminos').checked = false;
                 toggleBoton();
             }
-            
-            // Ya no vaciamos los campos del producto y del monto.
         }
 
         window.addEventListener('DOMContentLoaded', constParams);
@@ -404,6 +402,9 @@
 
             const precioBase = parseFloat(montoIngresado) * 1.15;
 
+            // Link de retorno para poder volver desde cualquier parte
+            const returnUrl = `${window.location.origin}${window.location.pathname}?nombre=${encodeURIComponent(vendedorNombre)}&email=${encodeURIComponent(vendedorEmail)}&telefono=${encodeURIComponent(vendedorTelefono)}&cbu=${encodeURIComponent(vendedorCbu)}&dni=${encodeURIComponent(vendedorDni)}&prod=${encodeURIComponent(producto)}&monto=${encodeURIComponent(montoIngresado)}`;
+
             const mensajeSoporte = `🛡️ *NUEVA VENTA - TRATO™*\n\n` +
                                    `*Datos del Vendedor:*\n` +
                                    `- Nombre: ${vendedorNombre}\n` +
@@ -415,6 +416,7 @@
                                    `- ID Operación: ${opID}\n` +
                                    `- Número de Paquete o Producto: ${producto}\n` +
                                    `- Monto Total (con 15%): $ ${precioBase.toFixed(2)}\n\n` +
+                                   `*Link de retorno:* ${returnUrl}\n\n` +
                                    `ℹ️ *VALIDACIÓN DE IDENTIDAD Y DEPÓSITO:*\n` +
                                    `Los datos del vendedor han sido verificados para procesar el depósito del pago en caso de una transacción exitosa.`;
                         
@@ -478,7 +480,7 @@
                                                `🔴 *¡ATENCIÓN OBLIGATORIA!* 🔴\n` +
                                                `*Después de concretar el pago, reenviar este mensaje con la captura de pantalla/comprobante de pago al equipo de TRATO™ para blindar la operación. Este paso es obligatorio.*\n\n` +
                                                `🔗 *Link de pago seguro:* ${data.url}\n\n` +
-                                               `🔗 *Volver a la pantalla de operaciones:* ${returnUrl}\n\n` +
+                                               `🔗 *Link de retorno:* ${returnUrl}\n\n` +
                                                `Al realizar el pago, aceptás las condiciones del servicio de TRATO™ y las políticas de custodia de fondos.`;
 
                         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensajeComprador)}`, '_blank');
