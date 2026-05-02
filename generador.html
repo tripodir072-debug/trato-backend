@@ -291,14 +291,14 @@
             <span class="close-modal" onclick="cerrarTerminos()">&times;</span>
             <h3 class="modal-title">🛡️ Términos y Condiciones Legales - TRATO™</h3>
             <div class="modal-text">
-                <p><strong>1. Naturaleza del Servicio y Costos:</strong> TRATO™ (plataforma operada por RichardBro) actúa exclusivamente como agente intermediario y custodio de fondos. El recargo del 15% corresponde al costo por el uso de la plataforma y el servicio de gestión de custodia en el búnker. Este costo del 15% es <em>no reembolsable</em> una vez que los fondos han sido depositados y el servicio ha comenzó a procesarse, ya que cubre los costos operativos de gestión. La plataforma no otorga garantías ni asume responsabilidad civil, comercial o penal sobre el estado, calidad, funcionamiento, vicios ocultos o legalidad del producto o servicio transaccionado.</p>
+                <p><strong>1. Naturaleza del Servicio y Costos:</strong> TRATO™ (plataforma operada por RichardBro) actúa exclusivamente como agente intermediario y custodio de fondos. El recargo del 15% corresponde al costo por el uso de la plataforma y el servicio de gestión de custodia en el búnker. Este costo del 15% es <em>no reembolsable</em> una vez que los fondos han sido depositados y el servicio ha comenzado a procesarse, ya que cubre los costos operativos de gestión. La plataforma no otorga garantías ni asume responsabilidad civil, comercial o penal sobre el estado, calidad, funcionamiento, vicios ocultos o legalidad del producto o servicio transaccionado.</p>
                 <p><strong>2. Responsabilidad del Usuario:</strong> Cada usuario (tanto comprador como vendedor) es absoluta y exclusivamente responsable de sus propios actos, declaraciones y transacciones. La plataforma actúa como un tercero de confianza, pero no interviene en las negociaciones comerciales ni en la veracidad de los acuerdos particulares entre las partes.</p>
                 <p><strong>3. Validación de Identidad y Prevención de Fraude:</strong> Es de carácter OBLIGATORIO para vendedor y comprador presentar su documento de identidad (DNI o similar). En caso de que el comprador realice un pago desde una cuenta de titularidad de terceros, debe informar los datos de identidad y DNI del titular de dicha cuenta.</p>
                 <p><strong>4. Sistema de Custodia de Fondos:</strong> El dinero correspondiente al valor base del producto se retiene en el búnker de garantía hasta que la operación se concrete y se verifique mediante el protocolo de TRATO™.</p>
                 <p><strong>5. Protocolo de Envíos, Entregas y Validación Obligatoria de Producto:</strong> Para proteger a ambas partes contra fraudes (tales como el reemplazo de productos, el envío de artículos dañados o estafas), se establece de manera estricta el siguiente protocolo:</p>
                 <ul>
                     <li><em>Identificación del Paquete:</em> Es de carácter <strong>OBLIGATORIO</strong> que el vendedor anote el número de operación (ID de 4 dígitos) en un papel visible y lo adhiera al producto o paquete.</li>
-                    <li><em>Evidencia Fotográfica y/o Video:</em> El vendedor debe tomar una fotografía o video donde se vea el producto físico junto con el código adherido antes del despacho. Esta prueba debe enviarse al soporte de TRATO™ para validar la existencia real del artículo antes de liberar el dinero.</li>
+                    <li><em>Evidencia Fotográfica y/o Video:</em> El vendedor debe tomar una fotografía o video donde se vea el producto físico junto con código adherido antes del despacho. Esta prueba debe enviarse al soporte de TRATO™ para validar la existencia real del artículo antes de liberar el dinero.</li>
                     <li><em>Envíos por Correo o Transporte:</em> El vendedor tiene la obligación de registrar en video el estado del producto antes de embalarlo y enviar el número de <em>tracking</em> o datos del transporte al equipo de TRATO™. El comprador deberá notificar la recepción y constatar que el código coincide al recibirlo.</li>
                     <li><em>Encuentros en Persona:</em> Se sugiere coordinar el intercambio en un lugar público, iluminado y concurrido. El comprador debe revisar el artículo <em>in situ</em> antes de validar la conformidad, constatando que el código y el producto coincidan con la evidencia registrada previamente.</li>
                     <li><em>Finalidad de la medida:</em> Esta medida tiene como fin verificar la existencia y el estado original del producto, evitando estafas por reemplazo o desconocimiento de la transacción. Sin el cumplimiento estricto de este punto, el búnker de TRATO™ no habilitará la protección ni la liberación de los fondos.</li>
@@ -353,14 +353,12 @@
 
         window.addEventListener('DOMContentLoaded', constParams);
 
-        // Nueva función para limpiar el formulario y generar un nuevo trato
+        // Limpiar formulario
         window.limpiarFormulario = function() {
             document.getElementById('prod').value = "";
             document.getElementById('monto').value = "";
             document.getElementById('precio-detalle').innerText = "ℹ️ Monto total con comisión (15%): $ 0";
             document.getElementById('acepta-terminos').checked = false;
-            
-            // Re-bloquea los botones hasta rellenar los datos
             toggleBoton();
         };
 
@@ -386,12 +384,16 @@
             if (checkbox.disabled) {
                 document.getElementById('btn-blindar').disabled = true;
                 document.getElementById('btn-soporte').disabled = true;
-                document.getElementById('btn-nuevo-trato').disabled = false; // El botón de nuevo trato puede quedar activo
+                document.getElementById('btn-nuevo-trato').disabled = false;
             } else {
                 document.getElementById('btn-blindar').disabled = !acepta;
                 document.getElementById('btn-soporte').disabled = !acepta;
                 document.getElementById('btn-nuevo-trato').disabled = false;
             }
+        };
+
+        window.enviarSoporteDirecto = function() { // Alias para evitar problemas
+            enviarSoporteDirecto();
         };
 
         window.enviarSoporteDirecto = function() {
@@ -416,9 +418,6 @@
 
             const precioBase = parseFloat(montoIngresado) * 1.15;
 
-            // Link de retorno para poder volver desde cualquier parte
-            const returnUrl = `${window.location.origin}${window.location.pathname}?nombre=${encodeURIComponent(vendedorNombre)}&email=${encodeURIComponent(vendedorEmail)}&telefono=${encodeURIComponent(vendedorTelefono)}&cbu=${encodeURIComponent(vendedorCbu)}&dni=${encodeURIComponent(vendedorDni)}&prod=${encodeURIComponent(producto)}&monto=${encodeURIComponent(montoIngresado)}`;
-
             const mensajeSoporte = `🛡️ *NUEVA VENTA - TRATO™*\n\n` +
                                    `*Datos del Vendedor:*\n` +
                                    `- Nombre: ${vendedorNombre}\n` +
@@ -430,7 +429,6 @@
                                    `- ID Operación: ${opID}\n` +
                                    `- Número de Paquete o Producto: ${producto}\n` +
                                    `- Monto Total (con 15%): $ ${precioBase.toFixed(2)}\n\n` +
-                                   `*Link de retorno:* ${returnUrl}\n\n` +
                                    `ℹ️ *VALIDACIÓN DE IDENTIDAD Y DEPÓSITO:*\n` +
                                    `Los datos del vendedor han sido verificados para procesar el depósito del pago en caso de una transacción exitosa.`;
                         
@@ -481,20 +479,16 @@
                 if (data.url) {
                     status.style.display = "none";
 
-                    // Creamos el link de retorno para no perder nada.
-                    const returnUrl = `${window.location.origin}${window.location.pathname}?nombre=${encodeURIComponent(vendedorNombre)}&email=${encodeURIComponent(vendedorEmail)}&telefono=${encodeURIComponent(vendedorTelefono)}&cbu=${encodeURIComponent(vendedorCbu)}&dni=${encodeURIComponent(vendedorDni)}&prod=${encodeURIComponent(producto)}&monto=${encodeURIComponent(montoIngresado)}`;
-
                     if (tipo === 'comprador') {
                         const mensajeComprador = `🛡️ *TRATO™ | TÉRMINOS Y CONDICIONES Y LINK DE PAGO*\n\n` +
                                                `¡Hola! Estás por realizar una compra con el sistema blindado TRATO™ (RichardBro). Tu seguridad es nuestra prioridad. Por favor, lee atentamente las condiciones de protección:\n\n` +
-                                               `• *🔒 *Protección del Comprador:* Tu dinero queda resguardado en el búnker de TRATO™ y no se libera al vendedor hasta que recibas el producto y verifiques que todo está en orden.\n\n` +
-                                               `•📸 *Validación de la operación:* El vendedor debe adjuntar fotos/videos del producto junto a un código único de 4 dígitos para certificar su existencia y estado antes de enviarlo.\n\n` +
-                                               `•⚖️ *Naturaleza del Servicio:* TRATO™ actúa exclusivamente como agente intermediario y custodio de fondos. No asumimos responsabilidad sobre el estado, calidad, funcionamiento o vicios ocultos del producto.\n\n` +
-                                               `•🔄 *Cancelaciones y Devoluciones:* El costo de gestión del 15% no es reembolsable en caso de cancelación una vez iniciada la custodia. En caso de reclamo, deberás devolver el producto al vendedor para validar el reintegro de tu dinero base.\n\n` +
+                                               `• *🔒 Protección del Comprador:* Tu dinero queda resguardado en el búnker de TRATO™ y no se libera al vendedor hasta que recibas el producto y verifiques que todo está en orden.\n\n` +
+                                               `• *📸 Validación de la operación:* El vendedor debe adjuntar fotos/videos del producto junto a un código único de 4 dígitos para certificar su existencia y estado antes de enviarlo.\n\n` +
+                                               `• *⚖️ Naturaleza del Servicio:* TRATO™ actúa exclusivamente como agente intermediario y custodio de fondos. No asumimos responsabilidad sobre el estado, calidad, funcionamiento o vicios ocultos del producto.\n\n` +
+                                               `• *🔄 Cancelaciones y Devoluciones:* El costo de gestión del 15% no es reembolsable en caso de cancelación una vez iniciada la custodia. En caso de reclamo, deberás devolver el producto al vendedor para validar el reintegro de tu dinero base.\n\n` +
                                                `🔴 *¡ATENCIÓN OBLIGATORIA!* 🔴\n` +
                                                `*Después de concretar el pago, reenviar este mensaje con la captura de pantalla/comprobante de pago al equipo de TRATO™ para blindar la operación. Este paso es obligatorio.*\n\n` +
                                                `🔗 *Link de pago seguro:* ${data.url}\n\n` +
-                                               `🔗 *Link de retorno:* ${returnUrl}\n\n` +
                                                `Al realizar el pago, aceptás las condiciones del servicio de TRATO™ y las políticas de custodia de fondos.`;
 
                         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensajeComprador)}`, '_blank');
