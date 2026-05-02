@@ -337,9 +337,19 @@
             document.getElementById('cbu-alias').value = vendedorCbu;
             document.getElementById('vendedor-dni').value = vendedorDni;
 
-            // Limpiamos los campos editables para que el formulario siempre comience vacío.
-            document.getElementById('prod').value = "";
-            document.getElementById('monto').value = "";
+            const prodParam = urlParams.get('prod');
+            const montoParam = urlParams.get('monto');
+            if (prodParam) {
+                document.getElementById('prod').value = decodeURIComponent(prodParam);
+            }
+            if (montoParam) {
+                document.getElementById('monto').value = decodeURIComponent(montoParam);
+                calcularTotal();
+                document.getElementById('acepta-terminos').checked = false;
+                toggleBoton();
+            }
+            
+            // Ya no vaciamos los campos del producto y del monto.
         }
 
         window.addEventListener('DOMContentLoaded', constParams);
@@ -371,10 +381,6 @@
                 document.getElementById('btn-soporte').disabled = !acepta;
             }
         };
-
-        window.enviarSoporteDirecto = function() { // alias o método
-            enviarSoporteDirecto();
-        }
 
         window.enviarSoporteDirecto = function() {
             const producto = document.getElementById('prod').value;
@@ -459,6 +465,9 @@
                 if (data.url) {
                     status.style.display = "none";
 
+                    // Creamos el link de retorno para no perder nada.
+                    const returnUrl = `${window.location.origin}${window.location.pathname}?nombre=${encodeURIComponent(vendedorNombre)}&email=${encodeURIComponent(vendedorEmail)}&telefono=${encodeURIComponent(vendedorTelefono)}&cbu=${encodeURIComponent(vendedorCbu)}&dni=${encodeURIComponent(vendedorDni)}&prod=${encodeURIComponent(producto)}&monto=${encodeURIComponent(montoIngresado)}`;
+
                     if (tipo === 'comprador') {
                         const mensajeComprador = `🛡️ *TRATO™ | TÉRMINOS Y CONDICIONES Y LINK DE PAGO*\n\n` +
                                                `¡Hola! Estás por realizar una compra con el sistema blindado TRATO™ (RichardBro). Tu seguridad es nuestra prioridad. Por favor, lee atentamente las condiciones de protección:\n\n` +
@@ -469,6 +478,7 @@
                                                `🔴 *¡ATENCIÓN OBLIGATORIA!* 🔴\n` +
                                                `*Después de concretar el pago, reenviar este mensaje con la captura de pantalla/comprobante de pago al equipo de TRATO™ para blindar la operación. Este paso es obligatorio.*\n\n` +
                                                `🔗 *Link de pago seguro:* ${data.url}\n\n` +
+                                               `🔗 *Volver a la pantalla de operaciones:* ${returnUrl}\n\n` +
                                                `Al realizar el pago, aceptás las condiciones del servicio de TRATO™ y las políticas de custodia de fondos.`;
 
                         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensajeComprador)}`, '_blank');
