@@ -40,14 +40,14 @@
 
     <div class="central-container">
         <h1>TRATO™</h1>
-        <div class="subtitle">Búnker RichardBro</div>
+        <div class="subtitle">Búnker RichardBro™</div>
         
         <div class="status-box">
             <p class="status-text">🔒 PAGO RECIBIDO - EN CUSTODIA</p>
             <p id="info-operacion" style="font-size: 0.9em; color: #aaa;">Cargando detalles...</p>
             
             <p style="font-size: 0.75em; color: #00ff9d; margin-top: 15px; border-top: 1px dashed #00d4ff; padding-top: 10px; line-height: 1.35;">
-                <strong>⚡ PROCESAMIENTO ÁGIL:</strong> La liberación se gestiona de forma <strong>inmediata</strong> tras validar la conformidad. (Plazo máximo de seguridad: 24hs).
+                <strong>⚡ PROCESAMIENTO ÁGIL:</strong> La liberación se gestiona de forma <strong>inmediata</strong> tras validar la conformidad (Plazo máximo de seguridad: 24hs).
             </p>
         </div>
 
@@ -56,7 +56,7 @@
         <button onclick="notificar('presencial')" class="btn-portal btn-primary">🤝 COORDINAR ENTREGA</button>
 
         <div class="legal-text">
-            Custodia blindada RichardBro 2026. Procesamiento de pagos sujeto a validación de identidad.
+            Custodia blindada RichardBro™ 2026. Procesamiento de pagos sujeto a validación de identidad.
         </div>
     </div>
 
@@ -76,7 +76,7 @@
             const compradorDni = document.getElementById('comprador-dni').value;
             if (!compradorDni) return alert("Ingresa tu DNI.");
             
-            const mensajeComprobante = `🛡️ *COMPROBANTE RECIBIDO - TRATO™*\n\n¡Hola! Envío el comprobante para activar el Búnker.\n\n* ID: ${opID}\n* DNI: ${compradorDni}\n\n_Entiendo que la liberación es inmediata tras la validación de seguridad (máx 24hs)._`;
+            const mensajeComprobante = `🛡️ *COMPROBANTE RECIBIDO - TRATO™*\n\n¡Hola! Envío el comprobante para activar el Búnker.\n\n* ID: ${opID}\n* DNI: ${compradorDni}\n\n_Entiendo que la liberación es inmediata tras la validación de seguridad (máx 24hs). RichardBro™ 2026._`;
 
             window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(mensajeComprobante)}`, '_blank');
             document.getElementById('btn-continuar').disabled = false;
@@ -86,7 +86,7 @@
 
         window.notificar = (tipo) => {
             const dni = document.getElementById('comprador-dni').value;
-            let msg = `🛡️ *PAGO CONFIRMADO TRATO™*\n\nEl pago por ${decodeURIComponent(producto)} ya está en el Búnker.\n\n* ID: ${opID}\n* DNI: ${dni}\n\n_Aguardo validación para proceder._`;
+            let msg = `🛡️ *PAGO CONFIRMADO TRATO™*\n\nEl pago por ${decodeURIComponent(producto)} ya está en el Búnker.\n\n* ID: ${opID}\n* DNI: ${dni}\n\n_Aguardo validación para proceder. RichardBro™ 2026._`;
             window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(msg)}`, '_blank');
         };
     </script>
