@@ -130,7 +130,7 @@
         <form id="registroForm" onsubmit="iniciarSesion(event)">
             <div class="input-group">
                 <label for="nombre">Nombre o Empresa</label>
-                <input type="text" id="nombre" placeholder="Ej. Juan Pérez o RichardBro" required autocomplete="name">
+                <input type="text" id="nombre" placeholder="Ej. Juan Pérez o RichardBro™" required autocomplete="name">
             </div>
 
             <div class="input-group">
@@ -149,7 +149,7 @@
             </div>
             
             <div class="input-group">
-                <label for="dni">Cumpla con su DNI aquí</label>
+                <label for="dni">Validación de Identidad (DNI)</label>
                 <input type="tel" id="dni" placeholder="Ej. 35123456" pattern="[0-9]*" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
             </div>
 
@@ -164,7 +164,7 @@
         </form>
 
         <div class="footer-note">
-            TRATO™ BY RICHARDBRO - 2026
+            TRATO™ BY RICHARDBRO™ - 2026
         </div>
     </div>
 
