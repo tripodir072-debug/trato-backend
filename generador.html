@@ -314,7 +314,7 @@
         </div>
 
         <div class="legal-notice">
-            Al generar el certificado, se acepta el protocolo de protección y las condiciones de intermediación de fondos de la red RichardBro. <a style="color: var(--accent-color); text-decoration: underline; cursor: pointer;" onclick="abrirTerminos()">Ver términos legales completos</a>.
+            Al generar el certificado, se acepta el protocolo de protección y las condiciones de intermediación de fondos de la red RichardBro™. <a style="color: var(--accent-color); text-decoration: underline; cursor: pointer;" onclick="abrirTerminos()">Ver términos legales completos</a>.
         </div>
     </div>
 
@@ -323,7 +323,7 @@
             <span class="close-modal" onclick="cerrarTerminos()">&times;</span>
             <h3 class="modal-title">🛡️ Términos y Condiciones Legales - TRATO™</h3>
             <div class="modal-text">
-                <p><strong>1. Naturaleza del Servicio y Costos:</strong> TRATO™ (plataforma operada por RichardBro) actúa exclusivamente como agente intermediario y custodio de fondos. El recargo del 15% corresponde al costo por el uso de la plataforma y el servicio de gestión de custodia en el búnker. Este costo del 15% es <em>no reembolsable</em> una vez que los fondos han sido depositados y el servicio ha comenzado a procesarse. La plataforma no otorga garantías ni asume responsabilidad civil, comercial o penal sobre el estado, calidad o funcionamiento del producto transaccionado.</p>
+                <p><strong>1. Naturaleza del Servicio y Costos:</strong> TRATO™ (plataforma operada por RichardBro™) actúa exclusivamente como agente intermediario y custodio de fondos. El recargo del 15% corresponde al costo por el uso de la plataforma y el servicio de gestión de custodia en el búnker. Este costo del 15% es <em>no reembolsable</em> una vez que los fondos han sido depositados y el servicio ha comenzado a procesarse. La plataforma no otorga garantías ni asume responsabilidad civil, comercial o penal sobre el estado, calidad o funcionamiento del producto transaccionado.</p>
                 <p><strong>2. Responsabilidad del Usuario:</strong> Cada usuario es absoluta y exclusivamente responsable de sus propios actos y transacciones. La plataforma actúa como un tercero de confianza, pero no interviene en las negociaciones comerciales entre las partes.</p>
                 <p><strong>3. Validación de Identidad:</strong> Es obligatorio para vendedor y comprador presentar su documento de identidad (DNI o similar) para validar la operación.</p>
                 <p><strong>4. Sistema de Custodia de Fondos:</strong> El dinero se retiene en el búnker de garantía hasta que la operación se concrete y se verifique mediante el protocolo de TRATO™.</p>
@@ -338,7 +338,7 @@
                     <li><em>Liberación:</em> Se procede a liberar el dinero una vez confirmada la entrega o intercambio.</li>
                     <li><em>Devoluciones:</em> Si el producto no coincide, el valor base se reintegra al comprador tras la devolución física del artículo. El 15% de gestión no es reembolsable.</li>
                     <li><em>Plazo de Custodia:</em> Los fondos se mantienen hasta 48 horas tras la entrega si no hay reclamos previos.</li>
-                    <li><strong>Plazos de Procesamiento y Verificación Manual:</strong> Todas las liberaciones de fondos y reintegros están sujetos a una validación manual por parte de un operador de TRATO™. Una vez recibida la conformidad, la plataforma dispone de un plazo de procesamiento de hasta <strong>24 horas hábiles</strong> para ejecutar la transferencia. TRATO™ no se responsabiliza por demoras derivadas de este proceso humano, priorizando siempre la seguridad del capital.</li>
+                    <li><strong>Plazos de Procesamiento y Verificación Manual:</strong> Todas las liberaciones de fondos y reintegros están sujetos a una validación manual por parte de un operador de TRATO™. Una vez recibida la conformidad, la plataforma dispone de un plazo de procesamiento ágil e inmediato tras la validación (plazo máximo de seguridad de 24 horas hábiles). TRATO™ no se responsabiliza por demoras derivadas de este proceso humano, priorizando siempre la seguridad del capital.</li>
                 </ul>
                 <p><strong>7. Privacidad:</strong> Todos los datos personales son tratados con estricta confidencialidad y se eliminan de forma permanente una vez que la transacción finaliza con éxito.</p>
                 <p style="color: var(--danger-color); font-weight: bold;">Aviso: Solo se responden mensajes (no llamadas). El uso indebido está sujeto a bloqueo.</p>
@@ -352,7 +352,7 @@
 
         function constParams() {
             const urlParams = new URLSearchParams(window.location.search);
-            const vendedorNombre = urlParams.get('nombre') || 'RichardBro';
+            const vendedorNombre = urlParams.get('nombre') || 'RichardBro™';
             const vendedorEmail = urlParams.get('email') || 'sin-correo@trato.com';
             const vendedorTelefono = urlParams.get('telefono') || 'Sin Teléfono';
             const vendedorCbu = urlParams.get('cbu') || 'Sin CBU asignado';
@@ -415,7 +415,7 @@
                           `*DNI:* ${urlParams.get('dni')}\n` +
                           `*Producto:* ${producto}\n` +
                           `*Monto Total:* $ ${total.toFixed(2)}\n\n` +
-                          `_Validación en proceso para depósito en búnker._`;
+                          `_Validación en proceso para depósito en búnker. RichardBro™ 2026._`;
             
             window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(mensaje)}`, '_blank');
         };
@@ -441,7 +441,7 @@
                     const msg = `🛡️ *TRATO™ | LINK DE PAGO*\n\n` +
                               `Tu dinero queda protegido en el búnker hasta que recibas el producto.\n\n` +
                               `🔗 *Pago seguro:* ${data.url}\n\n` +
-                              `_Al pagar aceptas los términos de custodia y el plazo de validación manual de 24hs._`;
+                              `_Al pagar aceptas los términos de custodia y el plazo de validación manual ágil (máx 24hs). RichardBro™ 2026._`;
                     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
                 }
             } catch (e) {
