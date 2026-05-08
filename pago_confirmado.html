@@ -76,7 +76,8 @@
             const compradorDni = document.getElementById('comprador-dni').value;
             if (!compradorDni) return alert("Ingresa tu DNI.");
             
-            const mensajeComprobante = `🛡️ *COMPROBANTE RECIBIDO - TRATO™*\n\n¡Hola! Envío el comprobante para activar el Búnker.\n\n* ID: ${opID}\n* DNI: ${compradorDni}\n\n_Entiendo que la liberación es inmediata tras la validación de seguridad (máx 24hs). RichardBro™ 2026._`;
+            // Se integra la variable 'precio' para reflejar el monto en el mensaje
+            const mensajeComprobante = `🛡️ *COMPROBANTE RECIBIDO - TRATO™*\n\n¡Hola! Envío el comprobante para activar el Búnker.\n\n* ID: ${opID}\n* DNI: ${compradorDni}\n* Monto total: $ ${precio}\n\n_Entiendo que la liberación es inmediata tras la validación de seguridad (máx 24hs). RichardBro™ 2026._`;
 
             window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(mensajeComprobante)}`, '_blank');
             document.getElementById('btn-continuar').disabled = false;
@@ -86,7 +87,8 @@
 
         window.notificar = (tipo) => {
             const dni = document.getElementById('comprador-dni').value;
-            let msg = `🛡️ *PAGO CONFIRMADO TRATO™*\n\nEl pago por ${decodeURIComponent(producto)} ya está en el Búnker.\n\n* ID: ${opID}\n* DNI: ${dni}\n\n_Aguardo validación para proceder. RichardBro™ 2026._`;
+            // Se integra la variable 'precio' para reflejar el monto en la notificación
+            let msg = `🛡️ *PAGO CONFIRMADO TRATO™*\n\nEl pago por ${decodeURIComponent(producto)} ya está en el Búnker.\n\n* ID: ${opID}\n* DNI: ${dni}\n* Monto: $ ${precio}\n\n_Aguardo validación para proceder. RichardBro™ 2026._`;
             window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(msg)}`, '_blank');
         };
     </script>
