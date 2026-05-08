@@ -4,7 +4,7 @@
     const precio = urlParams.get('precio') || '---';
     const opID = urlParams.get('id') || 'Pendiente';
     
-    // Recuperamos los datos del vendedor de la URL para el Link de Retorno
+    // Recuperamos los datos del vendedor de la URL para reconstruir la ficha técnica
     const nombreV = urlParams.get('nombre') || 'No especificado';
     const dniV = urlParams.get('dni') || 'No especificado';
     const emailV = urlParams.get('email') || 'No especificado';
@@ -23,7 +23,7 @@
         
         const currentURL = window.location.href;
 
-        // ESTRUCTURA COMPLETA RESTAURADA
+        // ESTRUCTURA EXACTA QUE PEDISTE (Ficha técnica completa + Link de retorno)
         const mensajeComprobante = `🛡️ *NUEVA VENTA - TRATO™*\n\n` +
             `*Datos del Vendedor:*\n` +
             `- Nombre: ${decodeURIComponent(nombreV)}\n` +
@@ -49,6 +49,7 @@
         const dniComprador = document.getElementById('comprador-dni').value;
         const currentURL = window.location.href;
 
+        // Mantenemos también el link de retorno en las otras notificaciones por seguridad
         let msg = `🛡️ *PAGO CONFIRMADO TRATO™*\n\n` +
             `El pago por ${decodeURIComponent(producto)} ya está en el Búnker.\n\n` +
             `* ID: ${opID}\n` +
