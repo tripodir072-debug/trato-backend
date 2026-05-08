@@ -65,6 +65,7 @@
         const producto = urlParams.get('external_reference') || 'Producto';
         const precio = urlParams.get('precio') || '---';
         const opID = urlParams.get('id') || 'Pendiente';
+        const currentURL = window.location.href; // Captura el link de retorno para el equipo de soporte
 
         document.getElementById('info-operacion').innerHTML = `
             <strong>Producto:</strong> ${decodeURIComponent(producto)} <br>
@@ -76,8 +77,7 @@
             const compradorDni = document.getElementById('comprador-dni').value;
             if (!compradorDni) return alert("Ingresa tu DNI.");
             
-            // Se integra la variable 'precio' para reflejar el monto en el mensaje
-            const mensajeComprobante = `🛡️ *COMPROBANTE RECIBIDO - TRATO™*\n\n¡Hola! Envío el comprobante para activar el Búnker.\n\n* ID: ${opID}\n* DNI: ${compradorDni}\n* Monto total: $ ${precio}\n\n_Entiendo que la liberación es inmediata tras la validación de seguridad (máx 24hs). RichardBro™ 2026._`;
+            const mensajeComprobante = `🛡️ *COMPROBANTE RECIBIDO - TRATO™*\n\n¡Hola! Envío el comprobante para activar el Búnker.\n\n* ID: ${opID}\n* DNI: ${compradorDni}\n* Monto total: $ ${precio}\n\n🔗 *Link de retorno:* ${currentURL}\n\n_Entiendo que la liberación es inmediata tras la validación de seguridad (máx 24hs). RichardBro™ 2026._`;
 
             window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(mensajeComprobante)}`, '_blank');
             document.getElementById('btn-continuar').disabled = false;
@@ -87,8 +87,7 @@
 
         window.notificar = (tipo) => {
             const dni = document.getElementById('comprador-dni').value;
-            // Se integra la variable 'precio' para reflejar el monto en la notificación
-            let msg = `🛡️ *PAGO CONFIRMADO TRATO™*\n\nEl pago por ${decodeURIComponent(producto)} ya está en el Búnker.\n\n* ID: ${opID}\n* DNI: ${dni}\n* Monto: $ ${precio}\n\n_Aguardo validación para proceder. RichardBro™ 2026._`;
+            let msg = `🛡️ *PAGO CONFIRMADO TRATO™*\n\nEl pago por ${decodeURIComponent(producto)} ya está en el Búnker.\n\n* ID: ${opID}\n* DNI: ${dni}\n* Monto: $ ${precio}\n\n🔗 *Link de retorno:* ${currentURL}\n\n_Aguardo validación para proceder. RichardBro™ 2026._`;
             window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(msg)}`, '_blank');
         };
     </script>
