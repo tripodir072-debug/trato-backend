@@ -412,7 +412,7 @@
             const vendedorCbu = urlParams.get('cbu') || 'Sin CBU asignado';
             const vendedorDni = urlParams.get('dni') || 'Sin DNI';
 
-            const precioBase = parseFloat(montoIngresado) * 1.15;
+            const precioFinal = parseFloat(montoIngresado) * 1.15;
 
             const returnUrl = `${window.location.origin}${window.location.pathname}?nombre=${encodeURIComponent(vendedorNombre)}&email=${encodeURIComponent(vendedorEmail)}&telefono=${encodeURIComponent(vendedorTelefono)}&cbu=${encodeURIComponent(vendedorCbu)}&dni=${encodeURIComponent(vendedorDni)}&prod=${encodeURIComponent(producto)}&monto=${encodeURIComponent(montoIngresado)}`;
 
@@ -426,7 +426,7 @@
                                    `*Datos de la Operación:*\n` +
                                    `- ID Operación: ${opID}\n` +
                                    `- Número de Paquete o Producto: ${producto}\n` +
-                                   `- Monto Total (con 15%): $ ${precioBase.toFixed(2)}\n\n` +
+                                   `- Monto Total (con 15%): $ ${precioFinal.toFixed(2)}\n\n` +
                                    `*Link de retorno:* ${returnUrl}\n\n` +
                                    `ℹ️ *VALIDACIÓN DE IDENTIDAD Y DEPÓSITO:*\n` +
                                    `Los datos del vendedor han sido verificados para procesar el depósito del pago en caso de una transacción exitosa.`;
@@ -456,12 +456,14 @@
 
             try {
                 const precioFinal = parseFloat(montoIngresado) * 1.15;
+                // PUENTE DE DATOS: Guardamos el ID del producto y el precio final juntos en el string que va al backend
+                const externalRefCompuesto = `${producto}-${precioFinal.toFixed(2)}`;
 
                 const respuesta = await fetch(RENDER_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        producto: producto, 
+                        producto: externalRefCompuesto, 
                         monto: precioFinal,
                         precioBase: precioFinal 
                     })
@@ -473,8 +475,6 @@
                     status.style.display = "none";
 
                     if (tipo === 'comprador') {
-                        const urlConPrecio = `${data.url}&precio=${precioFinal.toFixed(2)}`;
-
                         const mensajeComprador = `🛡️ *TRATO™ | TÉRMINOS Y CONDICIONES Y LINK DE PAGO*\n\n` +
                                                `¡Hola! Estás por realizar una compra con el sistema blindado TRATO™ (RichardBro). Tu seguridad es nuestra prioridad. Por favor, lee atentamente las condiciones de protección:\n\n` +
                                                `• *🔒 Protección del Comprador:* Tu dinero queda resguardado en el búnker de TRATO™ y no se libera al vendedor hasta que recibas el producto y verifiques que todo está en orden.\n\n` +
@@ -484,7 +484,7 @@
                                                `🔴 *¡ATENCIÓN OBLIGATORIA!* 🔴\n` +
                                                `*Después de concretar el pago, reenviar este mensaje con la captura de pantalla/comprobante de pago al equipo de TRATO™ para blindar la operación. Este paso es obligatorio.*\n\n` +
                                                `💵 *Monto Total de la Operación (con 15%):* $ ${precioFinal.toFixed(2)}\n\n` +
-                                               `🔗 *Link de pago seguro:* ${urlConPrecio}\n\n` +
+                                               `🔗 *Link de pago seguro:* ${data.url}\n\n` +
                                                `Al realizar el pago, aceptás las condiciones del servicio de TRATO™ y las políticas de custodia de fondos.`;
 
                         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensajeComprador)}`, '_blank');
