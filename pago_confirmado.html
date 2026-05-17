@@ -90,35 +90,50 @@
         const externalRefRaw = urlParams.get('external_reference') || '';
         const opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación';
 
-        // 1. PRIORIDAD DE ENTRADA: Leer la memoria local fija del teléfono (Estrategia Blindada)
-        let precioDetectado = sessionStorage.getItem('trato_ultimo_precio') || '';
-        let productoDetectado = sessionStorage.getItem('trato_ultimo_producto') || '';
+        // 1. Intentar sacar precio del link (Formato compuesto o plano)
+        let precioDetectado = '';
+        let productoDetectado = 'Producto no especificado';
 
-        // 2. RESPALDO SECUNDARIO: Si la memoria está vacía, extrae de la URL de Mercado Pago
-        if (!precioDetectado || precioDetectado === '' || precioDetectado === 'Monto') {
-            if (externalRefRaw) {
-                const decodificado = decodeURIComponent(externalRefRaw);
-                const regexPrecio = /(\d+\.\d{2})$/;
-                const encontrado = decodificado.match(regexPrecio);
+        if (externalRefRaw) {
+            const decodificado = decodeURIComponent(externalRefRaw);
+            const regexPrecio = /(\d+\.\d{2})$/;
+            const encontrado = decodificado.match(regexPrecio);
 
-                if (encontrado) {
-                    precioDetectado = encontrado[1];
-                    productoDetectado = decodificado.replace(regexPrecio, '').replace(/[-_\s]+$/, '');
-                } else {
-                    let partes = decodificado.split('-');
-                    productoDetectado = partes[0] || 'Producto no especificado';
-                    precioDetectado = partes[1] || '';
-                }
-            }
-            
-            // Si la URL falló, busca las variables nativas sueltas de respaldo
-            if (!precioDetectado || precioDetectado === '') {
-                precioDetectado = urlParams.get('transaction_amount') || urlParams.get('amount') || 'Monto no especificado';
+            if (encontrado) {
+                precioDetectado = encontrado[1];
+                productoDetectado = decodificado.replace(regexPrecio, '').replace(/[-_\s]+$/, '');
+            } else {
+                let partes = decodificado.split('-');
+                productoDetectado = partes[0] || 'Producto no especificado';
+                precioDetectado = partes[1] || '';
             }
         }
 
-        // Función centralizada para reflejar el precio final real en la interfaz del búnker
+        // 2. Si Mercado Pago borró todo, usamos la memoria local del teléfono (Plan de Blindaje)
+        if (!precioDetectado || precioDetectado === '' || precioDetectado === 'Monto') {
+            const precioGuardado = sessionStorage.getItem('trato_ultimo_precio');
+            const productoGuardado = sessionStorage.getItem('trato_ultimo_producto');
+            
+            if (precioGuardado) {
+                precioDetectado = precioGuardado;
+            } else {
+                precioDetectado = urlParams.get('transaction_amount') || urlParams.get('amount') || 'Monto no especificado'; 
+            }
+            
+            if (productoGuardado) {
+                productoDetectado = productoGuardado;
+            }
+        } else {
+            // Si vino bien en la URL, lo dejamos guardado en la memoria por las dudas
+            sessionStorage.setItem('trato_ultimo_precio', precioDetectado);
+            sessionStorage.setItem('trato_ultimo_producto', productoDetectado);
+        }
+
         function actualizarUI() {
+            // CORRECCIÓN SEGURO: Si la app nativa tiró el precio roto o vacío, lo forzamos a buscar un fallback numérico viable
+            if (!precioDetectado || precioDetectado === '') {
+                precioDetectado = urlParams.get('transaction_amount') || urlParams.get('amount') || 'Monto no especificado';
+            }
             document.getElementById('info-operacion').innerHTML = `
                 <strong>Producto:</strong> ${productoDetectado} <br>
                 <strong>Monto en Custodia:</strong> $ ${precioDetectado} <br>
@@ -132,6 +147,11 @@
             const compradorDni = document.getElementById('comprador-dni').value;
             if (!compradorDni) {
                 return alert("Por favor, ingresa tu DNI o el del titular de la cuenta antes de enviar el comprobante.");
+            }
+
+            // Forzamos la re-lectura local antes de armar el string para blindar el WhatsApp
+            if (!precioDetectado || precioDetectado === '') {
+                precioDetectado = urlParams.get('transaction_amount') || urlParams.get('amount') || 'Monto no especificado';
             }
 
             const numeroSoporte = "5493456528480";
@@ -165,6 +185,10 @@
 
             if (!compradorDni) {
                 return alert("Por favor, ingresa tu DNI en el panel de bloqueo antes de notificar.");
+            }
+
+            if (!precioDetectado || precioDetectado === '') {
+                precioDetectado = urlParams.get('transaction_amount') || urlParams.get('amount') || 'Monto no especificado';
             }
 
             if (tipo === 'envio') {
