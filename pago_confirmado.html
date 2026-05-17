@@ -87,15 +87,33 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const externalRefRaw = urlParams.get('external_reference') || 'Producto-Monto no especificado';
+        const externalRefRaw = urlParams.get('external_reference') || '';
         const opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación';
 
-        // Procesamos el external_reference compuesto
-        let partes = decodeURIComponent(externalRefRaw).split('-');
-        let productoGlobal = partes[0] || 'Producto no especificado';
-        let precioGlobal = partes[1] || 'Monto no especificado';
+        // Variables de extracción limpias por defecto
+        let productoGlobal = 'Producto no especificado';
+        let precioGlobal = 'Monto no especificado';
 
-        // Respaldo por si viene de otra forma
+        if (externalRefRaw) {
+            const decodificado = decodeURIComponent(externalRefRaw);
+            
+            // Separación Ultra-Segura: Busca el precio (números con punto decimal como 115.00)
+            const regexPrecio = /(\d+\.\d{2})$/;
+            const encontrado = decodificado.match(regexPrecio);
+
+            if (encontrado) {
+                precioGlobal = encontrado[1];
+                // El producto es todo lo que está antes del precio final, quitando guiones o espacios molestos
+                productoGlobal = decodificado.replace(regexPrecio, '').replace(/[-_\s]+$/, '');
+            } else {
+                // Si falla el patrón, se usa el split clásico como plan B
+                let partes = decodificado.split('-');
+                productoGlobal = partes[0] || 'Producto no especificado';
+                precioGlobal = partes[1] || 'Monto no especificado';
+            }
+        }
+
+        // Respaldo secundario por si Mercado Pago devuelve los montos en sus variables nativas
         if (precioGlobal === 'Monto no especificado' || precioGlobal === 'Monto') {
             let montoRespaldo = urlParams.get('transaction_amount') || urlParams.get('amount') || urlParams.get('precio');
             if (montoRespaldo && montoRespaldo !== 'Monto no especificado') {
@@ -118,18 +136,14 @@
             if (!compradorDni) {
                 return alert("Por favor, ingresa tu DNI o el del titular de la cuenta antes de enviar el comprobante.");
             }
-            
-            // Forzamos la re-lectura en caliente de las variables para que el texto de WhatsApp use el precio real decodificado
-            const productoMensaje = productoGlobal;
-            const precioMensaje = precioGlobal;
 
             const numeroSoporte = "5493456528480";
             const mensajeComprobante = `🛡️ *DECLARACIÓN Y COMPROBANTE DE PAGO - TRATO™*\n\n` +
                                        `¡Hola! Envío el presente comprobante para activar formalmente el protocolo de custodia de fondos.\n\n` +
                                        `*Datos de la operación:*\n` +
                                        `- ID de Operación / Comprobante: ${opID}\n` +
-                                       `- Producto: ${productoMensaje}\n` +
-                                       `- Monto total: $ ${precioMensaje}\n` +
+                                       `- Producto: ${productoGlobal}\n` +
+                                       `- Monto total: $ ${precioGlobal}\n` +
                                        `- DNI del Comprador/Titular de Pago: ${compradorDni}\n\n` +
                                        `📸 *VALIDACIÓN OBLIGATORIA (FOTO/VIDEO):* \nPor favor adjuntá la foto o video del producto/paquete que muestre el código de operación pegado para blindar la operación y validar su existencia.\n\n` +
                                        `🔗 *Accedé a tu cuenta de Mercado Pago aquí:* \nhttps://www.mercadopago.com.ar\n\n` +
@@ -155,14 +169,11 @@
             if (!compradorDni) {
                 return alert("Por favor, ingresa tu DNI en el panel de bloqueo antes de notificar.");
             }
-            
-            const productoMensaje = productoGlobal;
-            const precioMensaje = precioGlobal;
 
             if (tipo === 'envio') {
-                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podés proceder con el despacho del producto.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${productoMensaje}\n* Monto: $ ${precioMensaje}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera del envío.`;
+                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podés proceder con el despacho del producto.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${productoGlobal}\n* Monto: $ ${precioGlobal}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera del envío.`;
             } else {
-                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podemos coordinar el encuentro para la entrega.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${productoMensaje}\n* Monto: $ ${precioMensaje}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera para coordinar el punto de encuentro.`;
+                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podemos coordinar el encuentro para la entrega.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${productoGlobal}\n* Monto: $ ${precioGlobal}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera para coordinar el punto de encuentro.`;
             }
 
             window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensaje)}`, '_blank');
