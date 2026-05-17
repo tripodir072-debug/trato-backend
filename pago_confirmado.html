@@ -90,7 +90,6 @@
         const externalRefRaw = urlParams.get('external_reference') || '';
         const opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación';
 
-        // 1. Intentar sacar precio del link (Formato compuesto o plano)
         let precioDetectado = '';
         let productoDetectado = 'Producto no especificado';
 
@@ -103,37 +102,35 @@
                 precioDetectado = encontrado[1];
                 productoDetectado = decodificado.replace(regexPrecio, '').replace(/[-_\s]+$/, '');
             } else {
-                // PLAN B SEGURO: Si no tiene punto decimal, divide directo por el guion medio
                 let partes = decodificado.split('-');
                 productoDetectado = partes[0] || 'Producto no especificado';
                 precioDetectado = partes[1] || '';
             }
         }
 
-        // 2. Si Mercado Pago borró todo, usamos la memoria local del teléfono (Plan de Blindaje)
+        // CONTROL DE SEGURIDAD ABSOLUTO: Si la URL compuesto falló, extraemos de las variables nativas limpias que manda Mercado Pago
         if (!precioDetectado || precioDetectado === '' || precioDetectado === 'Monto') {
+            precioDetectado = urlParams.get('transaction_amount') || urlParams.get('amount') || urlParams.get('precio') || '';
+        }
+
+        // Respaldo secundario por sessionStorage
+        if (!precioDetectado || precioDetectado === '') {
             const precioGuardado = sessionStorage.getItem('trato_ultimo_precio');
             const productoGuardado = sessionStorage.getItem('trato_ultimo_producto');
             
-            if (precioGuardado) {
-                precioDetectado = precioGuardado;
-            } else {
-                precioDetectado = urlParams.get('transaction_amount') || urlParams.get('amount') || 'Monto no especificado'; 
-            }
-            
-            if (productoGuardado) {
-                productoDetectado = productoGuardado;
-            }
+            if (precioGuardado) precioDetectado = precioGuardado;
+            if (productoGuardado) productoDetectado = productoGuardado;
         } else {
-            // Si vino bien en la URL, lo dejamos guardado en la memoria por las dudas
             sessionStorage.setItem('trato_ultimo_precio', precioDetectado);
             sessionStorage.setItem('trato_ultimo_producto', productoDetectado);
         }
 
+        // Si después de todo sigue vacío, le ponemos un valor genérico o el de seguridad para que no diga "no especificado"
+        if (!precioDetectado || precioDetectado === '') {
+            precioDetectado = 'Monto no especificado';
+        }
+
         function actualizarUI() {
-            if (!precioDetectado || precioDetectado === '') {
-                precioDetectado = urlParams.get('transaction_amount') || urlParams.get('amount') || 'Monto no especificado';
-            }
             document.getElementById('info-operacion').innerHTML = `
                 <strong>Producto:</strong> ${productoDetectado} <br>
                 <strong>Monto en Custodia:</strong> $ ${precioDetectado} <br>
@@ -147,10 +144,6 @@
             const compradorDni = document.getElementById('comprador-dni').value;
             if (!compradorDni) {
                 return alert("Por favor, ingresa tu DNI o el del titular de la cuenta antes de enviar el comprobante.");
-            }
-
-            if (!precioDetectado || precioDetectado === '') {
-                precioDetectado = urlParams.get('transaction_amount') || urlParams.get('amount') || 'Monto no especificado';
             }
 
             const numeroSoporte = "5493456528480";
@@ -184,10 +177,6 @@
 
             if (!compradorDni) {
                 return alert("Por favor, ingresa tu DNI en el panel de bloqueo antes de notificar.");
-            }
-
-            if (!precioDetectado || precioDetectado === '') {
-                precioDetectado = urlParams.get('transaction_amount') || urlParams.get('amount') || 'Monto no especificado';
             }
 
             if (tipo === 'envio') {
