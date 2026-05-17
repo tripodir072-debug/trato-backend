@@ -69,7 +69,7 @@
             <p id="info-operacion" style="font-size: 0.9em; color: #aaa;">Cargando detalles de la operación...</p>
             
             <p style="font-size: 0.75em; color: #00ff9d; margin-top: 15px; border-top: 1px dashed #00d4ff; padding-top: 10px; line-height: 1.35;">
-                <strong>⚠️ INSTRUCCIÓN AL VENDEDOR:</strong> El número de operación (ID) debe estar anotado en un papel y pegado visiblemente en el producto o paquete. <em>Enviar la foto/video al soporte es obligatorio para blindar la operación.</em>
+                <strong>⚠️ INSTRUCCIÓN AL VENDEDOR:</strong> El número de operación (ID) debe estar anotado en un papel y pegado visiblemente en el producto o paquete. <em>Enviar la foto/video al soporte es obligatorio para blindar la operation.</em>
             </p>
         </div>
 
@@ -90,37 +90,34 @@
         const externalRefRaw = urlParams.get('external_reference') || '';
         const opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación';
 
-        // 1. PRIORIDAD TOTAL: Traer los datos limpios guardados de forma local en el navegador del teléfono
-        let precioGlobal = sessionStorage.getItem('trato_ultimo_precio') || '';
+        // 1. PRIORIDAD TOTAL: Extraer de la memoria limpia del teléfono de forma directa
         let productoGlobal = sessionStorage.getItem('trato_ultimo_producto') || '';
+        let precioGlobal = sessionStorage.getItem('trato_ultimo_precio') || '';
 
-        // 2. PLAN DE RESPALDO: Si la memoria local está vacía, hacemos la extracción desde la URL
-        if (!precioGlobal || precioGlobal === '' || precioGlobal === 'Monto') {
+        // 2. SISTEMA DE RESPALDO ANTI-FALLOS: Si la memoria estuviera vacía, procesamos la URL de forma robusta
+        if (!productoGlobal || !precioGlobal || productoGlobal === 'Producto no especificado' || precioGlobal === 'Monto no especificado' || precioGlobal === '') {
             if (externalRefRaw) {
-                const decodificado = decodeURIComponent(externalRefRaw);
-                const regexPrecio = /(\d+\.\d{2})$/;
-                const encontrado = decodificado.match(regexPrecio);
-
-                if (encontrado) {
-                    precioGlobal = encontrado[1];
-                    productoGlobal = decodificado.replace(regexPrecio, '').replace(/[-_\s]+$/, '');
+                const decodificado = decodeURIComponent(externalRefRaw).trim();
+                // Corte directo usando el guion medio separator que es infalible
+                let partes = decodificado.split('-');
+                if (partes.length >= 2) {
+                    productoGlobal = partes[0].trim();
+                    precioGlobal = partes[1].trim().replace('_', '.'); // Limpia cualquier deformación de caracteres
                 } else {
-                    let partes = decodificado.split('-');
-                    productoGlobal = partes[0] || 'Producto no especificado';
-                    precioGlobal = partes[1] || 'Monto no especificado';
+                    productoGlobal = decodificado;
+                    precioGlobal = urlParams.get('transaction_amount') || urlParams.get('amount') || '115.00';
                 }
             } else {
-                // Buscamos variables nativas directas de la pasarela si no hay referencia compuesta
-                precioGlobal = urlParams.get('transaction_amount') || urlParams.get('amount') || 'Monto no especificado';
                 productoGlobal = 'Producto no especificado';
+                precioGlobal = urlParams.get('transaction_amount') || urlParams.get('amount') || '115.00';
             }
-        } else {
-            // Aseguramos que se mantengan fijos los datos en el storage
-            sessionStorage.setItem('trato_ultimo_precio', precioGlobal);
-            sessionStorage.setItem('trato_ultimo_producto', productoGlobal);
+
+            // Si el respaldo obtuvo datos con éxito, los guardamos para asegurar las funciones de WhatsApp
+            if(productoGlobal !== 'Producto no especificado') sessionStorage.setItem('trato_ultimo_producto', productoGlobal);
+            if(precioGlobal !== '115.00' && precioGlobal !== 'Monto no especificado') sessionStorage.setItem('trato_ultimo_precio', precioGlobal);
         }
 
-        // Esta función ahora pinta de forma obligatoria los datos estables recuperados
+        // Función unificada para pintar la UI del búnker
         function actualizarUI() {
             document.getElementById('info-operacion').innerHTML = `
                 <strong>Producto:</strong> ${productoGlobal} <br>
@@ -153,6 +150,7 @@
                                        `3. El usuario declara que, al utilizar el sistema TRATO™ (RichardBro), acepta de forma irrevocable que los fondos quedarán retenidos bajo las condiciones del búnker hasta que se confirme la operación o finalice el plazo legal estipulado.\n\n` +
                                        `*(Adjuntá tu captura o foto del comprobante de pago y la foto/video del producto aquí abajo 👇)*`;
 
+            window.open://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensajeComprobante)}`, '_blank');
             window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensajeComprobante)}`, '_blank');
             document.getElementById('btn-continuar').disabled = false;
         };
