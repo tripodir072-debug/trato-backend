@@ -103,6 +103,7 @@
                 precioDetectado = encontrado[1];
                 productoDetectado = decodificado.replace(regexPrecio, '').replace(/[-_\s]+$/, '');
             } else {
+                // PLAN B SEGURO: Si no tiene punto decimal, divide directo por el guion medio
                 let partes = decodificado.split('-');
                 productoDetectado = partes[0] || 'Producto no especificado';
                 precioDetectado = partes[1] || '';
@@ -130,7 +131,6 @@
         }
 
         function actualizarUI() {
-            // CORRECCIÓN SEGURO: Si la app nativa tiró el precio roto o vacío, lo forzamos a buscar un fallback numérico viable
             if (!precioDetectado || precioDetectado === '') {
                 precioDetectado = urlParams.get('transaction_amount') || urlParams.get('amount') || 'Monto no especificado';
             }
@@ -149,7 +149,6 @@
                 return alert("Por favor, ingresa tu DNI o el del titular de la cuenta antes de enviar el comprobante.");
             }
 
-            // Forzamos la re-lectura local antes de armar el string para blindar el WhatsApp
             if (!precioDetectado || precioDetectado === '') {
                 precioDetectado = urlParams.get('transaction_amount') || urlParams.get('amount') || 'Monto no especificado';
             }
