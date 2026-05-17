@@ -353,15 +353,15 @@
 
         function constParams() {
             const urlParams = new URLSearchParams(window.location.search);
-            const vendedorNombre = urlParams.get('nombre') || 'RichardBro';
-            const vendedorEmail = urlParams.get('email') || 'sin-correo@trato.com';
-            const vendedorTelefono = urlParams.get('telefono') || 'Sin Teléfono';
-            const vendedorCbu = urlParams.get('cbu') || 'Sin CBU asignado';
-            const vendedorDni = urlParams.get('dni') || 'Sin DNI';
+            const sellerNombre = urlParams.get('nombre') || 'RichardBro';
+            const sellerEmail = urlParams.get('email') || 'sin-correo@trato.com';
+            const sellerTelefono = urlParams.get('telefono') || 'Sin Teléfono';
+            const sellerCbu = urlParams.get('cbu') || 'Sin CBU asignado';
+            const sellerDni = urlParams.get('dni') || 'Sin DNI';
 
-            document.getElementById('session-header').innerText = `👤 Sesión: ${vendedorNombre}`;
-            document.getElementById('cbu-alias').value = vendedorCbu;
-            document.getElementById('vendedor-dni').value = vendedorDni;
+            document.getElementById('session-header').innerText = `👤 Sesión: ${sellerNombre}`;
+            document.getElementById('cbu-alias').value = sellerCbu;
+            document.getElementById('vendedor-dni').value = sellerDni;
 
             const prodParam = urlParams.get('prod');
             const montoParam = urlParams.get('monto');
@@ -439,23 +439,23 @@
             }
 
             const urlParams = new URLSearchParams(window.location.search);
-            const vendedorNombre = urlParams.get('nombre') || 'RichardBro';
-            const vendedorEmail = urlParams.get('email') || 'sin-correo@trato.com';
-            const vendedorTelefono = urlParams.get('telefono') || 'Sin Teléfono';
-            const vendedorCbu = urlParams.get('cbu') || 'Sin CBU asignado';
-            const vendedorDni = urlParams.get('dni') || 'Sin DNI';
+            const sellerNombre = urlParams.get('nombre') || 'RichardBro';
+            const sellerEmail = urlParams.get('email') || 'sin-correo@trato.com';
+            const sellerTelefono = urlParams.get('telefono') || 'Sin Teléfono';
+            const sellerCbu = urlParams.get('cbu') || 'Sin CBU asignado';
+            const sellerDni = urlParams.get('dni') || 'Sin DNI';
 
             const precioBase = parseFloat(montoIngresado) * 1.15;
 
-            const returnUrl = `${window.location.origin}${window.location.pathname}?nombre=${encodeURIComponent(vendedorNombre)}&email=${encodeURIComponent(vendedorEmail)}&telefono=${encodeURIComponent(vendedorTelefono)}&cbu=${encodeURIComponent(vendedorCbu)}&dni=${encodeURIComponent(vendedorDni)}&prod=${encodeURIComponent(producto)}&monto=${encodeURIComponent(montoIngresado)}`;
+            const returnUrl = `${window.location.origin}${window.location.pathname}?nombre=${encodeURIComponent(sellerNombre)}&email=${encodeURIComponent(sellerEmail)}&telefono=${encodeURIComponent(sellerTelefono)}&cbu=${encodeURIComponent(sellerCbu)}&dni=${encodeURIComponent(sellerDni)}&prod=${encodeURIComponent(producto)}&monto=${encodeURIComponent(montoIngresado)}`;
 
             const mensajeSoporte = `🛡️ *NUEVA VENTA - TRATO™*\n\n` +
                                    `*Datos del Vendedor:*\n` +
-                                   `- Nombre: ${vendedorNombre}\n` +
-                                   `- DNI / Identificación: ${vendedorDni}\n` +
-                                   `- Correo: ${vendedorEmail}\n` +
-                                   `- Teléfono: ${vendedorTelefono}\n` +
-                                   `- CBU / Alias: ${vendedorCbu}\n\n` +
+                                   `- Nombre: ${sellerNombre}\n` +
+                                   `- DNI / Identificación: ${sellerDni}\n` +
+                                   `- Correo: ${sellerEmail}\n` +
+                                   `- Teléfono: ${sellerTelefono}\n` +
+                                   `- CBU / Alias: ${sellerCbu}\n\n` +
                                    `*Datos de la Operación:*\n` +
                                    `- ID Operación: ${opID}\n` +
                                    `- Número de Paquete o Producto: ${producto}\n` +
@@ -488,11 +488,11 @@
             status.style.display = "block";
 
             const urlParams = new URLSearchParams(window.location.search);
-            const vendedorNombre = urlParams.get('nombre') || 'RichardBro';
-            const vendedorEmail = urlParams.get('email') || 'sin-correo@trato.com';
-            const vendedorTelefono = urlParams.get('telefono') || 'Sin Teléfono';
-            const vendedorCbu = urlParams.get('cbu') || 'Sin CBU asignado';
-            const vendedorDni = urlParams.get('dni') || 'Sin DNI';
+            const sellerNombre = urlParams.get('nombre') || 'RichardBro';
+            const sellerEmail = urlParams.get('email') || 'sin-correo@trato.com';
+            const sellerTelefono = urlParams.get('telefono') || 'Sin Teléfono';
+            const sellerCbu = urlParams.get('cbu') || 'Sin CBU asignado';
+            const sellerDni = urlParams.get('dni') || 'Sin DNI';
 
             try {
                 const precioBase = parseFloat(montoIngresado) * 1.15;
@@ -502,7 +502,6 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         producto: producto, 
-                        monto: precioBase,
                         precioBase: precioBase 
                     })
                 });
@@ -511,6 +510,10 @@
 
                 if (data.url) {
                     status.style.display = "none";
+
+                    // REGISTRO DE SEGURIDAD EN MEMORIA LOCAL FIJA
+                    sessionStorage.setItem('trato_ultimo_precio', precioBase.toFixed(2));
+                    sessionStorage.setItem('trato_ultimo_producto', producto);
 
                     // ACTUALIZACIÓN DEL MONITOREO CUANDO EL COMPRADOR RECIBE EL LINK
                     document.getElementById('live-id-display').innerText = `#${producto} (ARS $ ${precioBase.toFixed(2)})`;
@@ -534,7 +537,7 @@
                                                `🔗 *Link de pago seguro:* ${data.url}\n\n` +
                                                `Al realizar el pago, aceptás las condiciones del servicio de TRATO™ y las políticas de custodia de fondos.`;
 
-                        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensajeComprobador)}`, '_blank');
+                        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensajeComprador)}`, '_blank');
                     }
 
                     btnSoporte.disabled = false;
