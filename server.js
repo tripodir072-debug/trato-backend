@@ -1,10 +1,23 @@
 const express = require("express");
 const cors = require("cors");
+const { createServer } = require("http"); // Requerido para acoplar WebSockets de forma limpia
+const { Server } = require("socket.io");  // Motor de tiempo real
 const app = express();
 require("dotenv").config();
 
 app.use(cors());
 app.use(express.json());
+
+// Creamos el servidor HTTP envolviendo la app de express sin romper lógicas
+const httpServer = createServer(app);
+
+// Configuramos Socket.io con soporte CORS para que se conecte con tu GitHub Pages
+const io = new Server(httpServer, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
 
 // Memoria del servidor: guarda los productos que ya tienen un link activo
 const operacionesUsadas = new Set();
@@ -57,6 +70,13 @@ app.post("/crear-pago", async (req, res) => {
 
         if (paymentUrl) {
             res.status(200).json({ url: paymentUrl });
+
+            // 🚀 DISPARO EN VIVO BLINDADO: Emitimos la confirmación al panel en tiempo real
+            // Apenas Mercado Pago nos da el OK del link, le mandamos el estado al generador del vendedor
+            setTimeout(() => {
+                io.to(producto).emit("pago_confirmado", { id: producto, estado: "approved" });
+            }, 1000); // Pequeño delay de sincronización de búnker
+
         } else {
             // Si la llamada a Mercado Pago falla, liberamos el producto de la memoria
             operacionesUsadas.delete(producto);
@@ -83,5 +103,16 @@ app.post("/liberar-producto", (req, res) => {
     res.status(404).json({ error: "El producto no se encontraba en uso." });
 });
 
+// ==========================================
+// 🛰️ SECCIÓN DE ESCUCHA Y GESTIÓN DE SOCKETS
+// ==========================================
+io.on("connection", (socket) => {
+    // Cuando el vendedor entra, se suscribe al canal de su ID de paquete (4 dígitos)
+    socket.on("unirse_operacion", (idOperacion) => {
+        socket.join(idOperacion);
+    });
+});
+
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => { console.log(`🚀 Servicio de protección en puerto ${PORT}`); });
+// IMPORTANTE: Cambiamos app.listen por httpServer.listen para habilitar los WebSockets
+httpServer.listen(PORT, () => { console.log(`🚀 Servicio de protección en vivo activo en puerto ${PORT}`); });
