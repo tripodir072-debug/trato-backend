@@ -88,17 +88,37 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const producto = urlParams.get('external_reference') || 'Producto no especificado';
-        
-        // CORRECCIÓN AQUÍ: Busca 'transaction_amount', 'amount' o 'precio' para asegurar que agarre el dato que manda la pasarela
-        const precio = urlParams.get('transaction_amount') || urlParams.get('amount') || urlParams.get('precio') || 'Monto no especificado';
-        
         const opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación';
 
-        document.getElementById('info-operacion').innerHTML = `
-            <strong>Producto:</strong> ${decodeURIComponent(producto)} <br>
-            <strong>Monto en Custodia:</strong> $ ${precio} <br>
-            <strong>ID de Operación / Comprobante:</strong> ${opID}
-        `;
+        // Intentar leer el precio desde los parámetros que manda la URL de redirección
+        let precio = urlParams.get('transaction_amount') || urlParams.get('amount') || urlParams.get('precio');
+
+        // Si Mercado Pago no lo dejó en la URL, intentamos traer los datos directamente desde tu backend de Render usando el ID de operación
+        if (!precio || precio === 'Monto no especificado') {
+            fetch(`https://bunker-trato-api.onrender.com/obtener-pago/${opID}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.monto) {
+                        actualizarPantalla(data.monto);
+                    } else {
+                        actualizarPantalla('Pendiente de verificación');
+                    }
+                })
+                .catch(() => {
+                    actualizarPantalla('Pendiente de verificación');
+                });
+        } else {
+            actualizarPantalla(precio);
+        }
+
+        function actualizarPantalla(montoFinal) {
+            precio = montoFinal;
+            document.getElementById('info-operacion').innerHTML = `
+                <strong>Producto:</strong> ${decodeURIComponent(producto)} <br>
+                <strong>Monto en Custodia:</strong> $ ${precio} <br>
+                <strong>ID de Operación / Comprobante:</strong> ${opID}
+            `;
+        }
 
         window.enviarComprobanteObligatorio = () => {
             const compradorDni = document.getElementById('comprador-dni').value;
