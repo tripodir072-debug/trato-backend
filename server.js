@@ -53,15 +53,19 @@ app.post("/crear-pago", async (req, res) => {
             },
             body: JSON.stringify({
                 items: [{
-                    title: producto,
+                    title: `Paquete #${producto}`,
                     quantity: 1,
                     unit_price: parseFloat(precioBase),
                     currency_id: "ARS"
                 }],
+                // BLINDAJE: Guardamos el ID del producto fijo acá para reconocerlo en la notificación de pago
+                external_reference: producto,
                 back_urls: {
                     success: `https://tripodir072-debug.github.io/trato-backend/pago_confirmado.html?external_reference=${encodeURIComponent(producto)}`
                 },
-                auto_return: "approved"
+                auto_return: "approved",
+                // WEBHOOK: Le indicamos a Mercado Pago a qué dirección de tu búnker gritar cuando cobres
+                notification_url: "https://bunker-trato-api.onrender.com/webhook"
             })
         });
 
@@ -70,13 +74,7 @@ app.post("/crear-pago", async (req, res) => {
 
         if (paymentUrl) {
             res.status(200).json({ url: paymentUrl });
-
-            // 🚀 DISPARO EN VIVO BLINDADO: Emitimos la confirmación al panel en tiempo real
-            // Apenas Mercado Pago nos da el OK del link, le mandamos el estado al generador del vendedor
-            setTimeout(() => {
-                io.to(producto).emit("pago_confirmado", { id: producto, estado: "approved" });
-            }, 1000); // Pequeño delay de sincronización de búnker
-
+            // El io.emit simulado que estaba acá lo removimos, porque ahora el búnker va a gritar con datos reales del webhook
         } else {
             // Si la llamada a Mercado Pago falla, liberamos el producto de la memoria
             operacionesUsadas.delete(producto);
@@ -101,6 +99,44 @@ app.post("/liberar-producto", (req, res) => {
     }
     
     res.status(404).json({ error: "El producto no se encontraba en uso." });
+});
+
+// ==========================================
+// 📡 ENDPOINT WEBHOOK RECEPTOR DE MERCADO PAGO
+// ==========================================
+app.post("/webhook", async (req, res) => {
+    // Respondemos rápido 200 OK a Mercado Pago para que libere la conexión
+    res.status(200).send("OK");
+
+    const { query } = req;
+    
+    // Verificamos si la alerta entrante es sobre una transacción de pago
+    if (query.topic === "payment" || query.type === "payment") {
+        const paymentId = query.id || query["data.id"];
+        
+        try {
+            const accessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN;
+            
+            // Le consultamos a la API de Mercado Pago el estado real de este ID de cobro recibido
+            const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+                headers: { "Authorization": `Bearer ${accessToken}` }
+            });
+            
+            const paymentData = await response.json();
+            
+            // Si impactó con éxito, extraemos el ID original del external_reference
+            if (paymentData.status === "approved") {
+                const idProductoAprobado = paymentData.external_reference;
+                
+                if (idProductoAprobado) {
+                    // 🔥 ¡ALERTA EN VIVO! El servidor le grita al WebSocket asignado a este paquete
+                    io.to(idProductoAprobado).emit("pago_confirmado", { id: idProductoAprobado, estado: "approved" });
+                }
+            }
+        } catch (error) {
+            console.log("Error procesando alerta de pago en búnker:", error.message);
+        }
+    }
 });
 
 // ==========================================
