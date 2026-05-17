@@ -88,7 +88,10 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const producto = urlParams.get('external_reference') || 'Producto no especificado';
-        const precio = urlParams.get('precio') || 'Monto no especificado';
+        
+        // CORRECCIÓN AQUÍ: Busca 'transaction_amount', 'amount' o 'precio' para asegurar que agarre el dato que manda la pasarela
+        const precio = urlParams.get('transaction_amount') || urlParams.get('amount') || urlParams.get('precio') || 'Monto no especificado';
+        
         const opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación';
 
         document.getElementById('info-operacion').innerHTML = `
