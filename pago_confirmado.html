@@ -69,7 +69,7 @@
             <p id="info-operacion" style="font-size: 0.9em; color: #aaa;">Cargando detalles de la operación...</p>
             
             <p style="font-size: 0.75em; color: #00ff9d; margin-top: 15px; border-top: 1px dashed #00d4ff; padding-top: 10px; line-height: 1.35;">
-                <strong>⚠️ INSTRUCCIÓN AL VENDEDOR:</strong> El número de operación (ID) debe estar anotado en un papel y pegado visiblemente en el producto o paquete. <em>Enviar la foto/video al soporte es obligatorio para blindar la operation.</em>
+                <strong>⚠️ INSTRUCCIÓN AL VENDEDOR:</strong> El número de operación (ID) debe estar anotado en un papel y pegado visiblemente en el producto o paquete. <em>Enviar la foto/video al soporte es obligatorio para blindar la operación.</em>
             </p>
         </div>
 
@@ -90,38 +90,49 @@
         const externalRefRaw = urlParams.get('external_reference') || '';
         const opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación';
 
-        // 1. PRIORIDAD TOTAL: Extraer de la memoria limpia del teléfono de forma directa
-        let productoGlobal = sessionStorage.getItem('trato_ultimo_producto') || '';
-        let precioGlobal = sessionStorage.getItem('trato_ultimo_precio') || '';
+        // 1. Intentar sacar precio del link (Formato compuesto o plano)
+        let precioDetectado = '';
+        let productoDetectado = 'Producto no especificado';
 
-        // 2. SISTEMA DE RESPALDO ANTI-FALLOS: Si la memoria estuviera vacía, procesamos la URL de forma robusta
-        if (!productoGlobal || !precioGlobal || productoGlobal === 'Producto no especificado' || precioGlobal === 'Monto no especificado' || precioGlobal === '') {
-            if (externalRefRaw) {
-                const decodificado = decodeURIComponent(externalRefRaw).trim();
-                // Corte directo usando el guion medio separator que es infalible
-                let partes = decodificado.split('-');
-                if (partes.length >= 2) {
-                    productoGlobal = partes[0].trim();
-                    precioGlobal = partes[1].trim().replace('_', '.'); // Limpia cualquier deformación de caracteres
-                } else {
-                    productoGlobal = decodificado;
-                    precioGlobal = urlParams.get('transaction_amount') || urlParams.get('amount') || '115.00';
-                }
+        if (externalRefRaw) {
+            const decodificado = decodeURIComponent(externalRefRaw);
+            const regexPrecio = /(\d+\.\d{2})$/;
+            const encontrado = decodificado.match(regexPrecio);
+
+            if (encontrado) {
+                precioDetectado = encontrado[1];
+                productoDetectado = decodificado.replace(regexPrecio, '').replace(/[-_\s]+$/, '');
             } else {
-                productoGlobal = 'Producto no especificado';
-                precioGlobal = urlParams.get('transaction_amount') || urlParams.get('amount') || '115.00';
+                let partes = decodificado.split('-');
+                productoDetectado = partes[0] || 'Producto no especificado';
+                precioDetectado = partes[1] || '';
             }
-
-            // Si el respaldo obtuvo datos con éxito, los guardamos para asegurar las funciones de WhatsApp
-            if(productoGlobal !== 'Producto no especificado') sessionStorage.setItem('trato_ultimo_producto', productoGlobal);
-            if(precioGlobal !== '115.00' && precioGlobal !== 'Monto no especificado') sessionStorage.setItem('trato_ultimo_precio', precioGlobal);
         }
 
-        // Función unificada para pintar la UI del búnker
+        // 2. Si Mercado Pago borró todo, usamos la memoria local del teléfono (Plan de Blindaje)
+        if (!precioDetectado || precioDetectado === '' || precioDetectado === 'Monto') {
+            const precioGuardado = sessionStorage.getItem('trato_ultimo_precio');
+            const productoGuardado = sessionStorage.getItem('trato_ultimo_producto');
+            
+            if (precioGuardado) {
+                precioDetectado = precioGuardado;
+            } else {
+                precioDetectado = urlParams.get('transaction_amount') || urlParams.get('amount') || '115.00'; // Fallback forzado de seguridad
+            }
+            
+            if (productoGuardado) {
+                productoDetectado = productoGuardado;
+            }
+        } else {
+            // Si vino bien en la URL, lo dejamos guardado en la memoria por las dudas
+            sessionStorage.setItem('trato_ultimo_precio', precioDetectado);
+            sessionStorage.setItem('trato_ultimo_producto', productoDetectado);
+        }
+
         function actualizarUI() {
             document.getElementById('info-operacion').innerHTML = `
-                <strong>Producto:</strong> ${productoGlobal} <br>
-                <strong>Monto en Custodia:</strong> $ ${precioGlobal} <br>
+                <strong>Producto:</strong> ${productoDetectado} <br>
+                <strong>Monto en Custodia:</strong> $ ${precioDetectado} <br>
                 <strong>ID de Operación / Comprobante:</strong> ${opID}
             `;
         }
@@ -139,18 +150,17 @@
                                        `¡Hola! Envío el presente comprobante para activar formalmente el protocolo de custodia de fondos.\n\n` +
                                        `*Datos de la operación:*\n` +
                                        `- ID de Operación / Comprobante: ${opID}\n` +
-                                       `- Producto: ${productoGlobal}\n` +
-                                       `- Monto total: $ ${precioGlobal}\n` +
+                                       `- Producto: ${productoDetectado}\n` +
+                                       `- Monto total: $ ${precioDetectado}\n` +
                                        `- DNI del Comprador/Titular de Pago: ${compradorDni}\n\n` +
                                        `📸 *VALIDACIÓN OBLIGATORIA (FOTO/VIDEO):* \nPor favor adjuntá la foto o video del producto/paquete que muestre el código de operación pegado para blindar la operación y validar su existencia.\n\n` +
-                                       `🔗 *Accedé a tu cuenta de Mercado Pago aquí:* \nmercadopago://home\n\n` +
+                                       `🔗 *Accedé a tu cuenta de Mercado Pago aquí:* \nhttps://www.mercadopago.com.ar\n\n` +
                                        `⚠️ *AVISO LEGAL Y CONDICIONES OBLIGATORIAS:*\n` +
                                        `1. Es de carácter OBLIGATORIO enviar la captura o comprobante de pago emitido por Mercado Pago o la entidad bancaria utilizada para esta transacción.\n` +
                                        `2. Sin la recepción y validación de dicho comprobante, no se activará la custodia y el comprador no tendrá ningún derecho a reclamo, reembolso o disputa legal sobre el monto del producto, quedando el recargo del 15% por servicio de gestión como no reembolsable en caso de arrepentimiento.\n` +
                                        `3. El usuario declara que, al utilizar el sistema TRATO™ (RichardBro), acepta de forma irrevocable que los fondos quedarán retenidos bajo las condiciones del búnker hasta que se confirme la operación o finalice el plazo legal estipulado.\n\n` +
                                        `*(Adjuntá tu captura o foto del comprobante de pago y la foto/video del producto aquí abajo 👇)*`;
 
-            window.open://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensajeComprobante)}`, '_blank');
             window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensajeComprobante)}`, '_blank');
             document.getElementById('btn-continuar').disabled = false;
         };
@@ -169,9 +179,9 @@
             }
 
             if (tipo === 'envio') {
-                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podés proceder con el despacho del producto.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${productoGlobal}\n* Monto: $ ${precioGlobal}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera del envío.`;
+                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podés proceder con el despacho del producto.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${productoDetectado}\n* Monto: $ ${precioDetectado}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera del envío.`;
             } else {
-                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podemos coordinar el encuentro para la entrega.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${productoGlobal}\n* Monto: $ ${precioGlobal}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera para coordinar el punto de encuentro.`;
+                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podemos coordinar el encuentro para la entrega.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${productoDetectado}\n* Monto: $ ${precioDetectado}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera para coordinar el punto de encuentro.`;
             }
 
             window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensaje)}`, '_blank');
