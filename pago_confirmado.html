@@ -107,7 +107,7 @@
         if (externalRefRaw) {
             const decodificado = decodeURIComponent(externalRefRaw);
             
-            // Extrae el número del producto limpio de 4 dígitos
+            // Extrae limpiamente el número del producto de 4 dígitos
             const regexCuatroDigitos = /(\d{4})/;
             const idEncontrado = decodificado.match(regexCuatroDigitos);
             if (idEncontrado) {
@@ -125,7 +125,7 @@
             }
         }
 
-        // Respaldo por memoria local por si las moscas
+        // Respaldo por memoria local
         if (!precioDetectado || precioDetectado === '' || precioDetectado === 'Monto') {
             const precioGuardado = sessionStorage.getItem('trato_ultimo_precio');
             const productoGuardado = sessionStorage.getItem('trato_ultimo_producto');
@@ -151,12 +151,7 @@
 
         actualizarUI();
 
-        // El comprador se une de entrada al socket por las dudas
-        if (productoDetectado !== 'Producto no especificado') {
-            socket.emit('unirse_operacion', productoDetectado);
-        }
-
-        // 🛠️ FUNCIÓN DIRECTA: Fuerza el cambio visual a verde neón
+        // 🛠️ FUNCIÓN DIRECTA: Cambia visualmente el estado del comprador local a verde neón
         function activarCustodiaGrafica() {
             document.getElementById('texto-estado').innerText = "🔒 CUSTODIA ACTIVA - FONDOS RESGUARDADOS";
             document.getElementById('caja-estado').className = "status-box status-paid";
@@ -164,22 +159,19 @@
             document.getElementById('contenedor-cliente').className = "central-container panel-paid";
         }
 
-        // ACCIÓN DEL BOTÓN: Cambia el estado acá directamente al hacer clic
+        // ACCIÓN DEL BOTÓN ROJO
         window.enviarComprobanteObligatorio = () => {
             const compradorDni = document.getElementById('comprador-dni').value;
             if (!compradorDni) {
                 return alert("Por favor, ingresa tu DNI o el del titular de la cuenta antes de enviar el comprobante.");
             }
 
-            // 1. Gatilla el aviso en vivo al vendedor de inmediato
-            if (typeof socket !== 'undefined') {
-                socket.emit('comprobante_enviado', { 
-                    opID: opID,
-                    producto: productoDetectado.toString()
-                });
+            // 1. GATILLO DIRECTO LIMPIO: Mandamos solo el string del ID del producto al servidor
+            if (typeof socket !== 'undefined' && productoDetectado !== 'Producto no especificado') {
+                socket.emit('comprobante_enviado', { producto: productoDetectado.toString() });
             }
 
-            // 2. CAMBIO INMEDIATO ACÁ: Modifica el estado en la pantalla del comprador sin esperar nada externo
+            // 2. CAMBIO VISUAL AL INSTANTE: Pintamos la interfaz local del comprador en verde neón
             activarCustodiaGrafica();
 
             const numeroSoporte = "5493456528480";
