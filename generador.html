@@ -304,7 +304,7 @@
                     <li><em>Liberación Inmediata:</em> Una vez que el correo o el sistema de transporte confirma la entrega del producto o se realiza el intercambio, se procede a liberar el dinero hacia el vendedor.</li>
                     <li><em>Devoluciones y Reintegros:</em> En caso de que la operación se cancele antes de finalizar, o que en el momento de la entrega el producto no coincida con las especificaciones y evidencias enviadas, el valor base del producto será reintegrado en su totalidad al comprador. El costo por uso de la plataforma (15%) no es reembolsable en ningún escenario de cancelación posterior al inicio de la custodia.</li>
                     <li><em>Requisito de Devolución:</em> Si el comprador rechaza el producto por no coincidir con el registro fotográfico, es obligatorio que devuelva físicamente el producto al vendedor y presente pruebas (comprobante o foto) de la devolución.</li>
-                    <li><em>Verificación Cruzada:</em> El equipo de soporte se comunicará con el vendedor para confirmar la recepción del artículo en su estado original. Si se confirma la recepción, se reintegra el valor base al comprador (descontando el 15%). Si el vendedor no confirma la recepción, se retienen los fondos según las pruebas documentadas en el Búnker.</li>
+                    <li><em>Verificación Cruzada:</em> El equipo de soporte se comunicará con el vendedor para confirmar la recepción del artículo en su estado original. Si se confirma la recepción, se integra el valor base al comprador (descontando el 15%). Si el vendedor no confirma la recepción, se retienen los fondos según las pruebas documentadas en el Búnker.</li>
                     <li><em>Plazo de Custodia (24/48 horas):</em> Si el comprador no comunica la conformidad tras la confirmación de la entrega por el correo, los fondos se mantendrán en custodia hasta 48 horas, liberándose automáticamente si no hay reclamos.</li>
                 </ul>
                 <p><strong>7. Privacidad y Tratamiento de Datos Personales:</strong> Todos los datos personales recopilados (DNI, CBU, correo, teléfono y evidencia fotográfica) son tratados con estricta confidencialidad y utilizados única y exclusivamente para la validación de identidad y la seguridad de las transacciones dentro de la plataforma TRATO™.</p>
@@ -329,7 +329,6 @@
                 document.getElementById('estado-vivo').innerText = "⏳ ESPERANDO CONFIRMACIÓN DEL COMPRADOR...";
             }
 
-            // Si detecta la orden de pago directo desde la URL, pinta el panel
             if (estadoParam === 'pagado') {
                 document.getElementById('estado-vivo').innerText = "🔒 PAGO RECIBIDO - PODÉS ENTREGAR EL PRODUCTO / ENVIAR POR CORREO";
                 document.getElementById('estado-vivo').className = "status-tracker status-paid";
@@ -387,7 +386,7 @@
             document.getElementById('acepta-terminos').disabled = false;
         };
 
-        window.cerrarTerminos = function() {
+        window.closeModal = window.cerrarTerminos = function() {
             document.getElementById('modalTerminos').style.display = 'none';
         };
 
@@ -482,32 +481,31 @@
                 if (data.url) {
                     status.style.display = "none";
 
-                    sessionStorage.setItem('trato_ultimo_precio', precioBase.toFixed(2));
-                    sessionStorage.setItem('trato_ultimo_producto', producto);
+                    // Almacenamos localmente el link propio de este trato exacto
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const sellerNombre = urlParams.get('nombre') || 'RichardBro';
+                    const sellerEmail = urlParams.get('email') || 'sin-correo@trato.com';
+                    const sellerTelefono = urlParams.get('telefono') || 'Sin Teléfono';
+                    const sellerCbu = urlParams.get('cbu') || 'Sin CBU asignado';
+                    const sellerDni = urlParams.get('dni') || 'Sin DNI';
+                    
+                    const linkDelVendedorPropio = `${window.location.origin}${window.location.pathname}?nombre=${encodeURIComponent(sellerNombre)}&email=${encodeURIComponent(sellerEmail)}&telefono=${encodeURIComponent(sellerTelefono)}&cbu=${encodeURIComponent(sellerCbu)}&dni=${encodeURIComponent(sellerDni)}&prod=${encodeURIComponent(producto)}&monto=${encodeURIComponent(montoIngresado)}`;
+                    
+                    // Guardamos la ruta del vendedor encriptada en la sesión del navegador local
+                    localStorage.setItem(`trato_vendedor_url_${producto}`, linkDelVendedorPropio);
 
                     document.getElementById('live-id-display').innerText = `#${producto} (ARS $ ${precioBase.toFixed(2)})`;
                     document.getElementById('estado-vivo').innerText = "⏳ ESPERANDO CONFIRMACIÓN DEL COMPRADOR...";
 
                     if (tipo === 'comprador') {
-                        const urlParams = new URLSearchParams(window.location.search);
-                        const sellerNombre = urlParams.get('nombre') || 'RichardBro';
-                        const sellerEmail = urlParams.get('email') || 'sin-correo@trato.com';
-                        const sellerTelefono = urlParams.get('telefono') || 'Sin Teléfono';
-                        const sellerCbu = urlParams.get('cbu') || 'Sin CBU asignado';
-                        const sellerDni = urlParams.get('dni') || 'Sin DNI';
-
-                        // Guardamos el link exacto de retorno del vendedor para pasárselo al comprador
-                        const linkDelVendedorPropio = `${window.location.origin}${window.location.pathname}?nombre=${encodeURIComponent(sellerNombre)}&email=${encodeURIComponent(sellerEmail)}&telefono=${encodeURIComponent(sellerTelefono)}&cbu=${encodeURIComponent(sellerCbu)}&dni=${encodeURIComponent(sellerDni)}&prod=${encodeURIComponent(producto)}&monto=${encodeURIComponent(montoIngresado)}`;
-
-                        const linkCompradorLimpio = data.url + `&producto=${producto}&precio=${precioBase.toFixed(2)}&vendedor_link=${encodeURIComponent(linkDelVendedorPropio)}`;
-
+                        // 🔥 SOLUCIÓN DEFINITIVA: El link va 100% LIMPIO. Sin amontonar nada.
                         const mensajeComprador = `🛡️ *TRATO™ | TÉRMINOS Y CONDICIONES Y LINK DE PAGO*\n\n` +
                                                `¡Hola! Estás por realizar una compra con el sistema blindado TRATO™ (RichardBro). Tu seguridad es nuestra prioridad. Por favor, lee atentamente las condiciones de protección:\n\n` +
                                                `• *🔒 Protección del Comprador:* Tu dinero queda resguardado en el búnker de TRATO™.\n\n` +
                                                `🔴 *¡ATENCIÓN OBLIGATORIA!* 🔴\n` +
                                                `*Después de concretar el pago, hacé clic en el botón de depositar fondos en la pantalla para acreditar el pago en el búnker y habilitar el comprobante de soporte.*\n\n` +
                                                `💵 *Monto Total de la Operación (con 15%):* $ ${precioBase.toFixed(2)}\n\n` +
-                                               `🔗 *Link de pago seguro:* ${linkCompradorLimpio}`;
+                                               `🔗 *Link de pago seguro:* ${data.url}`;
 
                         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensajeComprador)}`, '_blank');
                     }
