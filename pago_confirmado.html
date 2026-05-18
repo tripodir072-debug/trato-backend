@@ -93,7 +93,7 @@
         <a href="https://wa.me/5493456528480" class="btn-portal" style="border-color: #ff3333; color: #ff6b6b;">🆘 SOPORTE DE EMERGENCIA</a>
 
         <div class="legal-text">
-            Los fondos permanecen in custodia hasta confirmar la entrega. Al utilizar este sistema, aceptás el reglamento de TRATO™. RichardBro 2026.
+            Los fondos permanecen en custodia hasta confirmar la entrega. Al utilizar este sistema, aceptás el reglamento de TRATO™. RichardBro 2026.
         </div>
     </div>
 
@@ -140,13 +140,18 @@
 
         function actualizarUI() {
             document.getElementById('info-operacion').innerHTML = `
-                <strong>Producto:</strong> #${productoDetectado} <br>
+                <strong>Producto:</strong> #<span id="id-real-html">${productoDetectado}</span> <br>
                 <strong>Monto en Custodia:</strong> $ ${precioDetectado} <br>
                 <strong>ID de Operación / Comprobante:</strong> ${opID}
             `;
         }
 
         actualizarUI();
+
+        // Conexión inicial preventiva
+        if (productoDetectado !== 'Producto no especificado') {
+            socket.emit('unirse_operacion', productoDetectado.toString());
+        }
 
         function activarCustodiaGrafica() {
             document.getElementById('texto-estado').innerText = "🔒 CUSTODIA ACTIVA - FONDOS RESGUARDADOS";
@@ -155,17 +160,19 @@
             document.getElementById('contenedor-cliente').className = "central-container panel-paid";
         }
 
-        // ⚡ ACCIÓN EXPUESTA: Se suscribe y gatilla todo junto al tocar el botón azul
+        // ⚡ LA FUNCIÓN SANEADA E INFALIBLE
         window.confirmarYDepositarBunker = () => {
-            if (productoDetectado !== 'Producto no especificado') {
-                // 1. Nos unimos a la sala correcta primero con el ID real ya procesado
-                socket.emit('unirse_operacion', productoDetectado.toString());
+            // Extraemos directamente el texto visible renderizado en el HTML real para evitar desfasajes
+            const idForzadoNativo = document.getElementById('id-real-html').innerText.trim();
+
+            if (typeof socket !== 'undefined' && idForzadoNativo && idForzadoNativo !== 'Producto no especificado') {
+                // Forzamos al socket a suscribirse a la sala visual real en caliente antes de disparar
+                socket.emit('unirse_operacion', idForzadoNativo.toString());
                 
-                // 2. Le mandamos de forma inmediata el disparo al servidor
-                socket.emit('comprobante_enviado', { producto: productoDetectado.toString() });
+                // Despachamos el disparo de forma directa al canal correcto
+                socket.emit('comprobante_enviado', { producto: idForzadoNativo.toString() });
             }
             
-            // Cambiamos a verde la pantalla local
             activarCustodiaGrafica();
             document.getElementById('grupo-dni').style.display = 'block';
             document.getElementById('btn-continuar').disabled = false;
@@ -184,12 +191,13 @@
         };
 
         function abrirSoporteWhatsApp(dniUser) {
+            const idForzadoNativo = document.getElementById('id-real-html').innerText.trim();
             const numeroSoporte = "5493456528480";
             const mensajeComprobante = `🛡️ *DECLARACIÓN Y COMPROBANTE DE PAGO - TRATO™*\n\n` +
                                        `¡Hola! Envío el presente comprobante para activar formalmente el protocolo de custodia de fondos.\n\n` +
                                        `*Datos de la operación:*\n` +
                                        `- ID de Operación / Comprobante: ${opID}\n` +
-                                       `- Producto: ${productoDetectado}\n` +
+                                       `- Producto: ${idForzadoNativo}\n` +
                                        `- Monto total: $ ${precioDetectado}\n` +
                                        `- DNI del Comprador/Titular de Pago: ${dniUser}\n\n` +
                                        `📸 *VALIDACIÓN OBLIGATORIA (FOTO/VIDEO):* \nPor favor adjuntá la foto o video del producto/paquete que muestre el código de operation pegado para blindar la operación y validar su existencia.\n\n` +
@@ -208,14 +216,15 @@
         };
 
         window.notificar = (tipo) => {
+            const idForzadoNativo = document.getElementById('id-real-html').innerText.trim();
             let mensaje = "";
             const numeroSoporte = "5493456528480";
             const compradorDni = document.getElementById('comprador-dni').value || 'Pendiente de carga';
 
             if (tipo === 'envio') {
-                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podés proceder con el despacho del producto.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${productoDetectado}\n* Monto: $ ${precioDetectado}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera del envío.`;
+                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podés proceder con el despacho del producto.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${idForzadoNativo}\n* Monto: $ ${precioDetectado}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera del envío.`;
             } else {
-                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podemos coordinar el encuentro para la entrega.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${productoDetectado}\n* Monto: $ ${precioDetectado}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera para coordinar el punto de encuentro.`;
+                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podemos coordinar el encuentro para la entrega.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${idForzadoNativo}\n* Monto: $ ${precioDetectado}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera para coordinar el punto de encuentro.`;
             }
 
             window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensaje)}`, '_blank');
