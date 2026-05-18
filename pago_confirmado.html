@@ -102,52 +102,43 @@
         const socket = io("https://bunker-trato-api.onrender.com");
 
         const urlParams = new URLSearchParams(window.location.search);
-        const externalRefRaw = urlParams.get('external_reference') || '';
+        
+        // 🔎 EXTRACCIÓN DIRECTA SEGURA Y BLINDADA DE LA URL INYECTADA
+        let productoDetectado = urlParams.get('producto') || 'Producto no especificado';
+        let precioDetectado = urlParams.get('precio') || '';
         const opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación';
 
-        let precioDetectado = '';
-        let productoDetectado = 'Producto no especificado';
-
-        // 🔎 DETECTOR MATEMÁTICO EVOLUCIONADO
-        if (externalRefRaw) {
-            const decodificado = decodeURIComponent(externalRefRaw);
-            const regexCuatroDigitos = /(\d{4})/;
-            const idEncontrado = decodificado.match(regexCuatroDigitos);
-            if (idEncontrado) {
-                productoDetectado = idEncontrado[1];
-            }
-
-            // Buscamos si el precio viene al final de la URL
-            const regexPrecio = /(\d+\.\d{2})$/;
-            const encontradoPrecio = decodificado.match(regexPrecio);
-            if (encontradoPrecio) {
-                precioDetectado = encontradoPrecio[1];
-            } else {
-                let partes = decodificado.split('-');
-                if(partes[1] && !isNaN(partes[1])) {
-                    precioDetectado = parseFloat(partes[1]).toFixed(2);
+        // Si Mercado Pago pisó los parámetros, intentamos el extractor secundario limpio
+        if (productoDetectado === 'Producto no especificado' || precioDetectado === '') {
+            const externalRefRaw = urlParams.get('external_reference') || '';
+            if (externalRefRaw) {
+                const decodificado = decodeURIComponent(externalRefRaw);
+                const regexCuatroDigitos = /(\d{4})/;
+                const idEncontrado = decodificado.match(regexCuatroDigitos);
+                if (idEncontrado) {
+                    productoDetectado = idEncontrado[1];
                 }
             }
         }
 
-        // Si Mercado Pago limpió los parámetros de retorno, leemos el monto dinámico real
-        const precioGuardado = sessionStorage.getItem('trato_ultimo_precio');
-        const productoGuardado = sessionStorage.getItem('trato_ultimo_producto');
-        
-        if (precioGuardado && precioGuardado !== '0.00' && precioGuardado !== '0') {
-            precioDetectado = precioGuardado;
-        }
-        if (productoGuardado && productoGuardado !== '') {
-            productoDetectado = productoGuardado;
+        // Si sigue fallando por redirección extrema, lee el SessionStorage grabado por el búnker
+        if (!precioDetectado || precioDetectado === '' || isNaN(precioDetectado)) {
+            const precioGuardado = sessionStorage.getItem('trato_ultimo_precio');
+            const productoGuardado = sessionStorage.getItem('trato_ultimo_producto');
+            
+            if (precioGuardado) precioDetectado = precioGuardado;
+            if (productoGuardado && productoDetectado === 'Producto no especificado') {
+                productoDetectado = productoGuardado;
+            }
         }
 
-        // Si por alguna razón crítica sigue vacío, lee los montos crudos nativos de la API de MP
+        // Si falla todo lo anterior, lee el amount nativo crudo de la API
         if (!precioDetectado || precioDetectado === '' || isNaN(precioDetectado)) {
             const amountParam = urlParams.get('transaction_amount') || urlParams.get('amount');
             if (amountParam) {
                 precioDetectado = parseFloat(amountParam).toFixed(2);
             } else {
-                precioDetectado = "Monto a verificar en búnker";
+                precioDetectado = "Monto a verificar en soporte";
             }
         }
 
@@ -174,6 +165,7 @@
 
         window.confirmarYDepositarBunker = () => {
             if (typeof socket !== 'undefined' && productoDetectado !== 'Producto no especificado') {
+                // Despacha el ID de 4 números exacto y limpio
                 socket.emit('comprobante_enviado', { producto: productoDetectado.toString() });
             }
             activarCustodiaGrafica();
