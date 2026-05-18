@@ -314,7 +314,7 @@
             <span class="close-modal" onclick="cerrarTerminos()">&times;</span>
             <h3 class="modal-title">🛡️ Términos y Condiciones Legales - TRATO™</h3>
             <div class="modal-text">
-                <p><strong>1. Naturaleza del Servicio y Costos:</strong> TRATO™ (plataforma operada por RichardBro) actúa exclusivamente como agente intermediario y custodio de fondos. El recargo del 15% corresponde al costo por el uso de la plataforma y el servicio de gestión de custodia en el búnker. Este costo del 15% es <em>no reembolsable</em> una vez que los fondos han sido depositados y el servicio ha comenzado a procesarse, ya que cubre los costos operativos de gestión. La plataforma no otorga garantías ni asume responsabilidad civil, comercial o penal sobre el estado, calidad, funcionamiento, vicios ocultos o legalidad del producto o servicio transaccionado.</p>
+                <p><strong>1. Naturaleza del Servicio y Costos:</strong> TRATO™ (plataforma operada por RichardBro) actúa exclusivamente como agente intermediario y custodio de fondos. El recargo del 15% corresponde al costo por el uso de la plataforma y el servicio de gestión de custodia en el búnker. Este costo del 15% es <em>no reembolsable</em> una vez que los fondos han sido depositados and el servicio ha comenzado a procesarse, ya que cubre los costos operativos de gestión. La plataforma no otorga garantías ni asume responsabilidad civil, comercial o penal sobre el estado, calidad, funcionamiento, vicios ocultos o legalidad del producto o servicio transaccionado.</p>
                 <p><strong>2. Responsabilidad del Usuario:</strong> Cada usuario (tanto comprador como vendedor) es absoluta y exclusivamente responsable de sus propios actos, declaraciones y transacciones. La plataforma actúa como un tercero de confianza, pero no interviene en las negociaciones comerciales ni en la veracidad de los acuerdos particulares entre las partes.</p>
                 <p><strong>3. Validación de Identidad y Prevención de Fraude:</strong> Es de carácter OBLIGATORIO para vendedor y comprador presentar su documento de identidad (DNI o similar). En caso de que el comprador realice un pago desde una cuenta de titularidad de terceros, debe informar los datos de identidad y DNI del titular de dicha cuenta.</p>
                 <p><strong>4. Sistema de Custodia de Fondos:</strong> El dinero correspondiente al valor base del producto se retiene en el búnker de garantía hasta que la operación se concrete y se verifique mediante el protocolo de TRATO™.</p>
@@ -542,7 +542,7 @@
         };
 
         // ==========================================
-        // SCRIPT INTEGRADO CON FILTRO SEGURO DE STRINGS
+        // SCRIPT INTEGRADO CON FILTRO SEGURO DE STRINGS (UNIFICADO)
         // ==========================================
         let socket;
         function conectarCanalEnVivo(idOperacion) {
@@ -550,15 +550,16 @@
                 socket = io("https://bunker-trato-api.onrender.com");
             }
 
-            socket.emit('unirse_operacion', idOperacion);
+            // Unimos al vendedor al canal del ID de 4 dígitos forzado como String
+            socket.emit('unirse_operacion', idOperacion.toString());
 
             socket.on('pago_confirmado', (data) => {
-                // BLINDAJE EXTRA: Convertimos ambos ID forzadamente a string para evitar fallas por tipo de dato
-                if (data.id.toString() === idOperacion.toString()) {
+                // BLINDAJE ABSOLUTO: Comparamos forzando ambos valores limpios a String para evitar fallas por tipo de dato
+                if (data && data.id && data.id.toString() === idOperacion.toString()) {
                     document.getElementById('estado-vivo').innerText = "🔒 CUSTODIA ACTIVA - FONDOS RESGUARDADOS";
-                    document.getElementById('estado-vivo').classList.add('status-paid');
-                    document.getElementById('senal-viva').classList.add('badge-paid');
-                    document.getElementById('panel-monitoreo').classList.add('panel-paid');
+                    document.getElementById('estado-vivo').className = "status-tracker status-paid";
+                    document.getElementById('senal-viva').className = "live-badge badge-paid";
+                    document.getElementById('panel-monitoreo').className = "live-panel panel-paid";
                     
                     if (window.navigator.vibrate) {
                         window.navigator.vibrate([200, 100, 200]);
