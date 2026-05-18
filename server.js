@@ -6,8 +6,9 @@ require("dotenv").config();
 app.use(cors());
 app.use(express.json());
 
-// Memoria del servidor: guarda los productos que ya tienen un link activo
+// Almacenes de memoria del búnker
 const operacionesUsadas = new Set();
+const estadosOperaciones = new Map(); // Aquí guardamos si está "esperando" o "approved"
 
 app.post("/crear-pago", async (req, res) => {
     try {
@@ -22,15 +23,13 @@ app.post("/crear-pago", async (req, res) => {
             return res.status(400).json({ error: "Faltan datos" });
         }
 
-        // 1. Verificamos si el producto (ID de 4 dígitos) ya generó un link
-        if (operacionesUsadas.has(producto)) {
-            return res.status(400).json({ 
-                error: "Este producto u operación ya generó un link de pago. No se puede reutilizar." 
-            });
+        if (operacionesUsadas.has(producto.toString())) {
+            return res.status(400).json({ error: "Este producto ya está activo." });
         }
 
-        // 2. Lo registramos en la memoria del servidor
-        operacionesUsadas.add(producto);
+        operacionesUsadas.add(producto.toString());
+        // Inicializamos el estado interno en el búnker
+        estadosOperaciones.set(producto.toString(), "esperando");
 
         const response = await fetch("https://api.mercadopago.com/checkout/preferences", {
             method: "POST",
@@ -40,13 +39,14 @@ app.post("/crear-pago", async (req, res) => {
             },
             body: JSON.stringify({
                 items: [{
-                    title: producto,
+                    title: `Paquete #${producto}`,
                     quantity: 1,
                     unit_price: parseFloat(precioBase),
                     currency_id: "ARS"
                 }],
+                external_reference: producto.toString(),
                 back_urls: {
-                    success: `https://tripodir072-debug.github.io/trato-backend/pago_confirmado.html?external_reference=${encodeURIComponent(producto)}`
+                    success: `https://tripodir072-debug.github.io/trato-backend/pago_confirmado.html`
                 },
                 auto_return: "approved"
             })
@@ -58,30 +58,46 @@ app.post("/crear-pago", async (req, res) => {
         if (paymentUrl) {
             res.status(200).json({ url: paymentUrl });
         } else {
-            // Si la llamada a Mercado Pago falla, liberamos el producto de la memoria
-            operacionesUsadas.delete(producto);
-            res.status(500).json({ error: "Error al generar link", details: data });
+            operacionesUsadas.delete(producto.toString());
+            estadosOperaciones.delete(producto.toString());
+            res.status(500).json({ error: "Error de pasarela", details: data });
         }
     } catch (error) {
-        // Si ocurre un error de red o de servidor, nos aseguramos de liberar el producto
         if (req.body && req.body.producto) {
-            operacionesUsadas.delete(req.body.producto);
+            operacionesUsadas.delete(req.body.producto.toString());
+            estadosOperaciones.delete(req.body.producto.toString());
         }
         res.status(500).json({ error: error.message });
     }
 });
 
-// Endpoint para liberar el producto manualmente si la operación se cancela
+// 🔥 EL DETONADOR: El comprador llama acá para asentar el pago en el búnker
+app.post("/marcar-pagado", (req, res) => {
+    const { producto } = req.body;
+    if (!producto) return res.status(400).json({ error: "Falta ID de producto" });
+    
+    estadosOperaciones.set(producto.toString(), "approved");
+    res.json({ success: true, mensaje: `Producto ${producto} marcado como pagado.` });
+});
+
+// 🖥️ EL MONITOR: El vendedor llama acá cada 3 segundos para revisar la lista
+app.get("/consultar-estado/:producto", (req, res) => {
+    const { producto } = req.params;
+    const estado = estadosOperaciones.get(producto.toString()) || "inexistente";
+    res.json({ producto: producto, estado: estado });
+});
+
 app.post("/liberar-producto", (req, res) => {
     const { producto } = req.body;
-    
-    if (operacionesUsadas.has(producto)) {
-        operacionesUsadas.delete(producto);
-        return res.json({ success: true, mensaje: `Producto ${producto} liberado correctamente.` });
+    if (operacionesUsadas.has(producto.toString())) {
+        operacionesUsadas.delete(producto.toString());
+        estadosOperaciones.delete(producto.toString());
+        return res.json({ success: true, mensaje: "Liberado" });
     }
-    
-    res.status(404).json({ error: "El producto no se encontraba en uso." });
+    res.status(404).json({ error: "No encontrado" });
 });
 
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => { console.log(`🚀 Servicio de protección en puerto ${PORT}`); });
+app.listen(PORT, () => { 
+    console.log(`🚀 Búnker API por Registro operativo en puerto ${PORT}`); 
+});
