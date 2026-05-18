@@ -284,7 +284,7 @@
                 </label>
             </div>
 
-            <button id="btn-soporte" class="btn-success" onclick="enviarSoporteDirecto()" disabled>📤 1. ENVIAR DATOS POR WHATSAPP A SOPORTE</button>
+            <button id="btn-soporte" class="btn-success" onclick="enviarSoporteDirecto()">📤 1. ENVIAR DATOS POR WHATSAPP A SOPORTE</button>
             <button id="btn-blindar" onclick="procesarOperacion('comprador')" disabled style="background-color: var(--accent-color); color: #050810; margin-top: 12px;">🔗 2. GENERAR Y ENVIAR AL COMPRADOR</button>
             <button id="btn-nuevo-trato" onclick="limpiarFormulario()" style="background-color: var(--danger-color); color: #ffffff; margin-top: 12px;">🗑️ 3. NUEVO TRATO (LIMPIAR)</button>
             
@@ -334,12 +334,7 @@
                     <li><em>Verificación Cruzada:</em> El equipo de soporte se comunicará con el vendedor para confirmar la recepción del artículo en su estado original. Si se confirma la recepción, se reintegra el valor base al comprador (descontando el 15%). Si el vendedor no confirma la recepción, se retienen los fondos según las pruebas documentadas en el Búnker.</li>
                     <li><em>Plazo de Custodia (24/48 horas):</em> Si el comprador no comunica la conformidad tras la confirmación de la entrega por el correo, los fondos se mantendrán en custodia hasta 48 horas, liberándose automáticamente si no hay reclamos.</li>
                 </ul>
-                <p><strong>7. Privacidad y Tratamiento de Datos Personales:</strong> Todos los datos personales recopilados (DNI, CBU, correo, teléfono y evidencia fotográfica) son tratados con estricta confidencialidad y utilizados única y exclusivamente para la validación de identidad y la seguridad de las transacciones dentro de la plataforma TRATO™.</p>
-                <ul>
-                    <li><em>Uso Exclusivo:</em> Nos comprometemos a no compartir, vender ni utilizar la información con fines comerciales o maliciosos.</li>
-                    <li><em>Retention Temporal:</em> Los datos estarán alojados en nuestros servidores únicamente durante el tiempo que dure la operación.</li>
-                    <li><em>Eliminación Segura:</em> Una vez que la transacción se complete con éxito, o que cualquier disputa o reclamo finalice con una resolución, todos los datos personales asociados a dicha transacción serán eliminados de forma permanente.</li>
-                </ul>
+                <p><strong>7. Privacidad y Tratamiento de Datos Personales:</strong> Todos los datos personales recopilados (DNI, CBU, correo, teléfono y evidencia fotográfica) son tratados con estricta confiscencialidad y utilizados única y exclusivamente para la validación de identidad y la seguridad de las transacciones dentro de la plataforma TRATO™.</p>
                 <p style="color: var(--danger-color); line-height: 1.4;"><strong>Aviso importante:</strong> Solo se responden mensajes (no se atienden llamadas). El uso indebido está sujeto a bloqueo y anulación de protección.</p>
             </div>
         </div>
@@ -414,11 +409,9 @@
 
             if (checkbox.disabled) {
                 document.getElementById('btn-blindar').disabled = true;
-                document.getElementById('btn-soporte').disabled = true;
                 document.getElementById('btn-nuevo-trato').disabled = false;
             } else {
                 document.getElementById('btn-blindar').disabled = !acepta;
-                document.getElementById('btn-soporte').disabled = !acepta;
                 document.getElementById('btn-nuevo-trato').disabled = false;
             }
         };
@@ -428,12 +421,8 @@
             const montoIngresado = document.getElementById('monto').value;
             const acepta = document.getElementById('acepta-terminos').checked;
 
-            if (!acepta) {
-                return alert("Debes aceptar el recargo y las condiciones de servicio para continuar.");
-            }
-
             if (!producto || !montoIngresado) {
-                return alert("Por favor, completa todos los campos para continuar.");
+                return alert("Por favor, completa los campos de producto y monto antes de enviar.");
             }
 
             const urlParams = new URLSearchParams(window.location.search);
@@ -468,7 +457,6 @@
         window.procesarOperacion = async function(tipo) {
             const producto = document.getElementById('prod').value;
             const montoIngresado = document.getElementById('monto').value;
-            const btnSoporte = document.getElementById('btn-soporte');
             const btnBlindar = document.getElementById('btn-blindar');
             const status = document.getElementById('status');
             const acepta = document.getElementById('acepta-terminos').checked;
@@ -481,7 +469,6 @@
                 return alert("Por favor, completa todos los campos para continuar.");
             }
 
-            btnSoporte.disabled = true;
             btnBlindar.disabled = true;
             status.style.display = "block";
 
@@ -502,7 +489,6 @@
                 if (data.url) {
                     status.style.display = "none";
 
-                    // REGISTRAMOS LOCALMENTE LOS DATOS REALES CORREGIDOS
                     sessionStorage.setItem('trato_ultimo_precio', precioBase.toFixed(2));
                     sessionStorage.setItem('trato_ultimo_producto', producto);
 
@@ -514,9 +500,9 @@
                     }
 
                     if (tipo === 'comprador') {
-                        // 🚀 MODIFICACIÓN CRÍTICA: Le inyectamos las variables limpias al link final del comprador para que no adivine nada
                         const linkCompradorLimpio = data.url + `&producto=${producto}&precio=${precioBase.toFixed(2)}`;
 
+                        // 🔥 CORRECCIÓN CRÍTICA: Se define correctamente la variable mensajeComprador para evitar el cuelgue
                         const mensajeComprador = `🛡️ *TRATO™ | TÉRMINOS Y CONDICIONES Y LINK DE PAGO*\n\n` +
                                                `¡Hola! Estás por realizar una compra con el sistema blindado TRATO™ (RichardBro). Tu seguridad es nuestra prioridad. Por favor, lee atentamente las condiciones de protección:\n\n` +
                                                `• *🔒 Protección del Comprador:* Tu dinero queda resguardado en el búnker de TRATO™ y no se libera al vendedor hasta que recibas el producto y verifiques que todo está en orden.\n\n` +
@@ -532,14 +518,12 @@
                         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensajeComprador)}`, '_blank');
                     }
 
-                    btnSoporte.disabled = false;
                     btnBlindar.disabled = false;
                 } else {
                     throw new Error(data.error || "Error al conectar con la pasarela.");
                 }
             } catch (e) {
                 alert("Error en el búnker: " + e.message);
-                btnSoporte.disabled = false;
                 btnBlindar.disabled = false;
                 status.style.display = "none";
             }
