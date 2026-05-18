@@ -78,19 +78,22 @@
         <button onclick="notificar('envio')" class="btn-portal btn-primary">📦 NOTIFICAR ENVÍO POR CORREO</button>
         <button onclick="notificar('presencial')" class="btn-portal btn-primary">🤝 NOTIFICAR ENCUENTRO PRESENCIAL</button>
 
-        <a href="https://wa.me/5493456528480" class="btn-portal" style="border-color: #ff3333; color: #ff6b6b;">🆘 SOPORTE DE EMERGENCIA</a>
+        <a href="https://wa.me/5493456528480" class="btn-portal" style="border-color: #ff3333; color: #ff6b6b;">🆘 SOPORTE DE EMERGENCY</a>
 
         <div class="legal-text">
             Los fondos permanecen en custodia hasta confirmar la entrega. Al utilizar este sistema, aceptás el reglamento de TRATO™. RichardBro 2026.
         </div>
     </div>
 
+    <script src="https://bunker-trato-api.onrender.com/socket.io/socket.io.js"></script>
     <script>
+        // Inicializamos el socket apuntando al backend
+        const socket = io("https://bunker-trato-api.onrender.com");
+
         const urlParams = new URLSearchParams(window.location.search);
         const externalRefRaw = urlParams.get('external_reference') || '';
         const opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación';
 
-        // 1. Intentar sacar precio del link (Formato compuesto o plano)
         let precioDetectado = '';
         let productoDetectado = 'Producto no especificado';
 
@@ -109,7 +112,6 @@
             }
         }
 
-        // 2. Si Mercado Pago borró todo, usamos la memoria local del teléfono (Plan de Blindaje)
         if (!precioDetectado || precioDetectado === '' || precioDetectado === 'Monto') {
             const precioGuardado = sessionStorage.getItem('trato_ultimo_precio');
             const productoGuardado = sessionStorage.getItem('trato_ultimo_producto');
@@ -117,14 +119,13 @@
             if (precioGuardado) {
                 precioDetectado = precioGuardado;
             } else {
-                precioDetectado = urlParams.get('transaction_amount') || urlParams.get('amount') || '115.00'; // Fallback forzado de seguridad
+                precioDetectado = urlParams.get('transaction_amount') || urlParams.get('amount') || '115.00';
             }
             
             if (productoGuardado) {
                 productoDetectado = productoGuardado;
             }
         } else {
-            // Si vino bien en la URL, lo dejamos guardado en la memoria por las dudas
             sessionStorage.setItem('trato_ultimo_precio', precioDetectado);
             sessionStorage.setItem('trato_ultimo_producto', productoDetectado);
         }
@@ -143,6 +144,11 @@
             const compradorDni = document.getElementById('comprador-dni').value;
             if (!compradorDni) {
                 return alert("Por favor, ingresa tu DNI o el del titular de la cuenta antes de enviar el comprobante.");
+            }
+
+            // 🚀 AVISO EN TIEMPO REAL: Emitimos el evento de comprobante enviado para notificar al vendedor
+            if (productoDetectado && productoDetectado !== 'Producto no especificado') {
+                socket.emit('comprobante_enviado', { producto: productoDetectado });
             }
 
             const numeroSoporte = "5493456528480";
