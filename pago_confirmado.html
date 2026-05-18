@@ -108,6 +108,7 @@
         let precioDetectado = '';
         let productoDetectado = 'Producto no especificado';
 
+        // 🔎 DETECTOR MATEMÁTICO EVOLUCIONADO
         if (externalRefRaw) {
             const decodificado = decodeURIComponent(externalRefRaw);
             const regexCuatroDigitos = /(\d{4})/;
@@ -116,29 +117,38 @@
                 productoDetectado = idEncontrado[1];
             }
 
+            // Buscamos si el precio viene al final de la URL
             const regexPrecio = /(\d+\.\d{2})$/;
             const encontradoPrecio = decodificado.match(regexPrecio);
             if (encontradoPrecio) {
                 precioDetectado = encontradoPrecio[1];
             } else {
                 let partes = decodificado.split('-');
-                precioDetectado = partes[1] || '';
+                if(partes[1] && !isNaN(partes[1])) {
+                    precioDetectado = parseFloat(partes[1]).toFixed(2);
+                }
             }
         }
 
-        if (!precioDetectado || precioDetectado === '' || precioDetectado === 'Monto') {
-            const precioGuardado = sessionStorage.getItem('trato_ultimo_precio');
-            const productoGuardado = sessionStorage.getItem('trato_ultimo_producto');
-            
-            if (precioGuardado) precioDetectado = precioGuardado;
-            else precioDetectado = urlParams.get('transaction_amount') || urlParams.get('amount') || '115.00';
-            
-            if (productoGuardado && productoDetectado === 'Producto no especificado') {
-                productoDetectado = productoGuardado;
+        // Si Mercado Pago limpió los parámetros de retorno, leemos el monto dinámico real
+        const precioGuardado = sessionStorage.getItem('trato_ultimo_precio');
+        const productoGuardado = sessionStorage.getItem('trato_ultimo_producto');
+        
+        if (precioGuardado && precioGuardado !== '0.00' && precioGuardado !== '0') {
+            precioDetectado = precioGuardado;
+        }
+        if (productoGuardado && productoGuardado !== '') {
+            productoDetectado = productoGuardado;
+        }
+
+        // Si por alguna razón crítica sigue vacío, lee los montos crudos nativos de la API de MP
+        if (!precioDetectado || precioDetectado === '' || isNaN(precioDetectado)) {
+            const amountParam = urlParams.get('transaction_amount') || urlParams.get('amount');
+            if (amountParam) {
+                precioDetectado = parseFloat(amountParam).toFixed(2);
+            } else {
+                precioDetectado = "Monto a verificar en búnker";
             }
-        } else {
-            sessionStorage.setItem('trato_ultimo_precio', precioDetectado);
-            sessionStorage.setItem('trato_ultimo_producto', productoDetectado);
         }
 
         function actualizarUI() {
