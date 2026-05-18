@@ -169,6 +169,16 @@
             box-shadow: 0 4px 15px rgba(0, 255, 157, 0.3);
         }
 
+        /* Estilos del Panel Live */
+        .live-panel { background: #050810; border: 1px dashed #2d3748; padding: 15px; border-radius: 8px; margin-top: 18px; text-align: left; }
+        .live-title { color: #64748b; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .live-badge { width: 7px; height: 7px; background-color: #ffaa00; border-radius: 50%; display: inline-block; animation: parpadeoLive 1s infinite alternate; }
+        .status-tracker { font-size: 12px; font-weight: bold; text-transform: uppercase; padding: 10px; border-radius: 6px; text-align: center; background: #1a1505; color: #ffaa00; border: 1px solid #ffaa00; margin-top: 5px; transition: all 0.4s ease; }
+        .status-paid { background: #001a0e !important; color: #00ff9d !important; border-color: #00ff9d !important; box-shadow: 0 0 10px rgba(0, 255, 157, 0.15); }
+        .badge-paid { background-color: #00ff9d !important; box-shadow: 0 0 6px #00ff9d; }
+        .panel-paid { border-style: solid !important; border-color: #00ff9d !important; }
+        @keyframes parpadeoLive { from { opacity: 0.3; } to { opacity: 1; } }
+
         /* Estilos del Modal */
         .modal {
             display: none;
@@ -230,16 +240,6 @@
             padding-left: 15px;
             margin: 5px 0 15px 0;
         }
-
-        /* 🖥️ ESTILOS DEL PANEL EN VIVO (AGREGADO QUIRÚRGICAMENTE) */
-        .live-panel { background: #050810; border: 1px dashed #2d3748; padding: 15px; border-radius: 8px; margin-top: 18px; text-align: left; }
-        .live-title { color: #64748b; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-        .live-badge { width: 7px; height: 7px; background-color: #ffaa00; border-radius: 50%; display: inline-block; animation: parpadeoLive 1s infinite alternate; }
-        .status-tracker { font-size: 12px; font-weight: bold; text-transform: uppercase; padding: 10px; border-radius: 6px; text-align: center; background: #1a1505; color: #ffaa00; border: 1px solid #ffaa00; margin-top: 5px; transition: all 0.4s ease; }
-        .status-paid { background: #001a0e !important; color: #00ff9d !important; border-color: #00ff9d !important; box-shadow: 0 0 10px rgba(0, 255, 157, 0.15); }
-        .badge-paid { background-color: #00ff9d !important; box-shadow: 0 0 6px #00ff9d; }
-        .panel-paid { border-style: solid !important; border-color: #00ff9d !important; }
-        @keyframes parpadeoLive { from { opacity: 0.3; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -345,7 +345,7 @@
         </div>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://bunker-trato-api.onrender.com/socket.io/socket.io.js"></script>
 
     <script type="module">
         const RENDER_URL = "https://bunker-trato-api.onrender.com/crear-pago";
@@ -378,14 +378,12 @@
 
         window.addEventListener('DOMContentLoaded', constParams);
 
-        // Limpiar formulario
         window.limpiarFormulario = function() {
             document.getElementById('prod').value = "";
             document.getElementById('monto').value = "";
             document.getElementById('precio-detalle').innerText = "ℹ️ Monto total con comisión (15%): $ 0";
             document.getElementById('acepta-terminos').checked = false;
             
-            // Reiniciar Panel de Monitoreo
             document.getElementById('live-id-display').innerText = "Ninguna";
             document.getElementById('estado-vivo').innerText = "⏳ ESPERANDO INICIAR OPERACIÓN";
             document.getElementById('estado-vivo').className = "status-tracker";
@@ -487,13 +485,6 @@
             btnBlindar.disabled = true;
             status.style.display = "block";
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const sellerNombre = urlParams.get('nombre') || 'RichardBro';
-            const sellerEmail = urlParams.get('email') || 'sin-correo@trato.com';
-            const sellerTelefono = urlParams.get('telefono') || 'Sin Teléfono';
-            const sellerCbu = urlParams.get('cbu') || 'Sin CBU asignado';
-            const sellerDni = urlParams.get('dni') || 'Sin DNI';
-
             try {
                 const precioBase = parseFloat(montoIngresado) * 1.15;
 
@@ -511,15 +502,12 @@
                 if (data.url) {
                     status.style.display = "none";
 
-                    // REGISTRO DE SEGURIDAD EN MEMORIA LOCAL FIJA
                     sessionStorage.setItem('trato_ultimo_precio', precioBase.toFixed(2));
                     sessionStorage.setItem('trato_ultimo_producto', producto);
 
-                    // ACTUALIZACIÓN DEL MONITOREO CUANDO EL COMPRADOR RECIBE EL LINK
                     document.getElementById('live-id-display').innerText = `#${producto} (ARS $ ${precioBase.toFixed(2)})`;
                     document.getElementById('estado-vivo').innerText = "⏳ ESPERANDO DEPÓSITO DEL COMPRADOR...";
                     
-                    // Activación del canal en tiempo real
                     if (typeof io !== 'undefined') {
                         conectarCanalEnVivo(producto);
                     }
@@ -554,7 +542,7 @@
         };
 
         // ==========================================
-        // SCRIPT INTEGRADO PARA CONEXIÓN EN TIEMPO REAL
+        // SCRIPT INTEGRADO CON FILTRO SEGURO DE STRINGS
         // ==========================================
         let socket;
         function conectarCanalEnVivo(idOperacion) {
@@ -562,13 +550,11 @@
                 socket = io("https://bunker-trato-api.onrender.com");
             }
 
-            // Suscribe la pantalla a este número de paquete
             socket.emit('unirse_operacion', idOperacion);
 
-            // Escucha si Mercado Pago da el OK al backend
             socket.on('pago_confirmado', (data) => {
-                if (data.id === idOperacion) {
-                    // Transición a aprobado
+                // BLINDAJE EXTRA: Convertimos ambos ID forzadamente a string para evitar fallas por tipo de dato
+                if (data.id.toString() === idOperacion.toString()) {
                     document.getElementById('estado-vivo').innerText = "🔒 CUSTODIA ACTIVA - FONDOS RESGUARDADOS";
                     document.getElementById('estado-vivo').classList.add('status-paid');
                     document.getElementById('senal-viva').classList.add('badge-paid');
