@@ -10,11 +10,9 @@
         h1 { color: #00d4ff; text-transform: uppercase; letter-spacing: 5px; font-size: 2.5em; margin-bottom: 5px; }
         .subtitle { color: #888; font-size: 0.8em; margin-bottom: 30px; text-transform: uppercase; }
         
-        /* Caja de estado inicial (Ámbar) */
         .status-box { background: #1a1505; border: 1px solid #ffaa00; padding: 15px; border-radius: 10px; margin-bottom: 25px; transition: all 0.4s ease; }
         .status-text { color: #ffaa00; font-weight: bold; font-size: 1.2em; text-transform: uppercase; }
         
-        /* Clases que se activan al tocar el botón (Verde Neón) */
         .panel-paid { border-style: solid !important; border-color: #00ff9d !important; box-shadow: 0 0 30px #00ff9d22 !important; }
         .status-paid { background: #001a0e !important; border-color: #00ff9d !important; }
         .text-paid { color: #00ff9d !important; }
@@ -25,9 +23,13 @@
         .btn-success { background: #00ff9d; color: #000; border-color: #00ff9d; }
         .btn-danger { background: #ff3333; color: #fff; border-color: #ff3333; box-shadow: 0 0 15px rgba(255, 51, 51, 0.3); }
         .btn-danger:hover { background: #e60000; border-color: #e60000; }
+        
+        /* Estilos del nuevo botón azul de depósito */
+        .btn-deposit { background: #00d4ff; color: #050505; border-color: #00d4ff; box-shadow: 0 0 15px rgba(0, 212, 255, 0.3); }
+        .btn-deposit:hover { background: #00b6dc; }
+
         .legal-text { font-size: 0.75em; color: #666; margin-top: 20px; line-height: 1.4; }
 
-        /* Estilos del Bloqueo Obligatorio */
         .overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -53,16 +55,19 @@
 
     <div id="pantaya-bloqueo" class="overlay">
         <div class="overlay-content">
-            <h2 style="color: #ff3333; text-transform: uppercase; font-size: 1.3em; margin-bottom: 5px;">⚠️ PASO OBLIGATORIO</h2>
-            <p style="font-size: 0.85em; color: #aaa; margin-bottom: 25px;">Para activar la custodia y resguardar tu dinero, debés enviar el comprobante de pago al equipo de TRATO™ antes de continuar.</p>
+            <h2 style="color: #00d4ff; text-transform: uppercase; font-size: 1.3em; margin-bottom: 5px;">⚡ ACCREDITACIÓN DE FONDOS</h2>
+            <p style="font-size: 0.85em; color: #aaa; margin-bottom: 25px;">Si ya realizaste el pago en Mercado Pago, hacé clic abajo de forma obligatoria para activar el búnker e informar en vivo al vendedor.</p>
             
-            <div class="input-group" style="margin-bottom: 20px; text-align: left;">
-                <label for="comprador-dni" style="color: #ff3333; font-size: 0.8em; margin-bottom: 5px; display: block;">Ingresa tu DNI aquí</label>
-                <input type="tel" id="comprador-dni" placeholder="Ej. 35123456" pattern="[0-9]*" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="width: 92%; padding: 10px; border: 1px solid #ff3333; background: #050505; color: #fff; border-radius: 8px;">
+            <button onclick="confirmarYDepositarBunker()" class="btn-portal btn-deposit">⚡ 1. DEPOSITAR FONDOS EN EL BÚNKER (CONFIRMAR)</button>
+            
+            <div id="grupo-dni" class="input-group" style="margin-top: 25px; margin-bottom: 20px; text-align: left; display: none;">
+                <label for="comprador-dni" style="color: #00ff9d; font-size: 0.8em; margin-bottom: 5px; display: block;">Ingresa tu DNI para habilitar comprobante</label>
+                <input type="tel" id="comprador-dni" placeholder="Ej. 35123456" pattern="[0-9]*" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="width: 92%; padding: 10px; border: 1px solid #00ff9d; background: #050505; color: #fff; border-radius: 8px;">
+                
+                <button onclick="enviarComprobanteObligatorio()" class="btn-portal btn-danger" style="margin-top: 15px;">📤 2. ENVIAR COMPROBANTE A SOPORTE</button>
             </div>
             
-            <button onclick="enviarComprobanteObligatorio()" class="btn-portal btn-danger">📤 ENVIAR COMPROBANTE A TRATO</button>
-            <button id="btn-continuar" onclick="desbloquearPantalla()" class="btn-portal" style="border-color: #00d4ff; color: #00d4ff; margin-top: 15px;" disabled>✅ YA LO ENVIÉ, CONTINUAR</button>
+            <button id="btn-continuar" onclick="desbloquearPantalla()" class="btn-portal" style="border-color: #00d4ff; color: #00d4ff; margin-top: 15px;" disabled>✅ CONTINUAR AL PANEL</button>
             
             <p style="font-size: 0.7em; color: #666; margin-top: 20px;">TRATO™ | Sistema Blindado RichardBro</p>
         </div>
@@ -73,7 +78,7 @@
         <div class="subtitle">Búnker de Operaciones</div>
         
         <div id="caja-estado" class="status-box">
-            <p id="texto-estado" class="status-text">⏳ ESPERANDO VERIFICACIÓN DE DEPÓSITO...</p>
+            <p id="texto-estado" class="status-text">⏳ ESPERANDO DEPÓSITO EN EL PROTOCOLO...</p>
             <p id="info-operacion" style="font-size: 0.9em; color: #aaa;">Cargando detalles de la operación...</p>
             
             <p style="font-size: 0.75em; color: #00ff9d; margin-top: 15px; border-top: 1px dashed #2d3748; padding-top: 10px; line-height: 1.35;">
@@ -81,7 +86,7 @@
             </p>
         </div>
 
-        <button onclick="enviarComprobanteObligatorio()" class="btn-portal btn-danger">📤 ENVIAR COMPROBANTE A TRATO</button>
+        <button onclick="desplegarPanelSoporte()" class="btn-portal btn-danger">📤 ENVIAR COMPROBANTE A TRATO</button>
 
         <button onclick="notificar('envio')" class="btn-portal btn-primary">📦 NOTIFICAR ENVÍO POR CORREO</button>
         <button onclick="notificar('presencial')" class="btn-portal btn-primary">🤝 NOTIFICAR ENCUENTRO PRESENCIAL</button>
@@ -106,15 +111,12 @@
 
         if (externalRefRaw) {
             const decodificado = decodeURIComponent(externalRefRaw);
-            
-            // Extrae limpiamente el número del producto de 4 dígitos
             const regexCuatroDigitos = /(\d{4})/;
             const idEncontrado = decodificado.match(regexCuatroDigitos);
             if (idEncontrado) {
                 productoDetectado = idEncontrado[1];
             }
 
-            // Extrae el precio
             const regexPrecio = /(\d+\.\d{2})$/;
             const encontradoPrecio = decodificado.match(regexPrecio);
             if (encontradoPrecio) {
@@ -125,7 +127,6 @@
             }
         }
 
-        // Respaldo por memoria local
         if (!precioDetectado || precioDetectado === '' || precioDetectado === 'Monto') {
             const precioGuardado = sessionStorage.getItem('trato_ultimo_precio');
             const productoGuardado = sessionStorage.getItem('trato_ultimo_producto');
@@ -151,7 +152,10 @@
 
         actualizarUI();
 
-        // 🛠️ FUNCIÓN DIRECTA: Cambia visualmente el estado del comprador local a verde neón
+        if (productoDetectado !== 'Producto no especificado') {
+            socket.emit('unirse_operacion', productoDetectado.toString());
+        }
+
         function activarCustodiaGrafica() {
             document.getElementById('texto-estado').innerText = "🔒 CUSTODIA ACTIVA - FONDOS RESGUARDADOS";
             document.getElementById('caja-estado').className = "status-box status-paid";
@@ -159,20 +163,26 @@
             document.getElementById('contenedor-cliente').className = "central-container panel-paid";
         }
 
-        // ACCIÓN DEL BOTÓN ROJO
+        // ⚡ NUEVA FUNCIÓN: Envía la orden directa al vendedor al presionar el botón azul
+        window.confirmarYDepositarBunker = () => {
+            if (typeof socket !== 'undefined' && productoDetectado !== 'Producto no especificado') {
+                // Despachamos el string nativo puro del ID del paquete
+                socket.emit('comprobante_enviado', { producto: productoDetectado.toString() });
+            }
+
+            // Pintamos la interfaz del comprador local a verde
+            activarCustodiaGrafica();
+
+            // Escondemos/desplegamos los pasos requeridos
+            document.getElementById('grupo-dni').style.display = 'block';
+            document.getElementById('btn-continuar').disabled = false;
+        };
+
         window.enviarComprobanteObligatorio = () => {
             const compradorDni = document.getElementById('comprador-dni').value;
             if (!compradorDni) {
                 return alert("Por favor, ingresa tu DNI o el del titular de la cuenta antes de enviar el comprobante.");
             }
-
-            // 1. GATILLO DIRECTO LIMPIO: Mandamos solo el string del ID del producto al servidor
-            if (typeof socket !== 'undefined' && productoDetectado !== 'Producto no especificado') {
-                socket.emit('comprobante_enviado', { producto: productoDetectado.toString() });
-            }
-
-            // 2. CAMBIO VISUAL AL INSTANTE: Pintamos la interfaz local del comprador en verde neón
-            activarCustodiaGrafica();
 
             const numeroSoporte = "5493456528480";
             const mensajeComprobante = `🛡️ *DECLARACIÓN Y COMPROBANTE DE PAGO - TRATO™*\n\n` +
@@ -191,21 +201,21 @@
                                        `*(Adjuntá tu captura o foto del comprobante de pago y la foto/video del producto aquí abajo 👇)*`;
 
             window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensajeComprobante)}`, '_blank');
-            document.getElementById('btn-continuar').disabled = false;
         };
 
         window.desbloquearPantalla = () => {
             document.getElementById('pantaya-bloqueo').style.display = 'none';
         };
 
+        window.desplegarPanelSoporte = () => {
+            // Si el cliente quiere soporte desde la interfaz principal, le volvemos a mostrar el modal de seguridad
+            document.getElementById('pantaya-bloqueo').style.display = 'flex';
+        };
+
         window.notificar = (tipo) => {
             let mensaje = "";
             const numeroSoporte = "5493456528480";
-            const compradorDni = document.getElementById('comprador-dni').value;
-
-            if (!compradorDni) {
-                return alert("Por favor, ingresa tu DNI en el panel de bloqueo antes de notificar.");
-            }
+            const compradorDni = document.getElementById('comprador-dni').value || 'Pendiente de carga';
 
             if (tipo === 'envio') {
                 mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podés proceder con el despacho del producto.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${productoDetectado}\n* Monto: $ ${precioDetectado}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera del envío.`;
