@@ -260,7 +260,7 @@
 
             <div class="input-group">
                 <label for="monto">Monto base (ARS)</label>
-                <input type="number" id="monto" placeholder="Ej. 150000" oninput="calcularTotal()">
+                <input type="number" id="monto" placeholder="Ej. 150000" oninput="window.calcularTotal()">
             </div>
 
             <div class="input-group">
@@ -278,15 +278,15 @@
             </div>
 
             <div class="checkbox-group">
-                <input type="checkbox" id="acepta-terminos" onchange="toggleBoton()" disabled>
+                <input type="checkbox" id="acepta-terminos" onchange="window.toggleBoton()" disabled>
                 <label for="acepta-terminos" style="color:var(--text-color); text-transform:none; cursor:pointer;">
                     Comprendo que TRATO™ es agente de custodia de fondos y no otorga garantías sobre el funcionamiento del artículo. Acepto el recargo del 15% y los términos del protocolo.
                 </label>
             </div>
 
-            <button id="btn-soporte" class="btn-success" onclick="enviarSoporteDirecto()">📤 1. ENVIAR DATOS POR WHATSAPP A SOPORTE</button>
-            <button id="btn-blindar" onclick="procesarOperacion('comprador')" disabled style="background-color: var(--accent-color); color: #050810; margin-top: 12px;">🔗 2. GENERAR Y ENVIAR AL COMPRADOR</button>
-            <button id="btn-nuevo-trato" onclick="limpiarFormulario()" style="background-color: var(--danger-color); color: #ffffff; margin-top: 12px;">🗑️ 3. NUEVO TRATO (LIMPIAR)</button>
+            <button id="btn-soporte" class="btn-success" onclick="window.enviarSoporteDirecto()">📤 1. ENVIAR DATOS POR WHATSAPP A SOPORTE</button>
+            <button id="btn-blindar" onclick="window.procesarOperacion('comprador')" disabled style="background-color: var(--accent-color); color: #050810; margin-top: 12px;">🔗 2. GENERAR Y ENVIAR AL COMPRADOR</button>
+            <button id="btn-nuevo-trato" onclick="window.limpiarFormulario()" style="background-color: var(--danger-color); color: #ffffff; margin-top: 12px;">🗑️ 3. NUEVO TRATO (LIMPIAR)</button>
             
             <div id="panel-monitoreo" class="live-panel">
                 <div class="live-title">
@@ -305,19 +305,19 @@
         </div>
 
         <div class="legal-text">
-            Al generar el certificado, se acepta el protocolo de protección y las condiciones de intermediación de fondos de la red RichardBro. <a style="color: var(--accent-color); text-decoration: underline; cursor: pointer;" onclick="abrirTerminos()">Ver términos legales completos</a>.
+            Al generar el certificado, se acepta el protocolo de protección y las condiciones de intermediación de fondos de la red RichardBro. <a style="color: var(--accent-color); text-decoration: underline; cursor: pointer;" onclick="window.abrirTerminos()">Ver términos legales completos</a>.
         </div>
     </div>
 
     <div id="modalTerminos" class="modal">
         <div class="modal-content">
-            <span class="close-modal" onclick="cerrarTerminos()">&times;</span>
+            <span class="close-modal" onclick="window.cerrarTerminos()">&times;</span>
             <h3 class="modal-title">🛡️ Términos y Condiciones Legales - TRATO™</h3>
             <div class="modal-text">
                 <p><strong>1. Naturaleza del Servicio y Costos:</strong> TRATO™ (plataforma operada por RichardBro) actúa exclusivamente como agente intermediario y custodio de fondos. El recargo del 15% corresponde al costo por el uso de la plataforma y el servicio de gestión de custodia en el búnker. Este costo del 15% es <em>no reembolsable</em> una vez que los fondos han sido depositados y el servicio ha comenzado a procesarse, ya que cubre los costos operativos de gestión. La plataforma no otorga garantías ni asume responsabilidad civil, comercial o penal sobre el estado, calidad, funcionamiento, vicios ocultos o legalidad del producto o servicio transaccionado.</p>
                 <p><strong>2. Responsabilidad del Usuario:</strong> Cada usuario (tanto comprador como vendedor) es absoluta y exclusivamente responsable de sus propios actos, declaraciones y transacciones. La plataforma actúa como un tercero de confianza, pero no interviene en las negociaciones comerciales ni en la veracidad de los acuerdos particulares entre las partes.</p>
                 <p><strong>3. Validación de Identidad y Prevención de Fraude:</strong> Es de carácter OBLIGATORIO para vendedor y comprador presentar su documento de identidad (DNI o similar). En caso de que el comprador realice un pago desde una cuenta de titularidad de terceros, debe informar los datos de identidad y DNI del titular de dicha cuenta.</p>
-                <p><strong>4. Sistema de Custodia de Fondos:</strong> El dinero correspondiente al valor base del producto se retiene en el búnker de garantía hasta que la operación se concrete y se verifique mediante el protocolo de TRATO™.</p>
+                <p><strong>4. Sistema de Custodia de Fondos:</strong> El dinero correspondiente al valor base del producto se retiene en el búnker de garantía hasta que la operation se concrete y se verifique mediante el protocolo de TRATO™.</p>
                 <p><strong>5. Protocolo de Envíos, Entregas y Validación Obligatoria de Producto:</strong> Para proteger a ambas partes contra fraudes (tales como el reemplazo de productos, el envío de artículos dañados o estafas), se establece de manera estricta el siguiente protocolo:</p>
                 <ul>
                     <li><em>Identificación del Paquete:</em> Es de carácter <strong>OBLIGATORIO</strong> que el vendedor anote el número de operación (ID de 4 dígitos) en un papel visible y lo adhiera al producto o paquete.</li>
@@ -371,15 +371,15 @@
             }
             if (montoParam) {
                 document.getElementById('monto').value = decodeURIComponent(montoParam);
-                calcularTotal();
+                window.calcularTotal();
                 document.getElementById('acepta-terminos').checked = false;
-                toggleBoton();
+                window.toggleBoton();
             }
         }
 
         window.addEventListener('DOMContentLoaded', constParams);
 
-        function limpiarFormulario() {
+        window.limpiarFormulario = function() {
             document.getElementById('prod').value = "";
             document.getElementById('monto').value = "";
             document.getElementById('precio-detalle').innerText = "ℹ️ Monto total con comisión (15%): $ 0";
@@ -391,25 +391,25 @@
             document.getElementById('senal-viva').className = "live-badge";
             document.getElementById('panel-monitoreo').className = "live-panel";
             
-            toggleBoton();
-        }
+            window.toggleBoton();
+        };
 
-        function abrirTerminos() {
+        window.abrirTerminos = function() {
             document.getElementById('modalTerminos').style.display = 'flex';
             document.getElementById('acepta-terminos').disabled = false;
-        }
+        };
 
-        function cerrarTerminos() {
+        window.cerrarTerminos = function() {
             document.getElementById('modalTerminos').style.display = 'none';
-        }
+        };
 
-        function calcularTotal() {
+        window.calcularTotal = function() {
             const precioBase = parseFloat(document.getElementById('monto').value) || 0;
             const total = precioBase * 1.15;
             document.getElementById('precio-detalle').innerText = `ℹ️ Monto total con comisión (15%): $ ${total.toFixed(2)}`;
-        }
+        };
 
-        function toggleBoton() {
+        window.toggleBoton = function() {
             const acepta = document.getElementById('acepta-terminos').checked;
             const checkbox = document.getElementById('acepta-terminos');
 
@@ -420,9 +420,9 @@
                 document.getElementById('btn-blindar').disabled = !acepta;
                 document.getElementById('btn-nuevo-trato').disabled = false;
             }
-        }
+        };
 
-        function enviarSoporteDirecto() {
+        window.enviarSoporteDirecto = function() {
             const producto = document.getElementById('prod').value;
             const montoIngresado = document.getElementById('monto').value;
 
@@ -457,9 +457,9 @@
                                    `Los datos del vendedor han sido verificados para procesar el depósito del pago en caso de una transacción exitosa.`;
                         
             window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(mensajeSoporte)}`, '_blank');
-        }
+        };
 
-        async function procesarOperacion(tipo) {
+        window.procesarOperacion = async function(tipo) {
             const producto = document.getElementById('prod').value;
             const montoIngresado = document.getElementById('monto').value;
             const btnBlindar = document.getElementById('btn-blindar');
@@ -500,12 +500,11 @@
                     document.getElementById('live-id-display').innerText = `#${producto} (ARS $ ${precioBase.toFixed(2)})`;
                     document.getElementById('estado-vivo').innerText = "⏳ ESPERANDO CONFIRMACIÓN DEL COMPRADOR...";
                     
-                    conectarCanalEnVivo(producto);
+                    window.conectarCanalEnVivo(producto);
 
                     if (tipo === 'comprador') {
                         const linkCompradorLimpio = data.url + `&producto=${producto}&precio=${precioBase.toFixed(2)}`;
 
-                        // 🔥 ARREGLADO ABSOLUTO: Aquí se usa la variable mensajeComprador perfectamente escrita
                         const mensajeComprador = `🛡️ *TRATO™ | TÉRMINOS Y CONDICIONES Y LINK DE PAGO*\n\n` +
                                                `¡Hola! Estás por realizar una compra con el sistema blindado TRATO™ (RichardBro). Tu seguridad es nuestra prioridad. Por favor, lee atentamente las condiciones de protección:\n\n` +
                                                `• *🔒 Protección del Comprador:* Tu dinero queda resguardado en el búnker de TRATO™ y no se libera al vendedor hasta que recibas el producto y verifiques que todo está en orden.\n\n` +
@@ -530,9 +529,9 @@
                 btnBlindar.disabled = false;
                 status.style.display = "none";
             }
-        }
+        };
 
-        function conectarCanalEnVivo(idOperacion) {
+        window.conectarCanalEnVivo = function(idOperacion) {
             if (!socket) {
                 socket = io("https://bunker-trato-api.onrender.com");
             }
@@ -547,7 +546,7 @@
                     document.getElementById('panel-monitoreo').className = "live-panel panel-paid";
                 }
             });
-        }
+        };
     </script>
 </body>
 </html>
