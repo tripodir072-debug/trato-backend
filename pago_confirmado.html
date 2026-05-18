@@ -93,7 +93,7 @@
         <a href="https://wa.me/5493456528480" class="btn-portal" style="border-color: #ff3333; color: #ff6b6b;">🆘 SOPORTE DE EMERGENCIA</a>
 
         <div class="legal-text">
-            Los fondos permanecen en custodia hasta confirmar la entrega. Al utilizar este sistema, aceptás el reglamento de TRATO™. RichardBro 2026.
+            Los fondos permanecen in custodia hasta confirmar la entrega. Al utilizar este sistema, aceptás el reglamento de TRATO™. RichardBro 2026.
         </div>
     </div>
 
@@ -103,12 +103,10 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         
-        // 🔎 EXTRACCIÓN DIRECTA SEGURA Y BLINDADA DE LA URL INYECTADA
         let productoDetectado = urlParams.get('producto') || 'Producto no especificado';
         let precioDetectado = urlParams.get('precio') || '';
         const opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación';
 
-        // Si Mercado Pago pisó los parámetros, intentamos el extractor secundario limpio
         if (productoDetectado === 'Producto no especificado' || precioDetectado === '') {
             const externalRefRaw = urlParams.get('external_reference') || '';
             if (externalRefRaw) {
@@ -121,7 +119,6 @@
             }
         }
 
-        // Si sigue fallando por redirección extrema, lee el SessionStorage grabado por el búnker
         if (!precioDetectado || precioDetectado === '' || isNaN(precioDetectado)) {
             const precioGuardado = sessionStorage.getItem('trato_ultimo_precio');
             const productoGuardado = sessionStorage.getItem('trato_ultimo_producto');
@@ -132,7 +129,6 @@
             }
         }
 
-        // Si falla todo lo anterior, lee el amount nativo crudo de la API
         if (!precioDetectado || precioDetectado === '' || isNaN(precioDetectado)) {
             const amountParam = urlParams.get('transaction_amount') || urlParams.get('amount');
             if (amountParam) {
@@ -152,10 +148,6 @@
 
         actualizarUI();
 
-        if (productoDetectado !== 'Producto no especificado') {
-            socket.emit('unirse_operacion', productoDetectado.toString());
-        }
-
         function activarCustodiaGrafica() {
             document.getElementById('texto-estado').innerText = "🔒 CUSTODIA ACTIVA - FONDOS RESGUARDADOS";
             document.getElementById('caja-estado').className = "status-box status-paid";
@@ -163,11 +155,17 @@
             document.getElementById('contenedor-cliente').className = "central-container panel-paid";
         }
 
+        // ⚡ ACCIÓN EXPUESTA: Se suscribe y gatilla todo junto al tocar el botón azul
         window.confirmarYDepositarBunker = () => {
-            if (typeof socket !== 'undefined' && productoDetectado !== 'Producto no especificado') {
-                // Despacha el ID de 4 números exacto y limpio
+            if (productoDetectado !== 'Producto no especificado') {
+                // 1. Nos unimos a la sala correcta primero con el ID real ya procesado
+                socket.emit('unirse_operacion', productoDetectado.toString());
+                
+                // 2. Le mandamos de forma inmediata el disparo al servidor
                 socket.emit('comprobante_enviado', { producto: productoDetectado.toString() });
             }
+            
+            // Cambiamos a verde la pantalla local
             activarCustodiaGrafica();
             document.getElementById('grupo-dni').style.display = 'block';
             document.getElementById('btn-continuar').disabled = false;
