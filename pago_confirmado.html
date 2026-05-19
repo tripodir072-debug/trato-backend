@@ -2,42 +2,42 @@
         const UPDATE_URL = "https://bunker-trato-api.onrender.com/marcar-pagado";
         const urlParams = new URLSearchParams(window.location.search);
         
-        // 1. Intentamos detectar el producto desde la URL o el historial guardado
+        // 1. Intentamos detectar el producto desde la URL o la memoria local
         let productoDetectado = urlParams.get('producto');
         if (!productoDetectado) {
             productoDetectado = localStorage.getItem('trato_prod_actual') || 'Producto no especificado';
         } else {
-            localStorage.setItem('trato_prod_actual', productoDetectado); // Lo respaldamos
+            localStorage.setItem('trato_prod_actual', productoDetectado);
         }
 
-        // 2. DETECCIÓN BLINDADA DEL PRECIO: Buscamos primero lo que eligió el vendedor
+        // 2. Intentamos detectar el precio desde la URL o la memoria local
         let precioDetectado = urlParams.get('precio');
         if (!precioDetectado) {
-            // Si volvió de MP y no está en la URL, lo levantamos de la memoria del teléfono
             precioDetectado = localStorage.getItem('trato_precio_actual') || '';
         } else {
-            // Si viene de WhatsApp por primera vez, lo guardamos a fuego en la memoria
             localStorage.setItem('trato_precio_actual', precioDetectado);
         }
 
         const opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación';
 
-        // Intentos de rescate secundarios por si falla lo anterior
-        if (productoDetectado === 'Producto no especificado') {
-            const externalRefRaw = urlParams.get('external_reference') || '';
-            if (externalRefRaw) {
-                const decodificado = decodeURIComponent(externalRefRaw);
-                const regexCuatroDigitos = /(\d{4})/;
-                const idEncontrado = decodificado.match(regexCuatroDigitos);
-                if (idEncontrado) {
-                    productoDetectado = idEncontrado[1];
-                    localStorage.setItem('trato_prod_actual', productoDetectado);
-                }
+        // 🛡️ BLOQUE DE RESCATE CRÍTICO: Si volvió de Mercado Pago, extraemos TODO de la external_reference
+        const externalRefRaw = urlParams.get('external_reference') || '';
+        if (externalRefRaw) {
+            const decodificado = decodeURIComponent(externalRefRaw); // ej: "4112-172500.00"
+            
+            // Si el texto contiene el guion divisor que armamos en el servidor
+            if (decodificado.includes('-')) {
+                const partes = decodificado.split('-');
+                productoDetectado = partes[0].trim();
+                precioDetectado = partes[1].trim();
+                
+                // Aseguramos el respaldo en el teléfono para que no se borre al refrescar
+                localStorage.setItem('trato_prod_actual', productoDetectado);
+                localStorage.setItem('trato_precio_actual', precioDetectado);
             }
         }
 
         function actualizarUI() {
-            // Limpiamos los decimales flotantes raros de JavaScript a solo 2 decimales
             let precioLimpio = parseFloat(precioDetectado);
             let precioFormateado = isNaN(precioLimpio) ? "A verificar en soporte" : precioLimpio.toFixed(2);
 
