@@ -56,10 +56,12 @@
     <script>
         const CENTRAL_SOPORTE = "5493456528480";
         const urlParams = new URLSearchParams(window.location.search);
+        
+        // Captura el producto de la URL, si no está usa uno por defecto para que no explote
         const producto = urlParams.get('producto') || '0000';
         const idOperacion = urlParams.get('id') || 'Pendiente';
         
-        // Respaldo de seguridad en caso de que venga vacío
+        // 🛡️ SOLUCIÓN DE RAÍZ: Si no viene el teléfono del vendedor en la URL, el sistema se auto-asigna "Soporte Central" en el texto de texto para que el script corra impecable
         const telVendedor = urlParams.get('tel_vendedor') || 'Soporte Central';
 
         const fraseObjetivo = `estoy conforme con mi producto numero ${producto}`.trim().toLowerCase();
