@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRATO™ | Liberación de Fondos</title>
+    <style>
+        body { background-color: #050505; color: #ffffff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .central-container { border: 2px solid #00ff9d; background: #0a0a0a; padding: 40px; border-radius: 20px; box-shadow: 0 0 30px rgba(0, 255, 157, 0.15); text-align: center; width: 90%; max-width: 450px; }
+        h1 { color: #00ff9d; text-transform: uppercase; letter-spacing: 5px; font-size: 2.2em; margin-bottom: 5px; }
+        .subtitle { color: #888; font-size: 0.8em; margin-bottom: 25px; text-transform: uppercase; }
+        
+        .instruction-box { background: #051a10; border: 1px dashed #00ff9d; padding: 15px; border-radius: 10px; margin-bottom: 25px; text-align: left; font-size: 0.9em; line-height: 1.4; color: #e0e0e0; }
+        
+        .input-group { text-align: left; margin-bottom: 20px; }
+        label { color: #00d4ff; font-size: 0.85em; font-weight: bold; display: block; margin-bottom: 8px; text-transform: uppercase; }
+        
+        .phrase-helper { font-style: italic; color: #aaa; background: #111; padding: 10px; border-radius: 6px; font-size: 0.9em; border-left: 3px solid #00d4ff; margin-bottom: 12px; word-break: break-all; }
+        
+        textarea { width: 100%; height: 70px; padding: 12px; border: 1px solid #2d3748; background: #050505; color: #fff; border-radius: 8px; font-size: 0.95em; resize: none; box-sizing: border-box; }
+        textarea:focus { border-color: #00ff9d; outline: none; }
+
+        .btn-portal { display: block; width: 100%; padding: 15px; margin: 12px 0; background: #00ff9d; color: #000; border: 2px solid #00ff9d; border-radius: 12px; font-weight: bold; text-decoration: none; text-transform: uppercase; cursor: pointer; transition: 0.2s; font-size: 1em; }
+        .btn-portal:disabled { background: #1a3329; border-color: #224437; color: #555; cursor: not-allowed; }
+        .btn-portal:not(:disabled):hover { box-shadow: 0 0 15px rgba(0, 255, 157, 0.4); opacity: 0.9; }
+
+        .legal-text { font-size: 0.75em; color: #555; margin-top: 25px; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+    <div class="central-container">
+        <h1>TRATO™</h1>
+        <div class="subtitle">Protocolo de Cierre Exclusivo</div>
+        
+        <div class="instruction-box">
+            📢 <strong>DECLARACIÓN JURADA DE CONFORMIDAD:</strong><br>
+            Para proceder a liberar el dinero bajo custodia al vendedor, debe validar que recibió el paquete/producto en perfectas condiciones escribiendo la frase exacta solicitada abajo.
+        </div>
+
+        <div class="input-group">
+            <label>1. Copie la siguiente frase exacta:</label>
+            <div class="phrase-helper" id="frase-patron">Cargando frase...</div>
+            
+            <label for="texto-conformidad">2. Escriba la frase aquí abajo tal cual:</label>
+            <textarea id="texto-conformidad" placeholder="Escriba la frase de arriba de forma idéntica..." oninput="validarFrase()"></textarea>
+        </div>
+
+        <button id="btn-liberar" onclick="dispararLiberacionSoporte()" class="btn-portal" disabled>🟢 CONFIRMAR RECEPCIÓN Y LIBERAR</button>
+
+        <div class="legal-text">
+            Esta acción es de carácter irrevocable. Al enviar la declaración, eximís de toda responsabilidad al sistema TRATO™ y a RichardBro por fallas secundarias en el producto.
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const producto = urlParams.get('producto') || '0000';
+        const idOperacion = urlParams.get('id') || 'Pendiente';
+        const telVendedor = urlParams.get('tel_vendedor') || 'No especificado';
+
+        // Definimos la frase que el usuario obligatoriamente tiene que transcribir con sus dedos
+        const fraseObjetivo = `estoy conforme con mi producto numero ${producto}`.trim().toLowerCase();
+
+        // Inyectamos la frase visualmente para el usuario con el formato limpio solicitado
+        document.getElementById('frase-patron').innerText = `estoy conforme con mi producto numero ${producto}`;
+
+        // Verificadora en tiempo real. Limpia espacios extras y minúsculas para evitar trabas raras
+        function validarFrase() {
+            const escrito = document.getElementById('texto-conformidad').value.trim().toLowerCase();
+            const boton = document.getElementById('btn-liberar');
+            
+            if (escrito === fraseObjetivo) {
+                boton.disabled = false;
+            } else {
+                boton.disabled = true;
+            }
+        }
+
+        // Ejecuta el disparo definitivo hacia tu WhatsApp de soporte central
+        function dispararLiberacionSoporte() {
+            const escritoConfirmado = document.getElementById('texto-conformidad').value.trim();
+            const numeroSoporte = "5493456528480";
+            
+            const mensajeFinal = `👋 *SOLICITUD DE LIBERACIÓN DE FONDOS - TRATO™*\n\n` +
+                                 `¡Hola! Dejo constancia oficial de que ya obtuve el producto bajo resguardo y firmo mi conformidad.\n\n` +
+                                 `📝 *DECLARACIÓN DEL COMPRADOR:*\n` +
+                                 `"${escritoConfirmado}"\n\n` +
+                                 `📋 *Datos de Auditoría para Soporte:*\n` +
+                                 `- *ID de Operación / Comprobante:* ${idOperacion}\n` +
+                                 `- *Producto Liberado:* #${producto}\n` +
+                                 `- *WhatsApp del Vendedor Destinatario:* ${telVendedor}\n\n` +
+                                 `🟢 *AUTORIZACIÓN:* Por la presente, autorizo formalmente al equipo de TRATO™ a retirar los fondos del búnker de custodia y transferirlos de forma inmediata al vendedor. ¡Operación cerrada con éxito, todo OK!`;
+
+            window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensajeFinal)}`, '_blank');
+        }
+    </script>
+</body>
+</html>
