@@ -1,42 +1,71 @@
     <script>
         const UPDATE_URL = "https://bunker-trato-api.onrender.com/marcar-pagado";
         
-        // 1. PRIMERA CAPTURA (Fase WhatsApp): Si la URL trae datos frescos de entrada, los grabamos a fuego
+        // 🛡️ CONTROL DE PROTOCOLO: Definimos las variables de estado base
+        let productoDetectado = "Producto no especificado";
+        let precioDetectado = "";
+        let opID = "Pendiente de validación";
+        let statusPago = "";
+
+        // TRIPLE REVISIÓN LÍNEA POR LÍNEA: Procesamiento seguro de URL
         try {
             const urlParams = new URLSearchParams(window.location.search);
+            
+            // Detectamos las variables nativas de Mercado Pago de retorno
+            statusPago = urlParams.get('status') || urlParams.get('collection_status') || '';
+            opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación';
+
+            // Capturamos las variables de entrada de TRATO™
             let prodUrl = urlParams.get('producto');
             let precioUrl = urlParams.get('precio');
 
-            if (prodUrl) {
+            // FASE DE ENTRADA (WhatsApp): Si existen en la URL, se graban a fuego y se usan
+            if (prodUrl && prodUrl.trim() !== "") {
                 localStorage.setItem('trato_prod_actual', prodUrl.trim());
+                productoDetectado = prodUrl.trim();
+            } else {
+                // FASE DE RETORNO (Mercado Pago): Si no están en la URL, se levantan del anclaje fijo del teléfono
+                productoDetectado = localStorage.getItem('trato_prod_actual') || 'Producto no especificado';
             }
-            if (precioUrl) {
+
+            if (precioUrl && precioUrl.trim() !== "") {
                 localStorage.setItem('trato_precio_actual', precioUrl.trim());
+                precioDetectado = precioUrl.trim();
+            } else {
+                // FASE DE RETORNO (Mercado Pago): Si no están en la URL, se levantan del anclaje fijo del teléfono
+                precioDetectado = localStorage.getItem('trato_precio_actual') || '';
             }
+
+            // PLAN DE RESCATE EXTREMO: Si todo lo anterior falló por borrado de caché, recortamos la external_reference
+            if (productoDetectado === 'Producto no especificado' || precioDetectado === '') {
+                const externalRefRaw = urlParams.get('external_reference') || '';
+                if (externalRefRaw && externalRefRaw.trim() !== "") {
+                    const decodificado = decodeURIComponent(externalRefRaw).trim();
+                    if (decodificado.includes('-')) {
+                        const partes = decodificado.split('-');
+                        productoDetectado = partes[0].trim();
+                        precioDetectado = partes[1].trim();
+                        // Re-aseguramos el anclaje fijo
+                        localStorage.setItem('trato_prod_actual', productoDetectado);
+                        localStorage.setItem('trato_precio_actual', precioDetectado);
+                    } else if (decodificado !== "") {
+                        productoDetectado = decodificado;
+                        localStorage.setItem('trato_prod_actual', productoDetectado);
+                    }
+                }
+            }
+
         } catch (e) {
-            console.log("Aviso: No se pudo procesar la lectura inicial de URL.");
+            console.log("Aviso del Búnker: Parámetros de URL aislados de forma segura.");
+            // Si la lectura de la URL colapsa por completo, usamos el anclaje fijo sin dudar
+            productoDetectado = localStorage.getItem('trato_prod_actual') || 'Producto no especificado';
+            precioDetectado = localStorage.getItem('trato_precio_actual') || '';
         }
 
-        // 2. ANCLAJE FIJO PRIORITARIO: La UI lee ÚNICAMENTE los datos estables guardados en el celular
-        let productoDetectado = localStorage.getItem('trato_prod_actual') || 'Producto no especificado';
-        let precioDetectado = localStorage.getItem('trato_precio_actual') || '';
-        
-        // 3. DATOS DE PASARELA: Solo extraemos el ID de comprobante y el estado de la transacción
-        let opID = 'Pendiente de validación';
-        let statusPago = '';
-
-        try {
-            const urlParams = new URLSearchParams(window.location.search);
-            statusPago = urlParams.get('status') || urlParams.get('collection_status') || '';
-            opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación';
-        } catch (e) {
-            console.log("Aviso: No hay parámetros de pasarela en la URL.");
-        }
-
+        // FUNCIÓN DE DIBUJADO DE IMPACTO: Formato estricto a 2 decimales
         function actualizarUI() {
-            // Aseguramos formato estricto de pesos con dos decimales limpios
             let precioLimpio = parseFloat(precioDetectado);
-            let precioFormateado = isNaN(precioLimpio) ? "A verificar en búnker" : precioLimpio.toFixed(2);
+            let precioFormateado = isNaN(precioLinter) ? "A verificar en búnker" : precioLimpio.toFixed(2);
 
             document.getElementById('info-operacion').innerHTML = `
                 <strong>Producto:</strong> #<span id="id-real-html">${productoDetectado}</span> <br>
@@ -45,7 +74,7 @@
             `;
         }
 
-        // Ejecutamos el dibujado fijo inmediato y prioritario para que nunca salga en blanco
+        // Ejecutamos el dibujado fijo prioritario inmediato para evitar pantallas colgadas
         actualizarUI();
 
         function activarCustodiaGrafica() {
@@ -55,27 +84,29 @@
             document.getElementById('contenedor-cliente').className = "central-container panel-paid";
         }
 
-        // ⚡ DETONACIÓN AUTOMÁTICA AL VENDEDOR (Fase de Retorno Exitoso)
-        if (statusPago === 'approved') {
+        // ⚡ GATILLO AUTOMÁTICO AL SERVIDOR (Fase Retorno Exitoso)
+        if (statusPago === 'approved' || statusPago === 'approved') {
             activarCustodiaGrafica();
             
-            // Enviamos la señal a Render en segundo plano sin tocar la memoria gráfica del teléfono
+            // Disparamos el aviso directamente a Render usando el ID verificado
             (async () => {
                 if (productoDetectado && productoDetectado !== 'Producto no especificado') {
                     try {
-                        await fetch(UPDATE_URL, {
+                        const respuestaBunker = await fetch(UPDATE_URL, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ producto: productoDetectado })
+                            body: JSON.stringify({ producto: productoDetectado.toString() })
                         });
-                        console.log("Señal de cobro registrada con éxito en Render.");
+                        const resultadoData = await respuestaBunker.json();
+                        console.log("Búnker Render notificado con éxito:", resultadoData);
                     } catch (e) {
-                        console.log("Error de red en notificación automática", e);
+                        console.log("Error de red en sincronización automática con Render", e);
                     }
                 }
             })();
         }
 
+        // BOTÓN MANUAL DE COBRO (Por si el cliente regresa de forma manual)
         window.confirmarYDepositarBunker = async () => {
             activarCustodiaGrafica();
             document.getElementById('grupo-dni').style.display = 'block';
@@ -88,7 +119,7 @@
                     await fetch(UPDATE_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ producto: idRealParaAsentar })
+                        body: JSON.stringify({ producto: idRealParaAsentar.toString() })
                     });
                 } catch (e) {
                     console.log("Error al asentar pago manual", e);
