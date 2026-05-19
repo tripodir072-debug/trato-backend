@@ -98,7 +98,7 @@
         <button onclick="notificarSoporteManual()" class="btn-portal btn-danger">📤 ENVIAR COMPROBANTE A TRATO</button>
         <button onclick="notificar('envio')" class="btn-portal btn-primary">📦 NOTIFICAR ENVÍO POR CORREO</button>
         <button onclick="notificar('presencial')" class="btn-portal btn-primary">🤝 NOTIFICAR ENCUENTRO PRESENCIAL</button>
-        <a href="https://wa.me/5493456528480" class="btn-portal" style="border-color: #ff3333; color: #ff6b6b;">🆘 SOPORTE DE EMERGENCIA</a>
+        <a href="https://wa.me/5493456528480" class="btn-portal" style="border-color: #ff3333; color: #ff6b6b;">🆘 SOPORTE DE EMERGENCY</a>
 
         <div class="legal-text">
             Los fondos permanecen en custodia hasta confirmar la entrega. Al utilizar este sistema, aceptás el reglamento de TRATO™. RichardBro 2026.
@@ -107,6 +107,7 @@
 
     <script>
         const UPDATE_URL = "https://bunker-trato-api.onrender.com/marcar-pagado";
+        const CENTRAL_SOPORTE = "5493456528480";
         const urlParams = new URLSearchParams(window.location.search);
         
         let prodUrl = urlParams.get('producto');
@@ -121,7 +122,9 @@
         }
 
         let productoDetectado = localStorage.getItem('trato_prod_fijo') || prodUrl || 'Producto no especificado';
-        let telefonoVendedor = localStorage.getItem('trato_tel_vendedor_fijo') || telVendedorUrl || '';
+        
+        // 🛡️ REVISIÓN DE SEGURIDAD MÁXIMA: Si no hay teléfono del vendedor, se auto-asigna el soporte para evitar que el botón falle
+        let telefonoVendedor = localStorage.getItem('trato_tel_vendedor_fijo') || telVendedorUrl || CENTRAL_SOPORTE;
 
         if (productoDetectado === 'Producto no especificado') {
             const externalRefRaw = urlParams.get('external_reference') || '';
@@ -155,6 +158,11 @@
             document.getElementById('caja-estado').className = "status-box status-paid";
             document.getElementById('texto-estado').className = "status-text text-paid";
             document.getElementById('contenedor-cliente').className = "central-container panel-paid";
+        }
+
+        const statusPago = urlParams.get('status') || urlParams.get('collection_status') || '';
+        if (statusPago === 'approved') {
+            activarCustodiaGrafica();
         }
 
         window.confirmarYDepositarBunker = async () => {
@@ -191,11 +199,8 @@
 
         function abrirSoporteWhatsApp(dniUser) {
             const idRealParaAsentar = document.getElementById('id-real-html').innerText.trim();
-            const numeroSoporte = "5493456528480";
-            
             const linkRetornoComprador = window.location.href;
             
-            // Construimos la URL apuntando a la nueva pantalla liberar.html pasándole las variables de control fijas
             const baseDir = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
             const linkLiberarOculto = `${baseDir}liberar.html?producto=${idRealParaAsentar}&tel_vendedor=${telefonoVendedor}&id=${opID}`;
 
@@ -207,10 +212,10 @@
                                        `- DNI del Comprador/Titular de Pago: ${dniUser}\n\n` +
                                        `📸 *VALIDACIÓN OBLIGATORIA (FOTO/VIDEO):* \nPor favor adjuntá la foto o video del producto/paquete que muestre el código de operation pegado para blindar la operación y validar su existencia.\n\n` +
                                        `↩️ *LINK DE RETORNO AL PANEL (Para el Comprador):*\n${linkRetornoComprador}\n\n` +
-                                       `🟢 *LINK EXCLUSIVO DE LIBERACIÓN (Tocar al recibir el producto):*\nCuando tengas el paquete en mano y todo esté OK, hacé clic en este link para liberar el pago:\n${linkLiberarOculto}\n\n` +
+                                       `🟢 *LINK EXCLUSIVO DE LIBERACIÓN (Tocar al recibir el producto):*\n${linkLiberarOculto}\n\n` +
                                        `⚠️ *AVISO LEGAL SOBRE PLAZOS:* El plazo de custodia está sujeto a la entrega por Correo (automático) o un límite estricto de 24 Horas Corridas si la entrega se coordina de forma Presencial. Pasado dicho plazo sin reclamos en soporte, se liberará de oficio.`;
 
-            window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensajeComprobante)}`, '_blank');
+            window.open(`https://api.whatsapp.com/send?phone=${CENTRAL_SOPORTE}&text=${encodeURIComponent(mensajeComprobante)}`, '_blank');
         }
 
         window.desbloquearPantalla = () => {
@@ -220,10 +225,6 @@
         window.notificar = (tipo) => {
             const idRealParaAsentar = document.getElementById('id-real-html').innerText.trim();
             let mensaje = "";
-            
-            if (!telefonoVendedor || telefonoVendedor.trim() === "") {
-                return alert("Atención: No se detectó el número de WhatsApp del vendedor. Por favor coordine de forma directa.");
-            }
 
             if (tipo === 'envio') {
                 mensaje = `🛡️ *SISTEMA TRATO™ | NOTIFICACIÓN DE CUSTODIA ACTIVA*\n\n¡Hola! Te notifico que ya realicé el depósito correspondiente a nuestra operación. El búnker de *TRATO™* ya retuvo los fondos de forma segura bajo el protocolo de resguardo.\n\n📋 *Detalles de la Operación:*\n- *Producto/Paquete:* #${idRealParaAsentar}\n- *ID de Operación:* ${opID}\n\n⚠️ *INSTRUCCIÓN PARA EL DESPACHO:* El sistema me indica que ya estás autorizado a proceder con el despacho del producto por correo. Recordá que para liberar los fondos es obligatorio que anotes el número de operación *#${opID}* de forma visible en el paquete antes de enviarlo.\n\n¡Quedo a la espera del comprobante de envío! 👍`;
