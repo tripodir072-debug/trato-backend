@@ -1,7 +1,7 @@
     <script>
         const UPDATE_URL = "https://bunker-trato-api.onrender.com/marcar-pagado";
         
-        // 1. PRIMERA CAPTURA (Fase WhatsApp): Si la URL trae datos frescos, los grabamos a fuego en el teléfono
+        // 1. PRIMERA CAPTURA (Fase WhatsApp): Si la URL trae datos frescos de entrada, los grabamos a fuego
         try {
             const urlParams = new URLSearchParams(window.location.search);
             let prodUrl = urlParams.get('producto');
@@ -17,11 +17,11 @@
             console.log("Aviso: No se pudo procesar la lectura inicial de URL.");
         }
 
-        // 2. ANCLAJE FIJO PRIORITARIO: La UI lee ÚNICAMENTE los datos fijos guardados en la memoria del celular
+        // 2. ANCLAJE FIJO PRIORITARIO: La UI lee ÚNICAMENTE los datos estables guardados en el celular
         let productoDetectado = localStorage.getItem('trato_prod_actual') || 'Producto no especificado';
         let precioDetectado = localStorage.getItem('trato_precio_actual') || '';
         
-        // 3. DATOS DE MERCADO PAGO: Solo extraemos el ID de comprobante y el estado de la transacción
+        // 3. DATOS DE PASARELA: Solo extraemos el ID de comprobante y el estado de la transacción
         let opID = 'Pendiente de validación';
         let statusPago = '';
 
@@ -34,7 +34,7 @@
         }
 
         function actualizarUI() {
-            // Pasamos a limpio el precio fijo guardado para clavarle los 2 decimales estrictos
+            // Aseguramos formato estricto de pesos con dos decimales limpios
             let precioLimpio = parseFloat(precioDetectado);
             let precioFormateado = isNaN(precioLimpio) ? "A verificar en búnker" : precioLimpio.toFixed(2);
 
@@ -45,7 +45,7 @@
             `;
         }
 
-        // Ejecutamos el dibujado fijo inmediato en pantalla
+        // Ejecutamos el dibujado fijo inmediato y prioritario para que nunca salga en blanco
         actualizarUI();
 
         function activarCustodiaGrafica() {
@@ -59,7 +59,7 @@
         if (statusPago === 'approved') {
             activarCustodiaGrafica();
             
-            // Enviamos la señal a Render usando el ID del producto fijo que guardamos al principio
+            // Enviamos la señal a Render en segundo plano sin tocar la memoria gráfica del teléfono
             (async () => {
                 if (productoDetectado && productoDetectado !== 'Producto no especificado') {
                     try {
@@ -68,7 +68,7 @@
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ producto: productoDetectado })
                         });
-                        console.log("Señal de cobro registrada en Render para producto #" + productoDetectado);
+                        console.log("Señal de cobro registrada con éxito en Render.");
                     } catch (e) {
                         console.log("Error de red en notificación automática", e);
                     }
