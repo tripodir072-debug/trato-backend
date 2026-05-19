@@ -48,6 +48,17 @@
             max-width: 420px;
             box-shadow: 0 0 30px rgba(255, 51, 51, 0.2);
         }
+        
+        /* Estilo para el mensaje de tranquilidad de TRATO */
+        .trato-secure-msg {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.95em;
+            line-height: 1.4;
+            color: #e0e0e0;
+            text-align: left;
+        }
     </style>
 </head>
 <body>
@@ -78,9 +89,9 @@
         
         <div id="caja-estado" class="status-box">
             <p id="texto-estado" class="status-text">⏳ ESPERANDO DEPÓSITO EN EL PROTOCOLO...</p>
-            <p id="info-operacion" style="font-size: 0.9em; color: #aaa;">Cargando detalles de la operación...</p>
+            <div id="info-operacion" style="font-size: 0.9em; color: #aaa;">Cargando detalles de la operación...</div>
             
-            <p style="font-size: 0.75em; color: #00ff9d; margin-top: 15px; border-top: 1px dashed #2d3748; padding-top: 10px; line-height: 1.35;">
+            <p style="font-size: 0.75em; color: #00ff9d; margin-top: 15px; border-top: 1px dashed #2d3748; padding-top: 10px; line-height: 1.35; text-align: left;">
                 <strong>⚠️ INSTRUCCIÓN AL VENDEDOR:</strong> El número de operación (ID) debe estar anotado en un papel y pegado visiblemente en el producto o paquete. El envío de la evidencia gráfica es obligatorio.
             </p>
         </div>
@@ -99,6 +110,7 @@
         const UPDATE_URL = "https://bunker-trato-api.onrender.com/marcar-pagado";
         const urlParams = new URLSearchParams(window.location.search);
         
+        // Mantenemos intacta la lógica de captura para el enrutamiento automático y el producto
         let productoDetectado = urlParams.get('producto') || 'Producto no especificado';
         let precioDetectado = urlParams.get('precio') || '';
         const opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación';
@@ -134,15 +146,16 @@
             }
         }
 
-        // 🔥 FUNCIÓN CORREGIDA CON TRIPLE CONTROL: Clava los 2 decimales limpios sin alterar la lógica de captura
+        // 🔥 MODIFICACIÓN QUIRÚRGICA: Eliminamos el monto y agregamos el bloque de máxima seguridad y guía
         function actualizarUI() {
-            let precioLimpio = parseFloat(precioDetectado);
-            let precioFormateado = isNaN(precioLimpio) ? precioDetectado : precioLimpio.toFixed(2);
-
             document.getElementById('info-operacion').innerHTML = `
                 <strong>Producto:</strong> #<span id="id-real-html">${productoDetectado}</span> <br>
-                <strong>Monto en Custodia:</strong> $ ${precioFormateado} <br>
                 <strong>ID de Operación / Comprobante:</strong> ${opID}
+                
+                <div class="trato-secure-msg">
+                    🛡️ <strong>¡Ya podés quedarte tranquilo!</strong> Tu dinero ya se encuentra completamente custodiado y blindado por el protocolo de seguridad <strong>TRATO™</strong>.<br><br>
+                    📢 <strong>PASO OBLIGATORIO:</strong> Para finalizar, hacé clic en los botones de abajo para avisarle al vendedor que el pago fue aprobado y enviarle el comprobante oficial a nuestro equipo de soporte. El búnker ya está activo.
+                </div>
             `;
         }
 
@@ -155,7 +168,7 @@
             document.getElementById('contenedor-cliente').className = "central-container panel-paid";
         }
 
-        // ⚡ LA ACCIÓN DEL BOTÓN AZUL BLINDADA POR REGISTRO HTTP
+        // ⚡ Mantenemos tu retorno intacto (No tocamos nada de esta lógica que ya te funciona)
         window.confirmarYDepositarBunker = async () => {
             activarCustodiaGrafica();
             document.getElementById('grupo-dni').style.display = 'block';
@@ -165,7 +178,6 @@
 
             if (idRealParaAsentar && idRealParaAsentar !== 'Producto no especificado') {
                 try {
-                    // Impacta el estado "approved" directamente en la lista interna de Render
                     await fetch(UPDATE_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -192,16 +204,11 @@
         function abrirSoporteWhatsApp(dniUser) {
             const idRealParaAsentar = document.getElementById('id-real-html').innerText.trim();
             const numeroSoporte = "5493456528480";
-            
-            let precioLimpio = parseFloat(precioDetectado);
-            let precioFormateado = isNaN(precioLimpio) ? precioDetectado : precioLimpio.toFixed(2);
-
             const mensajeComprobante = `🛡️ *DECLARACIÓN Y COMPROBANTE DE PAGO - TRATO™*\n\n` +
                                        `¡Hola! Envío el presente comprobante para activar formalmente el protocolo de custodia de fondos.\n\n` +
                                        `*Datos de la operación:*\n` +
                                        `- ID de Operación / Comprobante: ${opID}\n` +
                                        `- Producto: ${idRealParaAsentar}\n` +
-                                       `- Monto total: $ ${precioFormateado}\n` +
                                        `- DNI del Comprador/Titular de Pago: ${dniUser}\n\n` +
                                        `📸 *VALIDACIÓN OBLIGATORIA (FOTO/VIDEO):* \nPor favor adjuntá la foto o video del producto/paquete que muestre el código de operation pegado para blindar la operación y validar su existencia.\n\n` +
                                        `🔗 *Accedé a tu cuenta de Mercado Pago aquí:* \nhttps://www.mercadopago.com.ar\n\n` +
@@ -224,13 +231,10 @@
             const numeroSoporte = "5493456528480";
             const compradorDni = document.getElementById('comprador-dni').value || 'Pendiente de carga';
 
-            let precioLimpio = parseFloat(precioDetectado);
-            let precioFormateado = isNaN(precioLimpio) ? precioDetectado : precioLimpio.toFixed(2);
-
             if (tipo === 'envio') {
-                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podés proceder con el despacho del producto.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${idRealParaAsentar}\n* Monto: $ ${precioFormateado}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera del envío.`;
+                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podés proceder con el despacho del producto.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${idRealParaAsentar}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera del envío.`;
             } else {
-                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podemos coordinar el encuentro para la entrega.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${idRealParaAsentar}\n* Monto: $ ${precioFormateado}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera para coordinar el punto de encuentro.`;
+                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podemos coordinar el encuentro para la entrega.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${idRealParaAsentar}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera para coordinar el punto de encuentro.`;
             }
 
             window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensaje)}`, '_blank');
