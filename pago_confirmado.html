@@ -98,7 +98,7 @@
         <button onclick="notificarSoporteManual()" class="btn-portal btn-danger">📤 ENVIAR COMPROBANTE A TRATO</button>
         <button onclick="notificar('envio')" class="btn-portal btn-primary">📦 NOTIFICAR ENVÍO POR CORREO</button>
         <button onclick="notificar('presencial')" class="btn-portal btn-primary">🤝 NOTIFICAR ENCUENTRO PRESENCIAL</button>
-        <a href="https://wa.me/5493456528480" class="btn-portal" style="border-color: #ff3333; color: #ff6b6b;">🆘 SOPORTE DE EMERGENCY</a>
+        <a href="https://wa.me/5493456528480" class="btn-portal" style="border-color: #ff3333; color: #ff6b6b;">🆘 SOPORTE DE EMERGENCIA</a>
 
         <div class="legal-text">
             Los fondos permanecen en custodia hasta confirmar la entrega. Al utilizar este sistema, aceptás el reglamento de TRATO™. RichardBro 2026.
@@ -123,7 +123,7 @@
 
         let productoDetectado = localStorage.getItem('trato_prod_fijo') || prodUrl || 'Producto no especificado';
         
-        // 🛡️ REVISIÓN DE SEGURIDAD MÁXIMA: Si no hay teléfono del vendedor, se auto-asigna el soporte para evitar que el botón falle
+        // 🛡️ ARREGLO DE RAÍZ: Si no se detecta teléfono del vendedor en la URL ni en la memoria, se le asigna tu soporte por defecto para que los botones azules anden siempre
         let telefonoVendedor = localStorage.getItem('trato_tel_vendedor_fijo') || telVendedorUrl || CENTRAL_SOPORTE;
 
         if (productoDetectado === 'Producto no especificado') {
@@ -139,6 +139,7 @@
             }
         }
 
+        // 🔥 MODIFICACIÓN SOLICITADA: Interfaz limpia sin montos cruzados y con mensaje de alta seguridad
         function actualizarUI() {
             document.getElementById('info-operacion').innerHTML = `
                 <strong>Producto:</strong> #<span id="id-real-html">${productoDetectado}</span> <br>
@@ -160,11 +161,13 @@
             document.getElementById('contenedor-cliente').className = "central-container panel-paid";
         }
 
+        // Mantenemos intacto tu gatillo automático por si Mercado Pago devuelve la variable approved
         const statusPago = urlParams.get('status') || urlParams.get('collection_status') || '';
         if (statusPago === 'approved') {
             activarCustodiaGrafica();
         }
 
+        // Mantenemos intacto tu backend conectado a Render (Botón 1)
         window.confirmarYDepositarBunker = async () => {
             activarCustodiaGrafica();
             document.getElementById('grupo-dni').style.display = 'block';
@@ -197,6 +200,7 @@
             document.getElementById('pantaya-bloqueo').style.display = 'flex';
         };
 
+        // 🔥 BOTÓN ROJO: Envía comprobante a soporte e inyecta los links de retorno y de liberación oculta
         function abrirSoporteWhatsApp(dniUser) {
             const idRealParaAsentar = document.getElementById('id-real-html').innerText.trim();
             const linkRetornoComprador = window.location.href;
@@ -222,6 +226,7 @@
             document.getElementById('pantaya-bloqueo').style.display = 'none';
         };
 
+        // 🔥 BOTONES AZULES: Envían el aviso premium sin DNI directo al chat del vendedor (o al soporte de respaldo si no hay número)
         window.notificar = (tipo) => {
             const idRealParaAsentar = document.getElementById('id-real-html').innerText.trim();
             let mensaje = "";
