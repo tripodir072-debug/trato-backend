@@ -58,9 +58,25 @@
             document.getElementById('contenedor-cliente').className = "central-container panel-paid";
         }
 
-        // Si el comprador vuelve de Mercado Pago aprobado, le activamos la estética verde directo
+        // 🔥 RETORNO AUTOMÁTICO INTELIGENTE: Si vuelve aprobado, pinta de verde y avisa a Render en el acto
         if (urlParams.get('status') === 'approved' || urlParams.get('collection_status') === 'approved') {
             activarCustodiaGrafica();
+            
+            // Disparo automático preventivo al servidor en segundo plano
+            (async () => {
+                const idParaAsentarAutomatico = productoDetectado;
+                if (idParaAsentarAutomatico && idParaAsentarAutomatico !== 'Producto no especificado') {
+                    try {
+                        await fetch(UPDATE_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ producto: idParaAsentarAutomatico })
+                        });
+                    } catch (e) {
+                        console.log("Error en asentamiento automático de retorno", e);
+                    }
+                }
+            })();
         }
 
         window.confirmarYDepositarBunker = async () => {
