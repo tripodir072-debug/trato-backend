@@ -48,6 +48,16 @@
             max-width: 420px;
             box-shadow: 0 0 30px rgba(255, 51, 51, 0.2);
         }
+        
+        .trato-secure-msg {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.95em;
+            line-height: 1.4;
+            color: #e0e0e0;
+            text-align: left;
+        }
     </style>
 </head>
 <body>
@@ -103,6 +113,9 @@
         let precioDetectado = urlParams.get('precio') || '';
         const opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación';
 
+        // Escudo de control para la variable del vendedor
+        let telefonoVendedor = urlParams.get('tel_vendedor') || "5493456528480";
+
         if (productoDetectado === 'Producto no especificado' || precioDetectado === '') {
             const externalRefRaw = urlParams.get('external_reference') || '';
             if (externalRefRaw) {
@@ -137,8 +150,12 @@
         function actualizarUI() {
             document.getElementById('info-operacion').innerHTML = `
                 <strong>Producto:</strong> #<span id="id-real-html">${productoDetectado}</span> <br>
-                <strong>Monto en Custodia:</strong> $ ${precioDetectado} <br>
                 <strong>ID de Operación / Comprobante:</strong> ${opID}
+                
+                <div class="trato-secure-msg">
+                    🛡️ <strong>¡Ya podés quedarte tranquilo!</strong> Tu dinero ya se encuentra completamente custodiado y blindado por el protocolo de seguridad <strong>TRATO™</strong>.<br><br>
+                    📢 <strong>PASO OBLIGATORIO:</strong> Para finalizar, hacé clic en los botones de abajo para avisarle al vendedor que el pago fue aprobado y enviarle el comprobante oficial a nuestro equipo de soporte. El búnker ya está activo.
+                </div>
             `;
         }
 
@@ -151,7 +168,6 @@
             document.getElementById('contenedor-cliente').className = "central-container panel-paid";
         }
 
-        // ⚡ LA ACCIÓN DEL BOTÓN AZUL BLINDADA POR REGISTRO HTTP
         window.confirmarYDepositarBunker = async () => {
             activarCustodiaGrafica();
             document.getElementById('grupo-dni').style.display = 'block';
@@ -161,7 +177,6 @@
 
             if (idRealParaAsentar && idRealParaAsentar !== 'Producto no especificado') {
                 try {
-                    // Impacta el estado "approved" directamente en la lista interna de Render
                     await fetch(UPDATE_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -185,23 +200,25 @@
             document.getElementById('pantaya-bloqueo').style.display = 'flex';
         };
 
+        // 🔥 FUNCIÓN CRÍTICA CORREGIDA CON EL LINK DE LIBERACIÓN ADENTRO
         function abrirSoporteWhatsApp(dniUser) {
             const idRealParaAsentar = document.getElementById('id-real-html').innerText.trim();
             const numeroSoporte = "5493456528480";
+            const linkRetornoComprador = window.location.href;
+            
+            const baseDir = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+            const linkLiberarOculto = `${baseDir}liberar.html?producto=${idRealParaAsentar}&tel_vendedor=${telefonoVendedor}&id=${opID}`;
+
             const mensajeComprobante = `🛡️ *DECLARACIÓN Y COMPROBANTE DE PAGO - TRATO™*\n\n` +
                                        `¡Hola! Envío el presente comprobante para activar formalmente el protocolo de custodia de fondos.\n\n` +
                                        `*Datos de la operación:*\n` +
                                        `- ID de Operación / Comprobante: ${opID}\n` +
                                        `- Producto: ${idRealParaAsentar}\n` +
-                                       `- Monto total: $ ${precioDetectado}\n` +
                                        `- DNI del Comprador/Titular de Pago: ${dniUser}\n\n` +
                                        `📸 *VALIDACIÓN OBLIGATORIA (FOTO/VIDEO):* \nPor favor adjuntá la foto o video del producto/paquete que muestre el código de operation pegado para blindar la operación y validar su existencia.\n\n` +
-                                       `🔗 *Accedé a tu cuenta de Mercado Pago aquí:* \nhttps://www.mercadopago.com.ar\n\n` +
-                                       `⚠️ *AVISO LEGAL Y CONDICIONES OBLIGATORIAS:*\n` +
-                                       `1. Es de carácter OBLIGATORIO enviar la captura o comprobante de pago emitido por Mercado Pago o la entidad bancaria utilizada para esta transacción.\n` +
-                                       `2. Sin la recepción y validación de dicho comprobante, no se activará la custodia y el comprador no tendrá ningún derecho a reclamo, reembolso o disputa legal sobre el monto del producto, quedando el recargo del 15% por servicio de gestión como no reembolsable en caso de arrepentimiento.\n` +
-                                       `3. El usuario declara que, al utilizar el sistema TRATO™ (RichardBro), acepta de forma irrevocable que los fondos quedarán retenidos bajo las condiciones del búnker hasta que se confirme la operación o finalice el plazo legal estipulado.\n\n` +
-                                       `*(Adjuntá tu captura o foto del comprobante de pago y la foto/video del producto aquí abajo 👇)*`;
+                                       `↩️ *LINK DE RETORNO AL PANEL (Para el Comprador):*\n${linkRetornoComprador}\n\n` +
+                                       `🟢 *LINK EXCLUSIVO DE LIBERACIÓN (Tocar al recibir el producto):*\nCuando tengas el paquete en mano y todo esté OK, hacé clic en este link para avisar de la entrega y liberar el pago:\n${linkLiberarOculto}\n\n` +
+                                       `⚠️ *AVISO LEGAL SOBRE PLAZOS:* El plazo de custodia está sujeto a la entrega por Correo (automático) o un límite estricto de 24 Horas Corridas si la entrega se coordina de forma Presencial. Pasado dicho plazo sin reclamos en soporte, se liberará de oficio.`;
 
             window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensajeComprobante)}`, '_blank');
         }
@@ -213,16 +230,14 @@
         window.notificar = (tipo) => {
             const idRealParaAsentar = document.getElementById('id-real-html').innerText.trim();
             let mensaje = "";
-            const numeroSoporte = "5493456528480";
-            const compradorDni = document.getElementById('comprador-dni').value || 'Pendiente de carga';
 
             if (tipo === 'envio') {
-                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podés proceder con el despacho del producto.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${idRealParaAsentar}\n* Monto: $ ${precioDetectado}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera del envío.`;
+                mensaje = `🛡️ *SISTEMA TRATO™ | NOTIFICACIÓN DE CUSTODIA ACTIVA*\n\n¡Hola! Te notifico que ya realicé el depósito correspondiente a nuestra operación. El búnker de *TRATO™* ya retuvo los fondos de forma segura bajo el protocolo de resguardo.\n\n📋 *Detalles de la Operación:*\n- *Producto/Paquete:* #${idRealParaAsentar}\n- *ID de Operación:* ${opID}\n\n⚠️ *INSTRUCCIÓN PARA EL DESPACHO:* El sistema me indica que ya estás autorizado a proceder con el despacho del producto por correo. Recordá que para liberar los fondos es obligatorio que anotes el número de operation *#${opID}* de forma visible en el paquete antes de enviarlo.\n\n¡Quedo a la espera del comprobante de envío! 👍`;
             } else {
-                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podemos coordinar el encuentro para la entrega.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${idRealParaAsentar}\n* Monto: $ ${precioDetectado}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera para coordinar el punto de encuentro.`;
+                mensaje = `🛡️ *SISTEMA TRATO™ | PROTOCOLO PRESENCIAL ACTIVADO*\n\n¡Hola! Te confirmo que los fondos ya fueron depositados con éxito en la plataforma de garantías de *TRATO™*. El dinero se encuentra congelado y resguardado de forma segura.\n\n📋 *Detalles de la Operación:*\n- *Producto:* #${idRealParaAsentar}\n- *ID de Operación:* ${opID}\n\n🤝 *COORDINACIÓN DE ENTREGA:* Pasame tus horarios así coordinamos el punto de encuentro en un lugar público y seguro para ambas partes.\n\n⚠️ *REGLA DE PLAZO PRESENCIAL:* Al activarse la entrega en persona, el sistema TRATO™ inicia un reloj de seguridad de 24 horas corridas. Una vez realizado el encuentro, si no reporto ninguna queja en soporte dentro de ese plazo, los fondos se liberarán automáticamente al vendedor por vencimiento de tiempo.`;
             }
 
-            window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensaje)}`, '_blank');
+            window.open(`https://api.whatsapp.com/send?phone=${telefonoVendedor}&text=${encodeURIComponent(mensaje)}`, '_blank');
         };
     </script>
 </body>
