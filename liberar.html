@@ -54,18 +54,17 @@
     </div>
 
     <script>
+        const CENTRAL_SOPORTE = "5493456528480";
         const urlParams = new URLSearchParams(window.location.search);
         const producto = urlParams.get('producto') || '0000';
         const idOperacion = urlParams.get('id') || 'Pendiente';
-        const telVendedor = urlParams.get('tel_vendedor') || 'No especificado';
+        
+        // Respaldo de seguridad en caso de que venga vacío
+        const telVendedor = urlParams.get('tel_vendedor') || 'Soporte Central';
 
-        // Definimos la frase que el usuario obligatoriamente tiene que transcribir con sus dedos
         const fraseObjetivo = `estoy conforme con mi producto numero ${producto}`.trim().toLowerCase();
-
-        // Inyectamos la frase visualmente para el usuario con el formato limpio solicitado
         document.getElementById('frase-patron').innerText = `estoy conforme con mi producto numero ${producto}`;
 
-        // Verificadora en tiempo real. Limpia espacios extras y minúsculas para evitar trabas raras
         function validarFrase() {
             const escrito = document.getElementById('texto-conformidad').value.trim().toLowerCase();
             const boton = document.getElementById('btn-liberar');
@@ -77,10 +76,8 @@
             }
         }
 
-        // Ejecuta el disparo definitivo hacia tu WhatsApp de soporte central
         function dispararLiberacionSoporte() {
             const escritoConfirmado = document.getElementById('texto-conformidad').value.trim();
-            const numeroSoporte = "5493456528480";
             
             const mensajeFinal = `👋 *SOLICITUD DE LIBERACIÓN DE FONDOS - TRATO™*\n\n` +
                                  `¡Hola! Dejo constancia oficial de que ya obtuve el producto bajo resguardo y firmo mi conformidad.\n\n` +
@@ -92,7 +89,7 @@
                                  `- *WhatsApp del Vendedor Destinatario:* ${telVendedor}\n\n` +
                                  `🟢 *AUTORIZACIÓN:* Por la presente, autorizo formalmente al equipo de TRATO™ a retirar los fondos del búnker de custodia y transferirlos de forma inmediata al vendedor. ¡Operación cerrada con éxito, todo OK!`;
 
-            window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensajeFinal)}`, '_blank');
+            window.open(`https://api.whatsapp.com/send?phone=${CENTRAL_SOPORTE}&text=${encodeURIComponent(mensajeFinal)}`, '_blank');
         }
     </script>
 </body>
