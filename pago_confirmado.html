@@ -109,12 +109,10 @@
         const UPDATE_URL = "https://bunker-trato-api.onrender.com/marcar-pagado";
         const urlParams = new URLSearchParams(window.location.search);
         
-        // Captura inicial de datos desde la URL básica
         let prodUrl = urlParams.get('producto');
         let telVendedorUrl = urlParams.get('tel_vendedor');
         const opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación';
 
-        // 🛡️ REVISIÓN 1: Guardado inteligente en localStorage para blindar el retorno de Mercado Pago
         if (prodUrl && prodUrl.trim() !== "") {
             localStorage.setItem('trato_prod_fijo', prodUrl.trim());
         }
@@ -122,11 +120,9 @@
             localStorage.setItem('trato_tel_vendedor_fijo', telVendedorUrl.trim());
         }
 
-        // Asignación priorizando la memoria física del celular
         let productoDetectado = localStorage.getItem('trato_prod_fijo') || prodUrl || 'Producto no especificado';
         let telefonoVendedor = localStorage.getItem('trato_tel_vendedor_fijo') || telVendedorUrl || '';
 
-        // Plan de rescate secundario por External Reference
         if (productoDetectado === 'Producto no especificado') {
             const externalRefRaw = urlParams.get('external_reference') || '';
             if (externalRefRaw) {
@@ -140,7 +136,6 @@
             }
         }
 
-        // 🔥 FUNCIÓN DE INTERFAZ: Limpia sin montos ruidosos y con texto de alta autoridad
         function actualizarUI() {
             document.getElementById('info-operacion').innerHTML = `
                 <strong>Producto:</strong> #<span id="id-real-html">${productoDetectado}</span> <br>
@@ -162,7 +157,6 @@
             document.getElementById('contenedor-cliente').className = "central-container panel-paid";
         }
 
-        // Acción del botón de confirmación directo a Render
         window.confirmarYDepositarBunker = async () => {
             activarCustodiaGrafica();
             document.getElementById('grupo-dni').style.display = 'block';
@@ -195,13 +189,15 @@
             document.getElementById('pantaya-bloqueo').style.display = 'flex';
         };
 
-        // 🔥 BOTÓN ROJO: Envía comprobante a soporte e inyecta el link de retorno para el comprador
         function abrirSoporteWhatsApp(dniUser) {
             const idRealParaAsentar = document.getElementById('id-real-html').innerText.trim();
             const numeroSoporte = "5493456528480";
             
-            // Construimos dinámicamente la URL actual con todos sus parámetros para el retorno
             const linkRetornoComprador = window.location.href;
+            
+            // Construimos la URL apuntando a la nueva pantalla liberar.html pasándole las variables de control fijas
+            const baseDir = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+            const linkLiberarOculto = `${baseDir}liberar.html?producto=${idRealParaAsentar}&tel_vendedor=${telefonoVendedor}&id=${opID}`;
 
             const mensajeComprobante = `🛡️ *DECLARACIÓN Y COMPROBANTE DE PAGO - TRATO™*\n\n` +
                                        `¡Hola! Envío el presente comprobante para activar formalmente el protocolo de custodia de fondos.\n\n` +
@@ -210,13 +206,9 @@
                                        `- Producto: ${idRealParaAsentar}\n` +
                                        `- DNI del Comprador/Titular de Pago: ${dniUser}\n\n` +
                                        `📸 *VALIDACIÓN OBLIGATORIA (FOTO/VIDEO):* \nPor favor adjuntá la foto o video del producto/paquete que muestre el código de operation pegado para blindar la operación y validar su existencia.\n\n` +
-                                       `🔗 *Accedé a tu cuenta de Mercado Pago aquí:* \nhttps://www.mercadopago.com.ar\n\n` +
-                                       `↩️ *LINK DE RETORNO AL BÚNKER (Para el Comprador):*\nSi ya enviaste este mensaje, tocá el siguiente enlace para volver a tu panel y notificar al vendedor:\n${linkRetornoComprador}\n\n` +
-                                       `⚠️ *AVISO LEGAL Y CONDICIONES OBLIGATORIAS:*\n` +
-                                       `1. Es de carácter OBLIGATORIO enviar la captura o comprobante de pago emitido por Mercado Pago o la entidad bancaria utilizada para esta transacción.\n` +
-                                       `2. Sin la recepción y validación de dicho comprobante, no se activará la custodia y el comprador no tendrá ningún derecho a reclamo, reembolso o disputa legal sobre el monto del producto, quedando el recargo del 15% por servicio de gestión como no reembolsable en caso de arrepentimiento.\n` +
-                                       `3. El usuario declara que, al utilizar el sistema TRATO™ (RichardBro), acepta de forma irrevocable que los fondos quedarán retenidos bajo las condiciones del búnker hasta que se confirme la operación o finalice el plazo legal estipulado.\n\n` +
-                                       `*(Adjuntá tu captura o foto del comprobante de pago y la foto/video del producto aquí abajo 👇)*`;
+                                       `↩️ *LINK DE RETORNO AL PANEL (Para el Comprador):*\n${linkRetornoComprador}\n\n` +
+                                       `🟢 *LINK EXCLUSIVO DE LIBERACIÓN (Tocar al recibir el producto):*\nCuando tengas el paquete en mano y todo esté OK, hacé clic en este link para liberar el pago:\n${linkLiberarOculto}\n\n` +
+                                       `⚠️ *AVISO LEGAL SOBRE PLAZOS:* El plazo de custodia está sujeto a la entrega por Correo (automático) o un límite estricto de 24 Horas Corridas si la entrega se coordina de forma Presencial. Pasado dicho plazo sin reclamos en soporte, se liberará de oficio.`;
 
             window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensajeComprobante)}`, '_blank');
         }
@@ -225,20 +217,18 @@
             document.getElementById('pantaya-bloqueo').style.display = 'none';
         };
 
-        // 🔥 BOTONES AZULES: Modificados con los nuevos textos premium y apuntando directo al WhatsApp del Vendedor
         window.notificar = (tipo) => {
             const idRealParaAsentar = document.getElementById('id-real-html').innerText.trim();
             let mensaje = "";
             
-            // Si no hay teléfono del vendedor precargado, avisamos para evitar bloqueos
             if (!telefonoVendedor || telefonoVendedor.trim() === "") {
-                return alert("Atención: No se detectó el número de WhatsApp del vendedor. Por favor coordine con él de forma directa.");
+                return alert("Atención: No se detectó el número de WhatsApp del vendedor. Por favor coordine de forma directa.");
             }
 
             if (tipo === 'envio') {
                 mensaje = `🛡️ *SISTEMA TRATO™ | NOTIFICACIÓN DE CUSTODIA ACTIVA*\n\n¡Hola! Te notifico que ya realicé el depósito correspondiente a nuestra operación. El búnker de *TRATO™* ya retuvo los fondos de forma segura bajo el protocolo de resguardo.\n\n📋 *Detalles de la Operación:*\n- *Producto/Paquete:* #${idRealParaAsentar}\n- *ID de Operación:* ${opID}\n\n⚠️ *INSTRUCCIÓN PARA EL DESPACHO:* El sistema me indica que ya estás autorizado a proceder con el despacho del producto por correo. Recordá que para liberar los fondos es obligatorio que anotes el número de operación *#${opID}* de forma visible en el paquete antes de enviarlo.\n\n¡Quedo a la espera del comprobante de envío! 👍`;
             } else {
-                mensaje = `🛡️ *SISTEMA TRATO™ | NOTIFICACIÓN DE CUSTODIA ACTIVA*\n\n¡Hola! Te confirmo que los fondos ya fueron depositados con éxito en la plataforma de garantías de *TRATO™*. El dinero se encuentra congelado y resguardado de forma segura hasta que verifiquemos la entrega.\n\n📋 *Detalles de la Operación:*\n- *Producto:* #${idRealParaAsentar}\n- *ID de Operación:* ${opID}\n\n🤝 *COORDINACIÓN DE ENTREGA:* El búnker ya habilitó el protocolo presencial. Pasame tus horarios así coordinamos el punto de encuentro en un lugar público y seguro para ambas partes para realizar la entrega del producto.\n\n¡Avisame y lo cerramos!`;
+                mensaje = `🛡️ *SISTEMA TRATO™ | PROTOCOLO PRESENCIAL ACTIVADO*\n\n¡Hola! Te confirmo que los fondos ya fueron depositados con éxito en la plataforma de garantías de *TRATO™*. El dinero se encuentra congelado y resguardado de forma segura.\n\n📋 *Detalles de la Operación:*\n- *Producto:* #${idRealParaAsentar}\n- *ID de Operación:* ${opID}\n\n🤝 *COORDINACIÓN DE ENTREGA:* Pasame tus horarios así coordinamos el punto de encuentro en un lugar público y seguro para ambas partes.\n\n⚠️ *REGLA DE PLAZO PRESENCIAL:* Al activarse la entrega en persona, el sistema TRATO™ inicia un reloj de seguridad de 24 horas corridas. Una vez realizado el encuentro, si no reporto ninguna queja en soporte dentro de ese plazo, los fondos se liberarán automáticamente al vendedor por vencimiento de tiempo.`;
             }
 
             window.open(`https://api.whatsapp.com/send?phone=${telefonoVendedor}&text=${encodeURIComponent(mensaje)}`, '_blank');
