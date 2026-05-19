@@ -1,71 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRATO™ | Estado de la Operación</title>
+    <style>
+        body { background-color: #050505; color: #ffffff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .central-container { border: 2px dashed #2d3748; background: #0a0a0a; padding: 40px; border-radius: 20px; box-shadow: none; text-align: center; width: 90%; max-width: 450px; transition: all 0.4s ease; }
+        h1 { color: #00d4ff; text-transform: uppercase; letter-spacing: 5px; font-size: 2.5em; margin-bottom: 5px; }
+        .subtitle { color: #888; font-size: 0.8em; margin-bottom: 30px; text-transform: uppercase; }
+        
+        .status-box { background: #1a1505; border: 1px solid #ffaa00; padding: 15px; border-radius: 10px; margin-bottom: 25px; transition: all 0.4s ease; }
+        .status-text { color: #ffaa00; font-weight: bold; font-size: 1.2em; text-transform: uppercase; }
+        
+        .panel-paid { border-style: solid !important; border-color: #00ff9d !important; box-shadow: 0 0 30px #00ff9d22 !important; }
+        .status-paid { background: #001a0e !important; border-color: #00ff9d !important; }
+        .text-paid { color: #00ff9d !important; }
+
+        .btn-portal { display: block; width: 100%; padding: 15px; margin: 12px 0; background: transparent; color: #00d4ff; border: 2px solid #00d4ff; border-radius: 12px; font-weight: bold; text-decoration: none; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
+        .btn-portal:hover { opacity: 0.9; box-shadow: 0 0 10px rgba(0, 212, 255, 0.4); }
+        .btn-primary { background: #00d4ff; color: #000; }
+        .btn-success { background: #00ff9d; color: #000; border-color: #00ff9d; }
+        .btn-danger { background: #ff3333; color: #fff; border-color: #ff3333; box-shadow: 0 0 15px rgba(255, 51, 51, 0.3); }
+        .btn-danger:hover { background: #e60000; border-color: #e60000; }
+        
+        .btn-deposit { background: #00d4ff; color: #050505; border-color: #00d4ff; box-shadow: 0 0 15px rgba(0, 212, 255, 0.3); }
+        .btn-deposit:hover { background: #00b6dc; }
+
+        .legal-text { font-size: 0.75em; color: #666; margin-top: 20px; line-height: 1.4; }
+
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 5, 5, 0.98);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .overlay-content {
+            border: 2px solid #ff3333;
+            background: #0a0a0a;
+            padding: 35px;
+            border-radius: 15px;
+            text-align: center;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 0 30px rgba(255, 51, 51, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="pantaya-bloqueo" class="overlay">
+        <div class="overlay-content">
+            <h2 style="color: #00d4ff; text-transform: uppercase; font-size: 1.3em; margin-bottom: 5px;">⚡ ACREDITACIÓN DE FONDOS</h2>
+            <p style="font-size: 0.85em; color: #aaa; margin-bottom: 25px;">Si ya realizaste el pago en Mercado Pago, hacé clic abajo de forma obligatoria para activar el búnker e informar en vivo al vendedor.</p>
+            
+            <button onclick="confirmarYDepositarBunker()" class="btn-portal btn-deposit">⚡ 1. DEPOSITAR FONDOS EN EL BÚNKER (CONFIRMAR)</button>
+            
+            <div id="grupo-dni" class="input-group" style="margin-top: 25px; margin-bottom: 20px; text-align: left; display: none;">
+                <label for="comprador-dni" style="color: #00ff9d; font-size: 0.8em; margin-bottom: 5px; display: block;">Ingresa tu DNI para habilitar comprobante</label>
+                <input type="tel" id="comprador-dni" placeholder="Ej. 35123456" pattern="[0-9]*" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="width: 92%; padding: 10px; border: 1px solid #00ff9d; background: #050505; color: #fff; border-radius: 8px;">
+                
+                <button onclick="enviarComprobanteObligatorio()" class="btn-portal btn-danger" style="margin-top: 15px;">📤 2. ENVIAR COMPROBANTE A SOPORTE</button>
+            </div>
+            
+            <button id="btn-continuar" onclick="desbloquearPantalla()" class="btn-portal" style="border-color: #00d4ff; color: #00d4ff; margin-top: 15px;" disabled>✅ CONTINUAR AL PANEL</button>
+            
+            <p style="font-size: 0.7em; color: #666; margin-top: 20px;">TRATO™ | Sistema Blindado RichardBro</p>
+        </div>
+    </div>
+
+    <div id="contenedor-cliente" class="central-container">
+        <h1>TRATO™</h1>
+        <div class="subtitle">Búnker de Operaciones</div>
+        
+        <div id="caja-estado" class="status-box">
+            <p id="texto-estado" class="status-text">⏳ ESPERANDO DEPÓSITO EN EL PROTOCOLO...</p>
+            <p id="info-operacion" style="font-size: 0.9em; color: #aaa;">Cargando detalles de la operación...</p>
+            
+            <p style="font-size: 0.75em; color: #00ff9d; margin-top: 15px; border-top: 1px dashed #2d3748; padding-top: 10px; line-height: 1.35;">
+                <strong>⚠️ INSTRUCCIÓN AL VENDEDOR:</strong> El número de operación (ID) debe estar anotado en un papel y pegado visiblemente en el producto o paquete. El envío de la evidencia gráfica es obligatorio.
+            </p>
+        </div>
+
+        <button onclick="notificarSoporteManual()" class="btn-portal btn-danger">📤 ENVIAR COMPROBANTE A TRATO</button>
+        <button onclick="notificar('envio')" class="btn-portal btn-primary">📦 NOTIFICAR ENVÍO POR CORREO</button>
+        <button onclick="notificar('presencial')" class="btn-portal btn-primary">🤝 NOTIFICAR ENCUENTRO PRESENCIAL</button>
+        <a href="https://wa.me/5493456528480" class="btn-portal" style="border-color: #ff3333; color: #ff6b6b;">🆘 SOPORTE DE EMERGENCIA</a>
+
+        <div class="legal-text">
+            Los fondos permanecen en custodia hasta confirmar la entrega. Al utilizar este sistema, aceptás el reglamento de TRATO™. RichardBro 2026.
+        </div>
+    </div>
+
     <script>
         const UPDATE_URL = "https://bunker-trato-api.onrender.com/marcar-pagado";
+        const urlParams = new URLSearchParams(window.location.search);
         
-        // 🛡️ CONTROL DE PROTOCOLO: Definimos las variables de estado base
-        let productoDetectado = "Producto no especificado";
-        let precioDetectado = "";
-        let opID = "Pendiente de validación";
-        let statusPago = "";
+        let productoDetectado = urlParams.get('producto') || 'Producto no especificado';
+        let precioDetectado = urlParams.get('precio') || '';
+        const opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación';
 
-        // TRIPLE REVISIÓN LÍNEA POR LÍNEA: Procesamiento seguro de URL
-        try {
-            const urlParams = new URLSearchParams(window.location.search);
-            
-            // Detectamos las variables nativas de Mercado Pago de retorno
-            statusPago = urlParams.get('status') || urlParams.get('collection_status') || '';
-            opID = urlParams.get('id') || urlParams.get('payment_id') || urlParams.get('collection_id') || 'Pendiente de validación';
-
-            // Capturamos las variables de entrada de TRATO™
-            let prodUrl = urlParams.get('producto');
-            let precioUrl = urlParams.get('precio');
-
-            // FASE DE ENTRADA (WhatsApp): Si existen en la URL, se graban a fuego y se usan
-            if (prodUrl && prodUrl.trim() !== "") {
-                localStorage.setItem('trato_prod_actual', prodUrl.trim());
-                productoDetectado = prodUrl.trim();
-            } else {
-                // FASE DE RETORNO (Mercado Pago): Si no están en la URL, se levantan del anclaje fijo del teléfono
-                productoDetectado = localStorage.getItem('trato_prod_actual') || 'Producto no especificado';
-            }
-
-            if (precioUrl && precioUrl.trim() !== "") {
-                localStorage.setItem('trato_precio_actual', precioUrl.trim());
-                precioDetectado = precioUrl.trim();
-            } else {
-                // FASE DE RETORNO (Mercado Pago): Si no están en la URL, se levantan del anclaje fijo del teléfono
-                precioDetectado = localStorage.getItem('trato_precio_actual') || '';
-            }
-
-            // PLAN DE RESCATE EXTREMO: Si todo lo anterior falló por borrado de caché, recortamos la external_reference
-            if (productoDetectado === 'Producto no especificado' || precioDetectado === '') {
-                const externalRefRaw = urlParams.get('external_reference') || '';
-                if (externalRefRaw && externalRefRaw.trim() !== "") {
-                    const decodificado = decodeURIComponent(externalRefRaw).trim();
-                    if (decodificado.includes('-')) {
-                        const partes = decodificado.split('-');
-                        productoDetectado = partes[0].trim();
-                        precioDetectado = partes[1].trim();
-                        // Re-aseguramos el anclaje fijo
-                        localStorage.setItem('trato_prod_actual', productoDetectado);
-                        localStorage.setItem('trato_precio_actual', precioDetectado);
-                    } else if (decodificado !== "") {
-                        productoDetectado = decodificado;
-                        localStorage.setItem('trato_prod_actual', productoDetectado);
-                    }
+        if (productoDetectado === 'Producto no especificado' || precioDetectado === '') {
+            const externalRefRaw = urlParams.get('external_reference') || '';
+            if (externalRefRaw) {
+                const decodificado = decodeURIComponent(externalRefRaw);
+                const regexCuatroDigitos = /(\d{4})/;
+                const idEncontrado = decodificado.match(regexCuatroDigitos);
+                if (idEncontrado) {
+                    productoDetectado = idEncontrado[1];
                 }
             }
-
-        } catch (e) {
-            console.log("Aviso del Búnker: Parámetros de URL aislados de forma segura.");
-            // Si la lectura de la URL colapsa por completo, usamos el anclaje fijo sin dudar
-            productoDetectado = localStorage.getItem('trato_prod_actual') || 'Producto no especificado';
-            precioDetectado = localStorage.getItem('trato_precio_actual') || '';
         }
 
-        // FUNCIÓN DE DIBUJADO DE IMPACTO: Formato estricto a 2 decimales
+        if (!precioDetectado || precioDetectado === '' || isNaN(precioDetectado)) {
+            const precioGuardado = sessionStorage.getItem('trato_ultimo_precio');
+            const productoGuardado = sessionStorage.getItem('trato_ultimo_producto');
+            
+            if (precioGuardado) precioDetectado = precioGuardado;
+            if (productoGuardado && productoDetectado === 'Producto no especificado') {
+                productoDetectado = productoGuardado;
+            }
+        }
+
+        if (!precioDetectado || precioDetectado === '' || isNaN(precioDetectado)) {
+            const amountParam = urlParams.get('transaction_amount') || urlParams.get('amount');
+            if (amountParam) {
+                precioDetectado = parseFloat(amountParam).toFixed(2);
+            } else {
+                precioDetectado = "Monto a verificar en soporte";
+            }
+        }
+
+        // 🔥 FUNCIÓN CORREGIDA CON TRIPLE CONTROL: Clava los 2 decimales limpios sin alterar la lógica de captura
         function actualizarUI() {
             let precioLimpio = parseFloat(precioDetectado);
-            let precioFormateado = isNaN(precioLinter) ? "A verificar en búnker" : precioLimpio.toFixed(2);
+            let precioFormateado = isNaN(precioLimpio) ? precioDetectado : precioLimpio.toFixed(2);
 
             document.getElementById('info-operacion').innerHTML = `
                 <strong>Producto:</strong> #<span id="id-real-html">${productoDetectado}</span> <br>
@@ -74,7 +146,6 @@
             `;
         }
 
-        // Ejecutamos el dibujado fijo prioritario inmediato para evitar pantallas colgadas
         actualizarUI();
 
         function activarCustodiaGrafica() {
@@ -84,29 +155,7 @@
             document.getElementById('contenedor-cliente').className = "central-container panel-paid";
         }
 
-        // ⚡ GATILLO AUTOMÁTICO AL SERVIDOR (Fase Retorno Exitoso)
-        if (statusPago === 'approved' || statusPago === 'approved') {
-            activarCustodiaGrafica();
-            
-            // Disparamos el aviso directamente a Render usando el ID verificado
-            (async () => {
-                if (productoDetectado && productoDetectado !== 'Producto no especificado') {
-                    try {
-                        const respuestaBunker = await fetch(UPDATE_URL, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ producto: productoDetectado.toString() })
-                        });
-                        const resultadoData = await respuestaBunker.json();
-                        console.log("Búnker Render notificado con éxito:", resultadoData);
-                    } catch (e) {
-                        console.log("Error de red en sincronización automática con Render", e);
-                    }
-                }
-            })();
-        }
-
-        // BOTÓN MANUAL DE COBRO (Por si el cliente regresa de forma manual)
+        // ⚡ LA ACCIÓN DEL BOTÓN AZUL BLINDADA POR REGISTRO HTTP
         window.confirmarYDepositarBunker = async () => {
             activarCustodiaGrafica();
             document.getElementById('grupo-dni').style.display = 'block';
@@ -116,13 +165,14 @@
 
             if (idRealParaAsentar && idRealParaAsentar !== 'Producto no especificado') {
                 try {
+                    // Impacta el estado "approved" directamente en la lista interna de Render
                     await fetch(UPDATE_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ producto: idRealParaAsentar.toString() })
+                        body: JSON.stringify({ producto: idRealParaAsentar })
                     });
                 } catch (e) {
-                    console.log("Error al asentar pago manual", e);
+                    console.log("Error al asentar pago en el búnker", e);
                 }
             }
         };
@@ -144,7 +194,7 @@
             const numeroSoporte = "5493456528480";
             
             let precioLimpio = parseFloat(precioDetectado);
-            let precioFormateado = isNaN(precioLimpio) ? "A verificar" : precioLimpio.toFixed(2);
+            let precioFormateado = isNaN(precioLimpio) ? precioDetectado : precioLimpio.toFixed(2);
 
             const mensajeComprobante = `🛡️ *DECLARACIÓN Y COMPROBANTE DE PAGO - TRATO™*\n\n` +
                                        `¡Hola! Envío el presente comprobante para activar formalmente el protocolo de custodia de fondos.\n\n` +
@@ -153,7 +203,7 @@
                                        `- Producto: ${idRealParaAsentar}\n` +
                                        `- Monto total: $ ${precioFormateado}\n` +
                                        `- DNI del Comprador/Titular de Pago: ${dniUser}\n\n` +
-                                       `📸 *VALIDACIÓN OBLIGATORIA (FOTO/VIDEO):* \nPor favor adjuntá la foto o video del producto/paquete que muestre el código de operacion pegado para blindar la operación y validar su existencia.\n\n` +
+                                       `📸 *VALIDACIÓN OBLIGATORIA (FOTO/VIDEO):* \nPor favor adjuntá la foto o video del producto/paquete que muestre el código de operation pegado para blindar la operación y validar su existencia.\n\n` +
                                        `🔗 *Accedé a tu cuenta de Mercado Pago aquí:* \nhttps://www.mercadopago.com.ar\n\n` +
                                        `⚠️ *AVISO LEGAL Y CONDICIONES OBLIGATORIAS:*\n` +
                                        `1. Es de carácter OBLIGATORIO enviar la captura o comprobante de pago emitido por Mercado Pago o la entidad bancaria utilizada para esta transacción.\n` +
@@ -173,16 +223,18 @@
             let mensaje = "";
             const numeroSoporte = "5493456528480";
             const compradorDni = document.getElementById('comprador-dni').value || 'Pendiente de carga';
-            
+
             let precioLimpio = parseFloat(precioDetectado);
-            let precioFormateado = isNaN(precioLimpio) ? "A verificar" : precioLimpio.toFixed(2);
+            let precioFormateado = isNaN(precioLimpio) ? precioDetectado : precioLimpio.toFixed(2);
 
             if (tipo === 'envio') {
                 mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podés proceder con el despacho del producto.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${idRealParaAsentar}\n* Monto: $ ${precioFormateado}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera del envío.`;
             } else {
-                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podemos coordinar el encuentro para la entrega.\n\n* ID de Operación / Comprobante: #${opID}\n* Producto: ${idRealParaAsentar}\n* Monto: $ ${precioFormateado}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera para coordinar el punto de encuentro.`;
+                mensaje = `🛡️ *NOTIFICACIÓN DE PAGO TRATO™*\n\n¡Hola! Te confirmo que ya realicé el pago. El dinero se encuentra resguardado en el sistema de custodia de TRATO™ (RichardBro). Ya podemos coordinar el encuentro para la entrega.\n\n* ID de Operación / Comprobante: ${opID}\n* Producto: ${idRealParaAsentar}\n* Monto: $ ${precioFormateado}\n* DNI del Comprador: ${compradorDni}\n\nQuedo a la espera para coordinar el punto de encuentro.`;
             }
 
             window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensaje)}`, '_blank');
         };
     </script>
+</body>
+</html>
