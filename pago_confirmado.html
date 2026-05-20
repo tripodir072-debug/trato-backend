@@ -22,12 +22,42 @@
         .btn-primary { background: #00d4ff; color: #000; }
         .btn-success { background: #00ff9d; color: #000; border-color: #00ff9d; }
         .btn-danger { background: #ff3333; color: #fff; border-color: #ff3333; box-shadow: 0 0 15px rgba(255, 51, 51, 0.3); }
-        .btn-deposit { background: #00d4ff; color: #050505; border-color: #00d4ff; }
+        .btn-danger:hover { background: #e60000; border-color: #e60000; }
         
+        .btn-deposit { background: #00d4ff; color: #050505; border-color: #00d4ff; box-shadow: 0 0 15px rgba(0, 212, 255, 0.3); }
+        .btn-deposit:hover { background: #00b6dc; }
+
         .legal-text { font-size: 0.75em; color: #666; margin-top: 20px; line-height: 1.4; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 5, 0.98); z-index: 100; display: flex; justify-content: center; align-items: center; }
-        .overlay-content { border: 2px solid #ff3333; background: #0a0a0a; padding: 35px; border-radius: 15px; text-align: center; width: 90%; max-width: 420px; }
-        .trato-secure-msg { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.95em; line-height: 1.4; color: #e0e0e0; text-align: left; }
+
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 5, 5, 0.98);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .overlay-content {
+            border: 2px solid #ff3333;
+            background: #0a0a0a;
+            padding: 35px;
+            border-radius: 15px;
+            text-align: center;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 0 30px rgba(255, 51, 51, 0.2);
+        }
+        
+        .trato-secure-msg {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.95em;
+            line-height: 1.4;
+            color: #e0e0e0;
+            text-align: left;
+        }
     </style>
 </head>
 <body>
@@ -35,77 +65,111 @@
     <div id="pantaya-bloqueo" class="overlay">
         <div class="overlay-content">
             <h2 style="color: #00d4ff; text-transform: uppercase; font-size: 1.3em; margin-bottom: 5px;">⚡ ACREDITACIÓN DE FONDOS</h2>
-            <p style="font-size: 0.85em; color: #aaa; margin-bottom: 25px;">Si ya realizaste el pago, hacé clic para activar el búnker.</p>
-            <button onclick="confirmarYDepositarBunker()" class="btn-portal btn-deposit">⚡ 1. DEPOSITAR FONDOS (CONFIRMAR)</button>
-            <div id="grupo-dni" class="input-group" style="margin-top: 25px; display: none;">
-                <label style="color: #00ff9d; font-size: 0.8em; margin-bottom: 5px; display: block;">Ingresa tu DNI para habilitar comprobante</label>
-                <input type="tel" id="comprador-dni" placeholder="Ej. 35123456" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="width: 92%; padding: 10px; border: 1px solid #00ff9d; background: #050505; color: #fff; border-radius: 8px;">
-                <button onclick="enviarComprobanteObligatorio()" class="btn-portal btn-danger" style="margin-top: 15px;">📤 2. ENVIAR COMPROBANTE</button>
+            <p style="font-size: 0.85em; color: #aaa; margin-bottom: 25px;">Si ya realizaste el pago, hacé clic abajo para activar el búnker e informar al vendedor.</p>
+            
+            <button onclick="confirmarYDepositarBunker()" class="btn-portal btn-deposit">⚡ 1. DEPOSITAR FONDOS EN EL BÚNKER (CONFIRMAR)</button>
+            
+            <div id="grupo-dni" class="input-group" style="margin-top: 25px; margin-bottom: 20px; text-align: left; display: none;">
+                <label for="comprador-dni" style="color: #00ff9d; font-size: 0.8em; margin-bottom: 5px; display: block;">Ingresa tu DNI para habilitar comprobante</label>
+                <input type="tel" id="comprador-dni" placeholder="Ej. 35123456" pattern="[0-9]*" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="width: 92%; padding: 10px; border: 1px solid #00ff9d; background: #050505; color: #fff; border-radius: 8px;">
+                
+                <button onclick="enviarComprobanteObligatorio()" class="btn-portal btn-danger" style="margin-top: 15px;">📤 2. ENVIAR COMPROBANTE A SOPORTE</button>
             </div>
-            <button id="btn-continuar" onclick="desbloquearPantalla()" class="btn-portal" style="border-color: #00d4ff; color: #00d4ff; margin-top: 15px;" disabled>✅ CONTINUAR</button>
+            
+            <button id="btn-continuar" onclick="desbloquearPantalla()" class="btn-portal" style="border-color: #00d4ff; color: #00d4ff; margin-top: 15px;" disabled>✅ CONTINUAR AL PANEL</button>
         </div>
     </div>
 
     <div id="contenedor-cliente" class="central-container">
         <h1>TRATO™</h1>
         <div class="subtitle">Búnker de Operaciones</div>
+        
         <div id="caja-estado" class="status-box">
-            <p id="texto-estado" class="status-text">⏳ ESPERANDO DEPÓSITO...</p>
-            <p id="info-operacion" style="font-size: 0.9em; color: #aaa;"></p>
+            <p id="texto-estado" class="status-text">⏳ ESPERANDO DEPÓSITO EN EL PROTOCOLO...</p>
+            <p id="info-operacion" style="font-size: 0.9em; color: #aaa;">Cargando detalles...</p>
         </div>
+
         <button onclick="notificarSoporteManual()" class="btn-portal btn-danger">📤 ENVIAR COMPROBANTE A TRATO</button>
-        <a href="https://wa.me/5493456528480" class="btn-portal" style="border-color: #ff3333; color: #ff6b6b;">🆘 SOPORTE</a>
+        <button onclick="notificar('envio')" class="btn-portal btn-primary">📦 NOTIFICAR ENVÍO POR CORREO</button>
+        <button onclick="notificar('presencial')" class="btn-portal btn-primary">🤝 NOTIFICAR ENCUENTRO PRESENCIAL</button>
+        <a href="https://wa.me/5493456528480" class="btn-portal" style="border-color: #ff3333; color: #ff6b6b;">🆘 SOPORTE DE EMERGENCIA</a>
+
+        <div class="legal-text">
+            Los fondos permanecen en custodia hasta confirmar la entrega. RichardBro 2026.
+        </div>
     </div>
 
     <script>
         const UPDATE_URL = "https://bunker-trato-api.onrender.com/marcar-pagado";
         const urlParams = new URLSearchParams(window.location.search);
         
-        // Obtenemos los datos, incluyendo el nuevo ID Digital de seguridad
-        let productoDetectado = urlParams.get('producto') || 'Producto no especificado';
-        let opID = urlParams.get('id') || 'Pendiente';
-        let digitalID = urlParams.get('digitalID') || 'No disponible'; // <--- EL ID DIGITAL QUE GENERASTE
-        let telefonoVendedor = urlParams.get('tel_vendedor') || "5493456528480";
+        // --- AQUÍ ESTÁ LA CORRECCIÓN PRINCIPAL ---
+        // Priorizamos el 'digitalID' automático, luego el producto manual
+        let idParaConfirmar = urlParams.get('digitalID') || urlParams.get('producto');
+        let precioDetectado = urlParams.get('precio') || 'A verificar';
+        const opID = urlParams.get('id') || 'Pendiente';
+        const telefonoVendedor = urlParams.get('tel_vendedor') || "5493456528480";
 
         function actualizarUI() {
             document.getElementById('info-operacion').innerHTML = `
-                <strong>ID de Paquete (Logística):</strong> #${productoDetectado} <br>
-                <strong>ID de Seguridad (Digital):</strong> ${digitalID} <br>
                 <div class="trato-secure-msg">
-                    🛡️ Tu dinero ya está custodiado. <strong>ID de Seguridad para liberar:</strong> ${digitalID}.
+                    🛡️ <strong>¡Ya podés quedarte tranquilo!</strong> Tu dinero ya se encuentra completamente custodiado y blindado por el protocolo de seguridad <strong>TRATO™</strong>.<br><br>
+                    📢 <strong>PASO OBLIGATORIO:</strong> Para finalizar, hacé clic en el botón de arriba para avisarle al vendedor que el pago fue aprobado.
                 </div>
             `;
         }
         actualizarUI();
 
-        window.confirmarYDepositarBunker = async () => {
-            document.getElementById('texto-estado').innerText = "🔒 CUSTODIA ACTIVA";
+        function activarCustodiaGrafica() {
+            document.getElementById('texto-estado').innerText = "🔒 CUSTODIA ACTIVA - FONDOS RESGUARDADOS";
             document.getElementById('caja-estado').className = "status-box status-paid";
+            document.getElementById('texto-estado').className = "status-text text-paid";
             document.getElementById('contenedor-cliente').className = "central-container panel-paid";
+        }
+
+        window.confirmarYDepositarBunker = async () => {
+            activarCustodiaGrafica();
             document.getElementById('grupo-dni').style.display = 'block';
             document.getElementById('btn-continuar').disabled = false;
+
+            // Enviamos el ID automático al servidor
+            if (idParaConfirmar) {
+                try {
+                    await fetch(UPDATE_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ producto: idParaConfirmar })
+                    });
+                } catch (e) {
+                    console.log("Error al asentar pago", e);
+                }
+            }
         };
 
         window.enviarComprobanteObligatorio = () => {
-            const dni = document.getElementById('comprador-dni').value;
-            if (!dni) return alert("Ingresa DNI.");
-            
-            const baseDir = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
-            // El link de liberación ahora incluye el digitalID
-            const linkLiberarOculto = `${baseDir}liberar.html?producto=${productoDetectado}&id=${opID}&digitalID=${digitalID}&tel_vendedor=${telefonoVendedor}`;
-
-            const mensaje = `🛡️ *COMPROBANTE DE PAGO - TRATO™*\n\n` +
-                            `ID Operación: ${opID}\n` +
-                            `Código Logístico: #${productoDetectado}\n` +
-                            `ID Seguridad (Digital): ${digitalID}\n` +
-                            `DNI Comprador: ${dni}\n\n` +
-                            `🔑 *LINK DE LIBERACIÓN (Guardar hasta recibir producto):*\n${linkLiberarOculto}`;
-
-            window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(mensaje)}`, '_blank');
+            const compradorDni = document.getElementById('comprador-dni').value;
+            if (!compradorDni) return alert("Ingresa tu DNI.");
+            abrirSoporteWhatsApp(compradorDni);
         };
+
+        function abrirSoporteWhatsApp(dniUser) {
+            const numeroSoporte = "5493456528480";
+            const linkLiberarOculto = `${window.location.origin}/liberar.html?producto=${idParaConfirmar}&tel_vendedor=${telefonoVendedor}&id=${opID}`;
+
+            const mensajeComprobante = `🛡️ *COMPROBANTE DE PAGO - TRATO™*\n\n` +
+                                       `*Producto:* #${idParaConfirmar}\n` +
+                                       `*DNI Comprador:* ${dniUser}\n\n` +
+                                       `🟢 *LINK DE LIBERACIÓN:* ${linkLiberarOculto}`;
+
+            window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensajeComprobante)}`, '_blank');
+        }
 
         window.desbloquearPantalla = () => { document.getElementById('pantaya-bloqueo').style.display = 'none'; };
         window.notificarSoporteManual = () => { document.getElementById('pantaya-bloqueo').style.display = 'flex'; };
+        window.notificar = (tipo) => {
+            const mensaje = tipo === 'envio' ? "Notificación de envío" : "Notificación presencial";
+            window.open(`https://api.whatsapp.com/send?phone=${telefonoVendedor}&text=${encodeURIComponent(mensaje)}`, '_blank');
+        };
     </script>
 </body>
 </html>
