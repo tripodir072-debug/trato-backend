@@ -15,14 +15,8 @@
         button { width: 100%; padding: 14px; background-color: var(--primary-color); color: #050810; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         button:disabled { background-color: #2d3748; color: #64748b; cursor: not-allowed; opacity: 0.6; }
         .user-header { font-size: 10px; text-align: right; color: var(--accent-color); margin-bottom: 10px; font-weight: bold; text-transform: uppercase; }
-        .cost-info { font-size: 11px; color: var(--primary-color); margin-bottom: 16px; background: rgba(0, 255, 157, 0.05); padding: 10px; border-radius: 6px; border-left: 4px solid var(--primary-color); }
-        .live-panel { background: #050810; border: 1px dashed #2d3748; padding: 15px; border-radius: 8px; margin-top: 18px; }
-        .status-tracker { font-size: 12px; font-weight: bold; padding: 10px; border-radius: 6px; text-align: center; background: #1a1505; color: #ffaa00; border: 1px solid #ffaa00; margin-top: 5px; }
-        
-        /* Modal */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); justify-content: center; align-items: center; }
-        .modal-content { background-color: var(--panel-bg); padding: 25px; border: 1px solid var(--accent-color); width: 85%; max-width: 450px; border-radius: 12px; max-height: 75vh; overflow-y: auto; color: var(--text-color); }
-        .close-modal { color: var(--danger-color); float: right; font-size: 24px; font-weight: bold; cursor: pointer; }
+        .modal-content { background-color: var(--panel-bg); padding: 25px; border: 1px solid var(--accent-color); width: 85%; max-width: 450px; border-radius: 12px; }
     </style>
 </head>
 <body>
@@ -30,8 +24,6 @@
     <div class="container">
         <div class="user-header" id="session-header">👤 Sesión: Vendedor</div>
         <h2>🛡️ Búnker TRATO™</h2>
-        
-        <div class="cost-info">ℹ️ Intermediario: Custodia de fondos. Comisión 15%.</div>
 
         <div class="input-group">
             <label for="prod">Pegá estos 4 dígitos en el producto o caja que vas a enviar:</label>
@@ -43,23 +35,8 @@
             <input type="number" id="monto" placeholder="Ej. 150000">
         </div>
 
-        <div class="input-group">
-            <label for="cbu-alias">CBU / Alias</label>
-            <input type="text" id="cbu-alias" readonly>
-        </div>
-
-        <div class="input-group">
-            <label for="vendedor-dni">DNI</label>
-            <input type="text" id="vendedor-dni" readonly>
-        </div>
-
         <button id="btn-soporte" class="btn-success" onclick="enviarSoporteDirecto()" style="background:#00ff9d;">📤 1. ENVIAR DATOS A SOPORTE</button>
         <button id="btn-blindar" onclick="procesarOperacion()" disabled style="background-color: var(--accent-color); color: #050810; margin-top: 12px;">🔗 2. GENERAR Y ENVIAR AL COMPRADOR</button>
-
-        <div class="live-panel">
-            <div style="color: #64748b; font-size: 10px; margin-bottom: 5px;">🖥️ MONITOREO</div>
-            <div id="estado-vivo" class="status-tracker">⏳ ESPERANDO INICIAR</div>
-        </div>
 
         <div style="font-size: 0.7em; color: #666; margin-top: 20px; text-align: center;">
             <a style="color: var(--accent-color); cursor: pointer;" onclick="abrirTerminos()">Ver términos legales completos</a>
@@ -70,21 +47,18 @@
         <div class="modal-content">
             <span class="close-modal" onclick="cerrarTerminos()">&times;</span>
             <h3 style="color: var(--accent-color);">🛡️ Términos y Condiciones</h3>
-            <p style="font-size: 11px;">TRATO™ actúa exclusivamente como intermediario. No nos hacemos responsables por el funcionamiento del producto. Se retiene el 15% como cargo de custodia...</p>
+            <p style="font-size: 11px;">TRATO™ actúa como agente custodio. Al usar el servicio se acepta el 15% de comisión.</p>
         </div>
     </div>
 
     <script>
-        // Carga de sesión
         window.onload = function() {
             const campos = ['nombre', 'cbu', 'dni', 'email', 'telefono'];
+            const urlParams = new URLSearchParams(window.location.search);
             campos.forEach(campo => {
-                const val = new URLSearchParams(window.location.search).get(campo);
-                if(val) localStorage.setItem('trato_' + campo, decodeURIComponent(val));
+                if(urlParams.get(campo)) localStorage.setItem('trato_' + campo, decodeURIComponent(urlParams.get(campo)));
             });
             document.getElementById('session-header').innerText = `👤 Sesión: ${localStorage.getItem('trato_nombre') || 'Vendedor'}`;
-            document.getElementById('cbu-alias').value = localStorage.getItem('trato_cbu') || '';
-            document.getElementById('vendedor-dni').value = localStorage.getItem('trato_dni') || '';
         };
 
         function abrirTerminos() { document.getElementById('modalTerminos').style.display = 'flex'; }
@@ -92,28 +66,48 @@
 
         function enviarSoporteDirecto() {
             const prod = document.getElementById('prod').value;
-            if(!prod) return alert("Completá el código de 4 dígitos");
+            const monto = parseFloat(document.getElementById('monto').value) || 0;
+            if(!prod || monto === 0) return alert("Completá el código y el monto");
             
-            // Habilitar botón 2
+            // Habilitar paso 2
             document.getElementById('btn-blindar').disabled = false;
+
+            // Datos Persistentes
+            const nombre = localStorage.getItem('trato_nombre');
+            const dni = localStorage.getItem('trato_dni');
+            const email = localStorage.getItem('trato_email');
+            const tel = localStorage.getItem('trato_telefono');
+            const cbu = localStorage.getItem('trato_cbu');
+            const total = (monto * 1.15).toFixed(2);
             
-            const mensaje = `🛡️ *NUEVA VENTA TRATO™*\n*Vendedor:* ${localStorage.getItem('trato_nombre')}\n*DNI:* ${localStorage.getItem('trato_dni')}\n*Prod:* #${prod}`;
+            // URL de retorno y logística
+            const baseUrl = window.location.href.split('?')[0];
+            const linkRetorno = `${baseUrl}?nombre=${encodeURIComponent(nombre)}&email=${encodeURIComponent(email)}&telefono=${encodeURIComponent(tel)}&cbu=${encodeURIComponent(cbu)}&dni=${encodeURIComponent(dni)}&prod=${prod}&monto=${monto}`;
+            
+            const mensaje = `🛡️ *NUEVA VENTA REGISTRADA - TRATO™*\n\n` +
+                            `*Datos del Vendedor:*\n- Nombre: ${nombre}\n- DNI: ${dni}\n- Correo: ${email}\n- Teléfono: ${tel}\n- CBU: ${cbu}\n\n` +
+                            `*Datos de la Operación:*\n- ID Operación: PENDIENTE DE PAGO\n- Número de Paquete: ${prod}\n- Monto Total (con 15%): $ ${total}\n\n` +
+                            `↩️ *Link de retorno:* ${linkRetorno}\n\n` +
+                            `📦 *PANEL DE LOGÍSTICA (Exclusivo Vendedor):*\n` +
+                            `https://tripodir072-debug.github.io/trato-backend/despacho.html?producto=${prod}&tel_vendedor=${tel}&id=${prod}`;
+
             window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
         async function procesarOperacion() {
             const prod = document.getElementById('prod').value;
             const digitalID = Math.floor(100000 + Math.random() * 900000).toString();
+            
             const res = await fetch("https://bunker-trato-api.onrender.com/crear-pago", {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ producto: digitalID, precioBase: 0 })
             });
             const data = await res.json();
+            
             if(data.url) {
-                const link = `${data.url}&producto=${prod}&digitalID=${digitalID}&id=${digitalID}`;
+                const link = `${data.url}&producto=${prod}&digitalID=${digitalID}&id=${digitalID}&tel_vendedor=${localStorage.getItem('trato_telefono')}`;
                 window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('🛡️ LINK PAGO: ' + link)}`, '_blank');
-                document.getElementById('estado-vivo').innerText = "🟢 BÚNKER ACTIVO";
             }
         }
     </script>
