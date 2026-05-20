@@ -35,21 +35,21 @@
         
         <div class="instruction-box">
             📢 <strong>DECLARACIÓN JURADA DE CONFORMIDAD:</strong><br>
-            Para proceder a liberar el dinero bajo custodia al vendedor, debe validar que recibió el paquete/producto en perfectas condiciones escribiendo la frase exacta solicitada abajo.
+            Para liberar los fondos, validá que recibiste el producto escribiendo la frase abajo.
         </div>
 
         <div class="input-group">
             <label>1. Copie la siguiente frase exacta:</label>
-            <div class="phrase-helper" id="frase-patron">Cargando frase...</div>
+            <div class="phrase-helper" id="frase-patron">Cargando...</div>
             
             <label for="texto-conformidad">2. Escriba la frase aquí abajo tal cual:</label>
-            <textarea id="texto-conformidad" placeholder="Escriba la frase de arriba de forma idéntica..." oninput="validarFrase()"></textarea>
+            <textarea id="texto-conformidad" placeholder="Escriba la frase de arriba..." oninput="validarFrase()"></textarea>
         </div>
 
         <button id="btn-liberar" onclick="dispararLiberacionSoporte()" class="btn-portal" disabled>🟢 CONFIRMAR RECEPCIÓN Y LIBERAR</button>
 
         <div class="legal-text">
-            Esta acción es de carácter irrevocable. Al enviar la declaración, eximís de toda responsabilidad al sistema TRATO™ y a RichardBro por fallas secundarias en el producto.
+            Acción irrevocable. Al enviar la declaración, autorizás al sistema a procesar el pago al vendedor.
         </div>
     </div>
 
@@ -57,11 +57,9 @@
         const CENTRAL_SOPORTE = "5493456528480";
         const urlParams = new URLSearchParams(window.location.search);
         
-        // Captura el producto de la URL, si no está usa uno por defecto para que no explote
-        const producto = urlParams.get('producto') || '0000';
+        const producto = urlParams.get('producto') || '0000'; // Código físico (4 dígitos)
         const idOperacion = urlParams.get('id') || 'Pendiente';
-        
-        // 🛡️ SOLUCIÓN DE RAÍZ: Si no viene el teléfono del vendedor en la URL, el sistema se auto-asigna "Soporte Central" en el texto de texto para que el script corra impecable
+        const digitalID = urlParams.get('digitalID') || 'No disponible'; // ID Digital (6 dígitos)
         const telVendedor = urlParams.get('tel_vendedor') || 'Soporte Central';
 
         const fraseObjetivo = `estoy conforme con mi producto numero ${producto}`.trim().toLowerCase();
@@ -69,27 +67,21 @@
 
         function validarFrase() {
             const escrito = document.getElementById('texto-conformidad').value.trim().toLowerCase();
-            const boton = document.getElementById('btn-liberar');
-            
-            if (escrito === fraseObjetivo) {
-                boton.disabled = false;
-            } else {
-                boton.disabled = true;
-            }
+            document.getElementById('btn-liberar').disabled = (escrito !== fraseObjetivo);
         }
 
         function dispararLiberacionSoporte() {
             const escritoConfirmado = document.getElementById('texto-conformidad').value.trim();
             
             const mensajeFinal = `👋 *SOLICITUD DE LIBERACIÓN DE FONDOS - TRATO™*\n\n` +
-                                 `¡Hola! Dejo constancia oficial de que ya obtuve el producto bajo resguardo y firmo mi conformidad.\n\n` +
-                                 `📝 *DECLARACIÓN DEL COMPRADOR:*\n` +
-                                 `"${escritoConfirmado}"\n\n` +
-                                 `📋 *Datos de Auditoría para Soporte:*\n` +
-                                 `- *ID de Operación / Comprobante:* ${idOperacion}\n` +
-                                 `- *Producto Liberado:* #${producto}\n` +
-                                 `- *WhatsApp del Vendedor Destinatario:* ${telVendedor}\n\n` +
-                                 `🟢 *AUTORIZACIÓN:* Por la presente, autorizo formalmente al equipo de TRATO™ a retirar los fondos del búnker de custodia y transferirlos de forma inmediata al vendedor. ¡Operación cerrada con éxito, todo OK!`;
+                                 `¡Hola! Dejo constancia oficial de recepción y conformidad.\n\n` +
+                                 `📝 *DECLARACIÓN:* "${escritoConfirmado}"\n\n` +
+                                 `📋 *Datos de Auditoría:*\n` +
+                                 `- *ID Digital (6 dígitos):* ${digitalID}\n` +
+                                 `- *Código Físico (4 dígitos):* #${producto}\n` +
+                                 `- *ID Operación:* ${idOperacion}\n` +
+                                 `- *Vendedor:* ${telVendedor}\n\n` +
+                                 `🟢 *AUTORIZACIÓN:* Proceder con la liberación de fondos.`;
 
             window.open(`https://api.whatsapp.com/send?phone=${CENTRAL_SOPORTE}&text=${encodeURIComponent(mensajeFinal)}`, '_blank');
         }
