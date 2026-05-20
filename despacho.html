@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRATO™ | Registro de Despacho</title>
+    <style>
+        body { background-color: #050505; color: #ffffff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .central-container { border: 2px solid #00d4ff; background: #0a0a0a; padding: 30px; border-radius: 20px; box-shadow: 0 0 20px rgba(0, 212, 255, 0.1); text-align: center; width: 100%; max-width: 400px; }
+        h1 { color: #00d4ff; text-transform: uppercase; letter-spacing: 5px; font-size: 1.8em; margin-bottom: 5px; }
+        .subtitle { color: #888; font-size: 0.8em; margin-bottom: 25px; text-transform: uppercase; }
+        .info-box { background: #00111a; border: 1px solid #00d4ff; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: left; font-size: 0.85em; }
+        .input-group { text-align: left; margin-bottom: 15px; }
+        label { display: block; color: #00ff9d; font-size: 0.8em; margin-bottom: 5px; text-transform: uppercase; font-weight: bold; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #2d3748; background: #050505; color: #fff; border-radius: 8px; box-sizing: border-box; font-size: 1em; }
+        .btn-portal { display: block; width: 100%; padding: 15px; margin-top: 20px; background: #00ff9d; color: #000; border: none; border-radius: 12px; font-weight: bold; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
+        .btn-portal:hover { background: #00e68e; }
+        .legal-text { font-size: 0.7em; color: #555; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="central-container">
+        <h1>TRATO™</h1>
+        <div class="subtitle">Registro de Envío</div>
+        
+        <div class="info-box">
+            🛡️ <strong>Operación en curso:</strong><br>
+            • <strong>Paquete (4 dígitos):</strong> #<span id="txt-prod">...</span><br>
+            • <strong>ID Digital (Sistema):</strong> <span id="txt-digital">...</span>
+        </div>
+
+        <div class="input-group">
+            <label>Empresa de Logística</label>
+            <select id="logistica">
+                <option>Correo Argentino</option>
+                <option>Andreani</option>
+                <option>OCA</option>
+                <option>Comisionista / Chofer</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Número de Seguimiento / Tracking</label>
+            <input type="text" id="tracking" placeholder="Ej: CP123456789AR">
+        </div>
+
+        <button class="btn-portal" onclick="enviarDespacho()">📤 NOTIFICAR DESPACHO</button>
+
+        <div class="legal-text">
+            Al registrar el despacho, declarás que el producto identificado como #<span id="txt-prod-legal">...</span> fue entregado al transporte. El soporte verificará los datos.
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const prod = urlParams.get('producto') || '0000';
+        const digital = urlParams.get('digitalID') || 'Sin ID';
+        const opID = urlParams.get('id') || 'N/A';
+
+        document.getElementById('txt-prod').innerText = prod;
+        document.getElementById('txt-prod-legal').innerText = prod;
+        document.getElementById('txt-digital').innerText = digital;
+
+        function enviarDespacho() {
+            const logistica = document.getElementById('logistica').value;
+            const tracking = document.getElementById('tracking').value;
+
+            if(!tracking) return alert("Por favor ingresá el número de seguimiento.");
+
+            const mensaje = `📦 *NUEVO DESPACHO REGISTRADO - TRATO™*\n\n` +
+                            `¡Hola Soporte! Registro el despacho del paquete.\n\n` +
+                            `• *Código Físico:* #${prod}\n` +
+                            `• *ID Digital:* ${digital}\n` +
+                            `• *ID Operación:* ${opID}\n\n` +
+                            `🚚 *Logística:* ${logistica}\n` +
+                            `🔢 *Tracking / Datos:* ${tracking}\n\n` +
+                            `El comprador ya puede ser notificado para que esté atento al seguimiento.`;
+
+            window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(mensaje)}`, '_blank');
+        }
+    </script>
+</body>
+</html>
