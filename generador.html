@@ -11,19 +11,18 @@
         h2 { margin-top: 0; color: var(--primary-color); font-size: 20px; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
         .input-group { margin-bottom: 16px; }
         label { display: block; font-size: 11px; color: var(--accent-color); margin-bottom: 6px; text-transform: uppercase; }
-        input { width: 100%; padding: 12px; background-color: #050810; border: 1px solid #2d3748; border-radius: 6px; color: var(--text-color); font-size: 15px; box-sizing: border-box; outline: none; transition: border-color 0.2s; }
-        input:focus { border-color: var(--primary-color); }
-        .checkbox-group { display: flex; align-items: flex-start; font-size: 10px; color: var(--text-color); margin-top: 16px; margin-bottom: 16px; }
-        .checkbox-group input { width: auto; margin-top: 2px; margin-right: 8px; accent-color: var(--primary-color); }
-        button { width: 100%; padding: 14px; background-color: var(--primary-color); color: #050810; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        button:hover { opacity: 0.9; box-shadow: 0 0 15px rgba(0, 255, 157, 0.3); }
+        input { width: 100%; padding: 12px; background-color: #050810; border: 1px solid #2d3748; border-radius: 6px; color: var(--text-color); font-size: 15px; box-sizing: border-box; }
+        button { width: 100%; padding: 14px; background-color: var(--primary-color); color: #050810; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         button:disabled { background-color: #2d3748; color: #64748b; cursor: not-allowed; opacity: 0.6; }
-        .user-header { font-size: 9px; text-align: right; color: var(--accent-color); margin-bottom: 10px; font-weight: bold; text-transform: uppercase; }
+        .user-header { font-size: 10px; text-align: right; color: var(--accent-color); margin-bottom: 10px; font-weight: bold; text-transform: uppercase; }
         .cost-info { font-size: 11px; color: var(--primary-color); margin-bottom: 16px; background: rgba(0, 255, 157, 0.05); padding: 10px; border-radius: 6px; border-left: 4px solid var(--primary-color); }
         .live-panel { background: #050810; border: 1px dashed #2d3748; padding: 15px; border-radius: 8px; margin-top: 18px; }
         .status-tracker { font-size: 12px; font-weight: bold; padding: 10px; border-radius: 6px; text-align: center; background: #1a1505; color: #ffaa00; border: 1px solid #ffaa00; margin-top: 5px; }
+        
+        /* Modal */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); justify-content: center; align-items: center; }
-        .modal-content { background-color: var(--panel-bg); padding: 25px; border: 1px solid var(--accent-color); width: 85%; max-width: 450px; border-radius: 12px; }
+        .modal-content { background-color: var(--panel-bg); padding: 25px; border: 1px solid var(--accent-color); width: 85%; max-width: 450px; border-radius: 12px; max-height: 75vh; overflow-y: auto; color: var(--text-color); }
+        .close-modal { color: var(--danger-color); float: right; font-size: 24px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -32,114 +31,91 @@
         <div class="user-header" id="session-header">👤 Sesión: Vendedor</div>
         <h2>🛡️ Búnker TRATO™</h2>
         
-        <div class="cost-info">
-            ℹ️ Actuamos como intermediarios. Comisión 15%.
+        <div class="cost-info">ℹ️ Intermediario: Custodia de fondos. Comisión 15%.</div>
+
+        <div class="input-group">
+            <label for="prod">Pegá estos 4 dígitos en el producto o caja que vas a enviar:</label>
+            <input type="text" id="prod" placeholder="Ej. 1234" maxlength="4" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);" inputmode="numeric">
         </div>
 
-        <div id="formulario">
-            <div class="input-group">
-                <label for="prod">Pegá estos 4 dígitos en el producto o caja que vas a enviar:</label>
-                <input type="text" id="prod" placeholder="Ej. 1234" maxlength="4" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);" inputmode="numeric">
-            </div>
+        <div class="input-group">
+            <label for="monto">Monto base (ARS)</label>
+            <input type="number" id="monto" placeholder="Ej. 150000">
+        </div>
 
-            <div class="input-group">
-                <label for="monto">Monto base (ARS)</label>
-                <input type="number" id="monto" placeholder="Ej. 150000" oninput="window.calcularTotal()">
-            </div>
+        <div class="input-group">
+            <label for="cbu-alias">CBU / Alias</label>
+            <input type="text" id="cbu-alias" readonly>
+        </div>
 
-            <div class="input-group">
-                <label for="cbu-alias">Tu CBU o Alias</label>
-                <input type="text" id="cbu-alias" placeholder="Cargado desde el registro..." readonly>
-            </div>
+        <div class="input-group">
+            <label for="vendedor-dni">DNI</label>
+            <input type="text" id="vendedor-dni" readonly>
+        </div>
 
-            <div class="input-group">
-                <label for="vendedor-dni">Tu DNI</label>
-                <input type="text" id="vendedor-dni" placeholder="Cargado desde el registro..." readonly>
-            </div>
+        <button id="btn-soporte" class="btn-success" onclick="enviarSoporteDirecto()" style="background:#00ff9d;">📤 1. ENVIAR DATOS A SOPORTE</button>
+        <button id="btn-blindar" onclick="procesarOperacion()" disabled style="background-color: var(--accent-color); color: #050810; margin-top: 12px;">🔗 2. GENERAR Y ENVIAR AL COMPRADOR</button>
 
-            <div class="cost-info" id="precio-detalle">ℹ️ Monto total con comisión (15%): $ 0</div>
+        <div class="live-panel">
+            <div style="color: #64748b; font-size: 10px; margin-bottom: 5px;">🖥️ MONITOREO</div>
+            <div id="estado-vivo" class="status-tracker">⏳ ESPERANDO INICIAR</div>
+        </div>
 
-            <div class="checkbox-group">
-                <input type="checkbox" id="acepta-terminos" onchange="window.toggleBoton()">
-                <label for="acepta-terminos" style="cursor:pointer;">Acepto los términos del protocolo.</label>
-            </div>
+        <div style="font-size: 0.7em; color: #666; margin-top: 20px; text-align: center;">
+            <a style="color: var(--accent-color); cursor: pointer;" onclick="abrirTerminos()">Ver términos legales completos</a>
+        </div>
+    </div>
 
-            <button id="btn-soporte" class="btn-success" onclick="window.enviarSoporteDirecto()">📤 1. ENVIAR DATOS A SOPORTE</button>
-            <button id="btn-blindar" onclick="window.procesarOperacion()" disabled style="background-color: var(--accent-color); color: #050810; margin-top: 12px;">🔗 2. GENERAR Y ENVIAR AL COMPRADOR</button>
-            <button id="btn-nuevo-trato" onclick="window.limpiarFormulario()" style="background-color: var(--danger-color); color: #ffffff; margin-top: 12px;">🗑️ 3. NUEVO TRATO (LIMPIAR)</button>
-            
-            <div id="panel-monitoreo" class="live-panel">
-                <div style="font-size: 10px; font-weight: bold; margin-bottom: 8px;">🖥️ MONITOREO DE TRANSACCIÓN EN VIVO</div>
-                <div id="estado-vivo" class="status-tracker">⏳ ESPERANDO INICIAR OPERACIÓN</div>
-            </div>
+    <div id="modalTerminos" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="cerrarTerminos()">&times;</span>
+            <h3 style="color: var(--accent-color);">🛡️ Términos y Condiciones</h3>
+            <p style="font-size: 11px;">TRATO™ actúa exclusivamente como intermediario. No nos hacemos responsables por el funcionamiento del producto. Se retiene el 15% como cargo de custodia...</p>
         </div>
     </div>
 
     <script>
-        const RENDER_URL = "https://bunker-trato-api.onrender.com/crear-pago";
-        const CHECK_URL = "https://bunker-trato-api.onrender.com/consultar-estado/";
-
-        // 1. CARGA DE SESIÓN
+        // Carga de sesión
         window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
             const campos = ['nombre', 'cbu', 'dni', 'email', 'telefono'];
             campos.forEach(campo => {
-                if(urlParams.get(campo)) localStorage.setItem('trato_' + campo, decodeURIComponent(urlParams.get(campo)));
+                const val = new URLSearchParams(window.location.search).get(campo);
+                if(val) localStorage.setItem('trato_' + campo, decodeURIComponent(val));
             });
             document.getElementById('session-header').innerText = `👤 Sesión: ${localStorage.getItem('trato_nombre') || 'Vendedor'}`;
             document.getElementById('cbu-alias').value = localStorage.getItem('trato_cbu') || '';
             document.getElementById('vendedor-dni').value = localStorage.getItem('trato_dni') || '';
         };
 
-        window.calcularTotal = function() {
-            const monto = parseFloat(document.getElementById('monto').value) || 0;
-            document.getElementById('precio-detalle').innerText = `ℹ️ Monto total con comisión (15%): $ ${(monto * 1.15).toFixed(2)}`;
-        };
+        function abrirTerminos() { document.getElementById('modalTerminos').style.display = 'flex'; }
+        function cerrarTerminos() { document.getElementById('modalTerminos').style.display = 'none'; }
 
-        window.toggleBoton = function() {
-            document.getElementById('btn-blindar').disabled = !document.getElementById('acepta-terminos').checked;
-        };
-
-        window.limpiarFormulario = function() {
-            document.getElementById('prod').value = '';
-            document.getElementById('monto').value = '';
-            document.getElementById('estado-vivo').innerText = "⏳ ESPERANDO INICIAR OPERACIÓN";
-            document.getElementById('estado-vivo').style.backgroundColor = "#1a1505";
-        };
-
-        window.enviarSoporteDirecto = function() {
+        function enviarSoporteDirecto() {
             const prod = document.getElementById('prod').value;
-            const monto = parseFloat(document.getElementById('monto').value) || 0;
-            if(!prod) return alert("Completa el producto.");
-            const mensaje = `🛡️ *NUEVA VENTA TRATO™*\n\n*Vendedor:* ${localStorage.getItem('trato_nombre')}\n*DNI:* ${localStorage.getItem('trato_dni')}\n*Prod:* #${prod}\n*Total:* $${(monto*1.15).toFixed(2)}`;
+            if(!prod) return alert("Completá el código de 4 dígitos");
+            
+            // Habilitar botón 2
+            document.getElementById('btn-blindar').disabled = false;
+            
+            const mensaje = `🛡️ *NUEVA VENTA TRATO™*\n*Vendedor:* ${localStorage.getItem('trato_nombre')}\n*DNI:* ${localStorage.getItem('trato_dni')}\n*Prod:* #${prod}`;
             window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(mensaje)}`, '_blank');
-        };
+        }
 
-        window.procesarOperacion = async function() {
+        async function procesarOperacion() {
             const prod = document.getElementById('prod').value;
-            const monto = parseFloat(document.getElementById('monto').value) * 1.15;
             const digitalID = Math.floor(100000 + Math.random() * 900000).toString();
-
-            try {
-                const res = await fetch(RENDER_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ producto: digitalID, precioBase: monto })
-                });
-                const data = await res.json();
-                if (data.url) {
-                    const link = `${data.url}&producto=${prod}&digitalID=${digitalID}&id=${digitalID}&tel_vendedor=${localStorage.getItem('trato_telefono')}`;
-                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('🛡️ LINK PAGO: ' + link)}`, '_blank');
-                    
-                    document.getElementById('estado-vivo').innerText = "🟢 BÚNKER ACTIVO";
-                    setInterval(async () => {
-                        const r = await fetch(CHECK_URL + digitalID);
-                        const d = await r.json();
-                        if (d.estado === "approved") document.getElementById('estado-vivo').innerText = "🔒 PAGO RECIBIDO";
-                    }, 3000);
-                }
-            } catch(e) { alert("Error al generar trato."); }
-        };
+            const res = await fetch("https://bunker-trato-api.onrender.com/crear-pago", {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ producto: digitalID, precioBase: 0 })
+            });
+            const data = await res.json();
+            if(data.url) {
+                const link = `${data.url}&producto=${prod}&digitalID=${digitalID}&id=${digitalID}`;
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('🛡️ LINK PAGO: ' + link)}`, '_blank');
+                document.getElementById('estado-vivo').innerText = "🟢 BÚNKER ACTIVO";
+            }
+        }
     </script>
 </body>
 </html>
