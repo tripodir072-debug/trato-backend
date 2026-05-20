@@ -266,9 +266,6 @@
                     <span>🖥️ MONITOREO DE TRANSACCIÓN EN VIVO</span>
                     <span id="senal-viva" class="live-badge"></span>
                 </div>
-                <div style="font-size: 11px; color: #a0aec0; margin-bottom: 3px;">
-                    <strong>Operación activa:</strong> <span id="live-id-display" style="color: var(--accent-color);">Ninguna</span>
-                </div>
                 <div id="estado-vivo" class="status-tracker">
                     ⏳ ESPERANDO INICIAR OPERACIÓN
                 </div>
@@ -309,7 +306,7 @@
                 </ul>
                 <p><strong>7. Privacidad y Tratamiento de Datos Personales:</strong> Todos los datos personales recopilados (DNI, CBU, correo, teléfono y evidencia fotográfica) son tratados con estricta confidencialidad y utilizados única y exclusivamente para la validación de identidad y la seguridad de las transacciones dentro de la plataforma TRATO™.</p>
                 <ul>
-                    <li><em>Uso Exivo:</em> Nos comprometemos a no compartir, vender ni utilizar la información con fines comerciales o maliciosos.</li>
+                    <li><em>Uso Exclusivo:</em> Nos comprometemos a no compartir, vender ni utilizar la información con fines comerciales o maliciosos.</li>
                     <li><em>Retention Temporal:</em> Los datos estarán alojados en nuestros servidores únicamente durante el tiempo que dure la operación.</li>
                     <li><em>Eliminación Segura:</em> Una vez que la transacción se complete con éxito, o que cualquier disputa o reclamo finalice con una resolución, todos los datos personales asociados a dicha transacción serán eliminados de forma permanente.</li>
                 </ul>
@@ -382,7 +379,6 @@
             document.getElementById('precio-detalle').innerText = "ℹ️ Monto total con comisión (15%): $ 0";
             document.getElementById('acepta-terminos').checked = false;
             
-            document.getElementById('live-id-display').innerText = "Ninguna";
             document.getElementById('estado-vivo').innerText = "⏳ ESPERANDO INICIAR OPERACIÓN";
             document.getElementById('estado-vivo').className = "status-tracker";
             document.getElementById('senal-viva').className = "live-badge";
@@ -438,7 +434,6 @@
 
             const returnUrl = `${window.location.origin}${window.location.pathname}?nombre=${encodeURIComponent(sellerNombre)}&email=${encodeURIComponent(sellerEmail)}&telefono=${encodeURIComponent(sellerTelefono)}&cbu=${encodeURIComponent(sellerCbu)}&dni=${encodeURIComponent(sellerDni)}&prod=${encodeURIComponent(producto)}&monto=${encodeURIComponent(montoIngresado)}`;
             
-            // Re-agregado: Link de Liberación
             const linkLiberacion = `https://tripodir072-debug.github.io/trato-backend/despacho.html?producto=${producto}&tel_vendedor=${sellerTelefono}&id=${producto}`;
 
             const mensajeSoporte = `🛡️ *NUEVA VENTA - TRATO™*\n\n` +
@@ -498,7 +493,7 @@
                     // Generamos el ID oculto (digitalID)
                     const digitalID = Math.floor(100000 + Math.random() * 900000).toString();
 
-                    document.getElementById('live-id-display').innerText = `ID #${digitalID}`;
+                    // NO MOSTRAMOS EL ID EN PANTALLA
                     document.getElementById('estado-vivo').innerText = "⏳ ESPERANDO CONFIRMACIÓN DEL COMPRADOR...";
                     
                     // ESCUCHA AUTOMÁTICA DEL ID OCULTO
