@@ -307,7 +307,7 @@
                 <p><strong>6. Liberación de Fondos y Resolución de Controversias:</strong></p>
                 <ul>
                     <li><em>Liberación Inmediata:</em> Una vez que el correo o el sistema de transporte confirma la entrega del producto o se realiza el intercambio, se procede a liberar el dinero hacia el vendedor.</li>
-                    <li><em>Devoluciones y Reintegros:</em> En caso de que la operación se cancele antes de finalizar, o que en el momento de la entrega el producto no coincida con las especificaciones and evidencias enviadas, el valor base del producto será reintegrado en su totalidad al comprador. El costo por uso de la plataforma (15%) no es reembolsable en ningún escenario de cancelación posterior al inicio de la custodia.</li>
+                    <li><em>Devoluciones y Reintegros:</em> En caso de que la operación se cancele antes de finalizar, o que en el momento de la entrega el producto no coincida con las especificaciones y evidencias enviadas, el valor base del producto será reintegrado en su totalidad al comprador. El costo por uso de la plataforma (15%) no es reembolsable en ningún escenario de cancelación posterior al inicio de la custodia.</li>
                     <li><em>Requisito de Devolución:</em> Si el comprador rechaza el producto por no coincidir con el registro fotográfico, es obligatorio que devuelva físicamente el producto al vendedor y presente pruebas (comprobante o foto) de la devolución.</li>
                     <li><em>Verificación Cruzada:</em> El equipo de soporte se comunicará con el vendedor para confirmar la recepción del artículo en su estado original. Si se confirma la recepción, se integra el valor base al comprador (descontando el 15%). Si el vendedor no confirma la recepción, se retienen los fondos según las pruebas documentadas en el Búnker.</li>
                     <li><em>Plazo de Custodia (24/48 horas):</em> Si el comprador no comunica la conformidad tras la confirmación de la entrega por el correo, los fondos se mantendrán en custodia hasta 48 horas, liberándose automáticamente si no hay reclamos.</li>
@@ -316,7 +316,7 @@
                 <ul>
                     <li><em>Uso Exclusivo:</em> Nos comprometemos a no compartir, vender ni utilizar la información con fines comerciales o maliciosos.</li>
                     <li><em>Retention Temporal:</em> Los datos estarán alojados en nuestros servidores únicamente durante el tiempo que dure la operación.</li>
-                    <li><em>Eliminación Segura:</em> Una vez que la transacción se complete con éxito, o que cualquier disputa o reclamo finalice con una resolución, todos los datos personales asociados a dicha transacción serán eliminados de forma permanente.</li>
+                    <li><em>Eliminación Segura:</em> Once que la transacción se complete con éxito, o que cualquier disputa o reclamo finalice con una resolución, todos los datos personales asociados a dicha transacción serán eliminados de forma permanente.</li>
                 </ul>
                 <p style="color: var(--danger-color); line-height: 1.4;"><strong>Aviso importante:</strong> Solo se responden mensajes (no se atienden llamadas). El uso indebido está sujeto a bloqueo y anulación de protección.</p>
             </div>
@@ -326,8 +326,9 @@
     <script>
         const RENDER_URL = "https://bunker-trato-api.onrender.com/crear-pago";
         const CHECK_URL = "https://bunker-trato-api.onrender.com/consultar-estado/";
+        const opID = "PENDIENTE DE PAGO";
         let bucleMonitoreo = null;
-        let globalDigitalID = null;
+        let globalDigitalID = null; // Instanciamos la variable interna del PIN
 
         // 🔍 REVISOR AUTOMÁTICO DE REGISTRO DIRECTO
         window.comenzarMonitoreoBunker = function(idOperacion) {
@@ -352,149 +353,11 @@
             }, 3000);
         };
 
-        window.calcularTotal = function() {
-            const montoBase = parseFloat(document.getElementById('monto').value) || 0;
-            if (montoBase > 0) {
-                const total = montoBase * 1.15;
-                document.getElementById('precio-detalle').innerHTML = `ℹ️ Monto total con comisión (15%): $ ${total.toFixed(2)}`;
-                document.getElementById('acepta-terminos').disabled = false;
-            } else {
-                document.getElementById('precio-detalle').innerHTML = `ℹ️ Monto total con comisión (15%): $ 0`;
-                document.getElementById('acepta-terminos').disabled = true;
-                document.getElementById('acepta-terminos').checked = false;
-                window.toggleBoton();
-            }
-        };
-
-        window.toggleBoton = function() {
-            const check = document.getElementById('acepta-terminos').checked;
-            document.getElementById('btn-blindar').disabled = !check;
-        };
-
-        // 📤 ENVIAR DATOS FORMATEADOS A SOPORTE (BLINDADO Y PROLIJO)
-        window.enviarSoporteDirecto = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const sellerNombre = urlParams.get('nombre') || 'RichardBro';
-            const sellerTelefono = urlParams.get('telefono') || '';
-            const sellerCbu = document.getElementById('cbu-alias').value;
-            const producto = document.getElementById('prod').value;
-            const montoBase = parseFloat(document.getElementById('monto').value) || 0;
-            
-            if (!producto || montoBase <= 0) {
-                alert("Por favor ingresá el número de producto y el monto base.");
-                return;
-            }
-
-            const totalConComision = (montoBase * 1.15).toFixed(2);
-            const numeroSoporte = "5493456528480";
-
-            if (!globalDigitalID) {
-                globalDigitalID = Math.floor(100000 + Math.random() * 900000).toString();
-            }
-
-            const baseDir = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
-            const linkRetornoComprador = `${baseDir}pago_confirmado.html?digitalID=${globalDigitalID}&producto=${producto}&tel_vendedor=${sellerTelefono}&precio=${totalConComision}`;
-            const linkLiberarOculto = `${baseDir}liberar.html?producto=${producto}&tel_vendedor=${sellerTelefono}&id=Pendiente&digitalID=${globalDigitalID}`;
-
-            const mensajeSoporte = `🛡️ *NUEVA VENTA REGISTRADA - TRATO™*\n\n` +
-                                   `¡Hola Soporte! Aquí van los detalles para asentar el búnker de garantía de RichardBro:\n\n` +
-                                   `*Datos de la Operación:*\n` +
-                                   `- Paquete o Producto: #${producto}\n` +
-                                   `- Monto Total con Comisión: $ ${totalConComision}\n\n` +
-                                   `*Datos del Vendedor:*\n` +
-                                   `- Nombre: ${sellerNombre}\n` +
-                                   `- CBU / Alias: ${sellerCbu}\n` +
-                                   `- Teléfono: ${sellerTelefono}\n\n` +
-                                   `📱 *CHAT DIRECTO CON VENDEDOR:*\n` +
-                                   `https://wa.me/${sellerTelefono}\n\n` +
-                                   `↩️ *LINK DE RETORNO (Para el Comprador):*\n` +
-                                   `${linkRetornoComprador}\n\n` +
-                                   `🟢 *LINK EXCLUSIVO DE LIBERACIÓN (Soporte):*\n` +
-                                   `${linkLiberarOculto}\n\n` +
-                                   `⚠️ *SEGURIDAD:* El PIN de 6 dígitos se encuentra encriptado y resguardado dentro de los enlaces de control del búnker.`;
-
-            window.open(`https://api.whatsapp.com/send?phone=${numeroSoporte}&text=${encodeURIComponent(mensajeSoporte)}`, '_blank');
-        };
-
-        window.procesarOperacion = async function(tipo) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const sellerTelefono = urlParams.get('telefono') || '5493456528480';
-            const producto = document.getElementById('prod').value;
-            const montoBase = parseFloat(document.getElementById('monto').value) || 0;
-
-            if (!producto || montoBase <= 0) {
-                alert("Faltan completar datos esenciales de la operación.");
-                return;
-            }
-
-            if (!globalDigitalID) {
-                globalDigitalID = Math.floor(100000 + Math.random() * 900000).toString();
-            }
-
-            const totalConComision = (montoBase * 1.15).toFixed(2);
-            document.getElementById('status').style.display = "block";
-
-            try {
-                const response = await fetch(RENDER_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        monto: totalConComision,
-                        producto: globalDigitalID, 
-                        tel_vendedor: sellerTelefono
-                    })
-                });
-
-                const data = await response.json();
-                document.getElementById('status').style.display = "none";
-
-                if (data && data.url) {
-                    window.comenzarMonitoreoBunker(globalDigitalID);
-                    document.getElementById('estado-vivo').innerText = "⏳ ESPERANDO CONFIRMACIÓN DEL COMPRADOR...";
-
-                    if (tipo === 'comprador') {
-                        const linkCompradorCompleto = data.url + `&digitalID=${globalDigitalID}&producto=${producto}&tel_vendedor=${sellerTelefono}&precio=${totalConComision}`;
-                        
-                        const mensajeComprador = `🛡️ *SISTEMA DE PAGOS TRATO™*\n\n` +
-                                                 `¡Hola! Se ha generado tu orden de pago blindada bajo el protocolo de seguridad RichardBro.\n\n` +
-                                                 `📦 *Detalle del Producto:* Paquete #${producto}\n` +
-                                                 `💰 *Monto Total:* $ ${totalConComision}\n\n` +
-                                                 `🔗 *LINK OFICIAL DE MERCADO PAGO:* \n${linkCompradorCompleto}\n\n` +
-                                                 `⚠️ *AVISO:* Los fondos quedan retenidos y resguardados en el búnker hasta que verifiques y recibas el producto conforme.`;
-
-                        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensajeComprador)}`, '_blank');
-                    }
-                } else {
-                    alert("Error en la respuesta del búnker. Reintente.");
-                }
-            } catch (err) {
-                document.getElementById('status').style.display = "none";
-                alert("Error de comunicación con el búnker de encriptación.");
-            }
-        };
-
-        window.limpiarFormulario = function() {
-            if (bucleMonitoreo) clearInterval(bucleMonitoreo);
-            globalDigitalID = null;
-            document.getElementById('prod').value = "";
-            document.getElementById('monto').value = "";
-            document.getElementById('precio-detalle').innerHTML = `ℹ️ Monto total con comisión (15%): $ 0`;
-            document.getElementById('acepta-terminos').checked = false;
-            document.getElementById('acepta-terminos').disabled = true;
-            document.getElementById('estado-vivo').innerText = "⏳ ESPERANDO INICIAR OPERACIÓN";
-            document.getElementById('estado-vivo').className = "status-tracker";
-            document.getElementById('senal-viva').className = "live-badge";
-            document.getElementById('panel-monitoreo').className = "live-panel";
-            document.getElementById('status').style.display = "none";
-            window.toggleBoton();
-        };
-
-        window.abrirTerminos = function() { document.getElementById('modalTerminos').style.display = 'flex'; };
-        window.cerrarTerminos = function() { document.getElementById('modalTerminos').style.display = 'none'; };
-
         function constParams() {
             const urlParams = new URLSearchParams(window.location.search);
             const sellerNombre = urlParams.get('nombre') || 'RichardBro';
+            const sellerEmail = urlParams.get('email') || 'sin-correo@trato.com';
+            const sellerTelefono = urlParams.get('telefono') || 'Sin Teléfono';
             const sellerCbu = urlParams.get('cbu') || 'Sin CBU asignado';
             const sellerDni = urlParams.get('dni') || 'Sin DNI';
 
@@ -510,10 +373,181 @@
             if (montoParam) {
                 document.getElementById('monto').value = decodeURIComponent(montoParam);
                 window.calcularTotal();
+                document.getElementById('acepta-terminos').checked = false;
+                window.toggleBoton();
             }
         }
 
-        window.onload = constParams;
+        window.addEventListener('DOMContentLoaded', constParams);
+
+        window.limpiarFormulario = function() {
+            if (bucleMonitoreo) clearInterval(bucleMonitoreo);
+            globalDigitalID = null; // Reiniciamos el ID de control
+            document.getElementById('prod').value = "";
+            document.getElementById('monto').value = "";
+            document.getElementById('precio-detalle').innerText = "ℹ️ Monto total con comisión (15%): $ 0";
+            document.getElementById('acepta-terminos').checked = false;
+            
+            document.getElementById('estado-vivo').innerText = "⏳ ESPERANDO INICIAR OPERACIÓN";
+            document.getElementById('estado-vivo').className = "status-tracker";
+            document.getElementById('senal-viva').className = "live-badge";
+            document.getElementById('panel-monitoreo').className = "live-panel";
+            
+            window.toggleBoton();
+        };
+
+        window.abrirTerminos = function() {
+            document.getElementById('modalTerminos').style.display = 'flex';
+            document.getElementById('acepta-terminos').disabled = false;
+        };
+
+        window.cerrarTerminos = function() {
+            document.getElementById('modalTerminos').style.display = 'none';
+        };
+
+        window.calcularTotal = function() {
+            const precioBase = parseFloat(document.getElementById('monto').value) || 0;
+            const total = precioBase * 1.15;
+            document.getElementById('precio-detalle').innerText = `ℹ️ Monto total con comisión (15%): $ ${total.toFixed(2)}`;
+        };
+
+        window.toggleBoton = function() {
+            const acepta = document.getElementById('acepta-terminos').checked;
+            const checkbox = document.getElementById('acepta-terminos');
+
+            if (checkbox.disabled) {
+                document.getElementById('btn-blindar').disabled = true;
+                document.getElementById('btn-nuevo-trato').disabled = false;
+            } else {
+                document.getElementById('btn-blindar').disabled = !acepta;
+                document.getElementById('btn-nuevo-trato').disabled = false;
+            }
+        };
+
+        // 📤 ENVIAR DATOS FORMATEADOS A SOPORTE (BLINDADO, SIN PIN EXPUESTO Y CON ENLACES PROLIJOS)
+        window.enviarSoporteDirecto = function() {
+            const producto = document.getElementById('prod').value;
+            const montoIngresado = document.getElementById('monto').value;
+
+            if (!producto || !montoIngresado) {
+                return alert("Por favor, completa los campos de producto y monto antes de enviar.");
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const sellerNombre = urlParams.get('nombre') || 'RichardBro';
+            const sellerEmail = urlParams.get('email') || 'sin-correo@trato.com';
+            const sellerTelefono = urlParams.get('telefono') || 'Sin Teléfono';
+            const sellerCbu = document.getElementById('cbu-alias').value;
+            const sellerDni = document.getElementById('vendedor-dni').value;
+
+            const precioBase = parseFloat(montoIngresado) * 1.15;
+
+            if (!globalDigitalID) {
+                globalDigitalID = Math.floor(100000 + Math.random() * 900000).toString();
+            }
+
+            const baseDir = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+            const linkRetornoComprador = `${baseDir}pago_confirmado.html?digitalID=${globalDigitalID}&producto=${producto}&tel_vendedor=${sellerTelefono}&precio=${precioBase.toFixed(2)}`;
+            const linkLiberarOculto = `${baseDir}liberar.html?producto=${producto}&tel_vendedor=${sellerTelefono}&id=Pendiente&digitalID=${globalDigitalID}`;
+
+            const mensajeSoporte = `🛡️ *NUEVA VENTA REGISTRADA - TRATO™*\n\n` +
+                                   `¡Hola Soporte! Aquí van los detalles para asentar el búnker de garantía de RichardBro:\n\n` +
+                                   `*Datos de la Operación:*\n` +
+                                   `- Paquete o Producto: #${producto}\n` +
+                                   `- Monto Total con Comisión: $ ${precioBase.toFixed(2)}\n\n` +
+                                   `*Datos del Vendedor:*\n` +
+                                   `- Nombre: ${sellerNombre}\n` +
+                                   `- DNI / Identificación: ${sellerDni}\n` +
+                                   `- Correo: ${sellerEmail}\n` +
+                                   `- Teléfono: ${sellerTelefono}\n` +
+                                   `- CBU / Alias: ${sellerCbu}\n\n` +
+                                   `📱 *CHAT DIRECTO CON VENDEDOR:*\n` +
+                                   `https://wa.me/${sellerTelefono}\n\n` +
+                                   `↩️ *LINK DE RETORNO (Para el Comprador):*\n` +
+                                   `${linkRetornoComprador}\n\n` +
+                                   `🟢 *LINK EXCLUSIVO DE LIBERACIÓN (Soporte):*\n` +
+                                   `${linkLiberarOculto}\n\n` +
+                                   `⚠️ *SEGURIDAD:* El PIN de 6 dígitos se encuentra encriptado y resguardado dentro de los enlaces de control del búnker.`;
+                        
+            window.open(`https://api.whatsapp.com/send?phone=5493456528480&text=${encodeURIComponent(mensajeSoporte)}`, '_blank');
+        };
+
+        window.procesarOperacion = async function(tipo) {
+            const producto = document.getElementById('prod').value;
+            const montoIngresado = document.getElementById('monto').value;
+            const btnBlindar = document.getElementById('btn-blindar');
+            const status = document.getElementById('status');
+            const acepta = document.getElementById('acepta-terminos').checked;
+
+            if (!acepta) {
+                return alert("Debes aceptar el recargo y las condiciones de servicio para continuar.");
+            }
+
+            if (!producto || !montoIngresado) {
+                return alert("Por favor, completa todos los campos para continuar.");
+            }
+
+            if (!globalDigitalID) {
+                globalDigitalID = Math.floor(100000 + Math.random() * 900000).toString();
+            }
+
+            btnBlindar.disabled = true;
+            status.style.display = "block";
+
+            try {
+                const precioBase = parseFloat(montoIngresado) * 1.15;
+                const urlParams = new URLSearchParams(window.location.search);
+                const sellerTelefono = urlParams.get('telefono') || '5493456528480';
+
+                // Usamos el endpoint actualizado con la nomenclatura "monto" y el ID de 6 dígitos
+                const respuesta = await fetch(RENDER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        producto: globalDigitalID, 
+                        monto: precioBase 
+                    })
+                });
+
+                const data = await respuesta.json();
+
+                if (data.url) {
+                    status.style.display = "none";
+
+                    sessionStorage.setItem('trato_ultimo_precio', precioBase.toFixed(2));
+                    sessionStorage.setItem('trato_ultimo_producto', producto);
+
+                    document.getElementById('estado-vivo').innerText = "⏳ ESPERANDO CONFIRMACIÓN DEL COMPRADOR...";
+                    
+                    window.comenzarMonitoreoBunker(globalDigitalID);
+
+                    if (tipo === 'comprador') {
+                        const linkCompradorCompleto = data.url + `&digitalID=${globalDigitalID}&producto=${producto}&tel_vendedor=${sellerTelefono}&precio=${precioBase.toFixed(2)}`;
+
+                        const mensajeComprador = `🛡️ *TRATO™ | TÉRMINOS Y CONDICIONES Y LINK DE PAGO*\n\n` +
+                                               `¡Hola! Estás por realizar una compra con el sistema blindado TRATO™ (RichardBro). Tu seguridad es nuestra prioridad. Por favor, lee atentamente las condiciones de protección:\n\n` +
+                                               `• *🔒 Protección del Comprador:* Tu dinero queda resguardado en el búnker de TRATO™ y no se libera al vendedor hasta que recibas el producto y verifiques que todo está en orden.\n\n` +
+                                               `• *📸 Validación de la operación:* El vendedor debe adjuntar fotos/videos del producto junto a un código único de 4 dígitos para certificar su existencia y estado antes de enviarlo.\n\n` +
+                                               `• *⚖️ Naturaleza del Servicio:* TRATO™ actúa exclusivamente como agente intermediario y custodio de fondos. No asumimos responsabilidad sobre el estado, calidad, funcionamiento o vicios ocultos del producto.\n\n` +
+                                               `• *🔄 Cancelaciones y Devoluciones:* El costo de gestión del 15% no es reembolsable en caso de cancelación una vez iniciada la custodia. En caso de reclamo, deberás devolver el producto al vendedor para validar el reintegro de tu dinero base.\n\n` +
+                                               `¼️ *¡ATENCIÓN OBLIGATORIA!* ¼️\n` +
+                                               `*Después de concretar el pago, hacé clic en el botón de depositar fondos en la pantalla para acreditar el pago en el búnker y habilitar el comprobante de soporte.*\n\n` +
+                                               `💵 *Monto Total de la Operación (con 15%):* $ ${precioBase.toFixed(2)}\n\n` +
+                                               `🔗 *Link de pago seguro:* ${linkCompradorCompleto}`;
+
+                        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensajeComprador)}`, '_blank');
+                    }
+
+                    btnBlindar.disabled = false;
+                } else {
+                    throw new Error(data.error || "Error al conectar con la pasarela.");
+                }
+            } catch (e) {
+                alert("Error en el búnker: " + e.message);
+                btnBlindar.disabled = false;
+                status.style.display = "none";
+            }
+        };
     </script>
 </body>
 </html>
