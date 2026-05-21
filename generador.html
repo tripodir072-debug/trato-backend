@@ -386,7 +386,7 @@
             }
         };
 
-        // 📤 ENVÍO A SOPORTE CENTRAL CON LINKS DE AUDITORÍA CRUZADA (RETORNO PERFECTO AL GENERADOR)
+        // 📤 ENVÍO A SOPORTE CENTRAL CON LINKS DE AUDITORÍA CRUZADA (RETORNO PERFECTO AL GENERADOR CON ID)
         window.enviarSoporteDirecto = function() {
             const producto = document.getElementById('prod').value;
             const montoIngresado = document.getElementById('monto').value;
@@ -409,7 +409,9 @@
             }
 
             const baseDir = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
-            const linkRetornoVendedor = `${baseDir}generador.html?nombre=${encodeURIComponent(sellerNombre)}&email=${encodeURIComponent(sellerEmail)}&telefono=${encodeURIComponent(sellerTelefono)}&cbu=${encodeURIComponent(sellerCbu)}&dni=${encodeURIComponent(sellerDni)}&prod=${encodeURIComponent(producto)}&monto=${encodeURIComponent(montoIngresado)}`;
+            
+            // --- 🚀 INYECCIÓN DEL DIGITAL ID EN EL RETORNO ---
+            const linkRetornoVendedor = `${baseDir}generador.html?nombre=${encodeURIComponent(sellerNombre)}&email=${encodeURIComponent(sellerEmail)}&telefono=${encodeURIComponent(sellerTelefono)}&cbu=${encodeURIComponent(sellerCbu)}&dni=${encodeURIComponent(sellerDni)}&prod=${encodeURIComponent(producto)}&monto=${encodeURIComponent(montoIngresado)}&digitalID=${encodeURIComponent(globalDigitalID)}`;
             const linkLiberarOculto = `${baseDir}liberar.html?producto=${producto}&tel_vendedor=${sellerTelefono}&id=Pendiente&digitalID=${globalDigitalID}`;
 
             const mensajeSoporte = `🛡️ *NUEVA VENTA REGISTRADA - TRATO™*\n\n` +
@@ -484,7 +486,6 @@
                     if (tipo === 'comprador') {
                         const linkCompradorLimpio = data.url;
 
-                        // --- 🚀 INCLUSIÓN DEL INSTRUCTIVO EDUCATIVO CRUZADO PARA EL VENDEDOR ---
                         const mensajeComprador = `🛡️ *TRATO™ | TÉRMINOS Y CONDICIONES Y LINK DE PAGO*\n\n` +
                                                `¡Hola! Estás por realizar una compra con el sistema blindado TRATO™ (RichardBro). Tu seguridad es nuestra prioridad. Por favor, lee atentamente las condiciones de protección:\n\n` +
                                                `• *🔒 Protección del Comprador:* Tu dinero queda resguardado en el búnker de TRATO™ y no se libera al vendedor hasta que recibas el producto y verifiques que todo está en orden.\n\n` +
@@ -535,6 +536,14 @@
                 window.calcularTotal();
                 document.getElementById('acepta-terminos').checked = false;
                 window.toggleBoton();
+            }
+
+            // --- 🔒 ARRANCADOR DE MONITOREO AUTOMÁTICO EN EL RETORNO ---
+            const digitalIDParam = urlParams.get('digitalID');
+            if (digitalIDParam) {
+                globalDigitalID = digitalIDParam;
+                document.getElementById('estado-vivo').innerText = "⏳ CONECTANDO CON EL BÚNKER DE MONITOREO...";
+                window.comenzarMonitoreoBunker(globalDigitalID);
             }
         }
 
