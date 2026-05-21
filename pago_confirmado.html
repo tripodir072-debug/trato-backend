@@ -103,9 +103,7 @@
         const UPDATE_URL = "https://bunker-trato-api.onrender.com/marcar-pagado";
         const urlParams = new URLSearchParams(window.location.search);
         
-        // --- AQUÍ ESTÁ LA CORRECCIÓN PRINCIPAL ---
-        // Priorizamos el 'digitalID' automático, luego el producto manual
-        let idParaConfirmar = urlParams.get('digitalID') || urlParams.get('producto');
+        let idParaConfirmar = urlParams.get('digitalID') || urlParams.get('producto') || '000000';
         let precioDetectado = urlParams.get('precio') || 'A verificar';
         const opID = urlParams.get('id') || 'Pendiente';
         const telefonoVendedor = urlParams.get('tel_vendedor') || "5493456528480";
@@ -132,7 +130,6 @@
             document.getElementById('grupo-dni').style.display = 'block';
             document.getElementById('btn-continuar').disabled = false;
 
-            // Enviamos el ID automático al servidor
             if (idParaConfirmar) {
                 try {
                     await fetch(UPDATE_URL, {
@@ -154,7 +151,8 @@
 
         function abrirSoporteWhatsApp(dniUser) {
             const numeroSoporte = "5493456528480";
-            const linkLiberarOculto = `${window.location.origin}/liberar.html?producto=${idParaConfirmar}&tel_vendedor=${telefonoVendedor}&id=${opID}`;
+            const baseDir = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+            const linkLiberarOculto = `${baseDir}liberar.html?producto=${idParaConfirmar}&tel_vendedor=${telefonoVendedor}&id=${opID}&digitalID=${idParaConfirmar}`;
 
             const mensajeComprobante = `🛡️ *COMPROBANTE DE PAGO - TRATO™*\n\n` +
                                        `*Producto:* #${idParaConfirmar}\n` +
@@ -166,8 +164,15 @@
 
         window.desbloquearPantalla = () => { document.getElementById('pantaya-bloqueo').style.display = 'none'; };
         window.notificarSoporteManual = () => { document.getElementById('pantaya-bloqueo').style.display = 'flex'; };
+        
+        // --- CORRECCIÓN DINÁMICA DE TEXTOS PARA LA CALLE ---
         window.notificar = (tipo) => {
-            const mensaje = tipo === 'envio' ? "Notificación de envío" : "Notificación presencial";
+            let mensaje = "";
+            if (tipo === 'envio') {
+                mensaje = `🛡️ *SISTEMA TRATO™ | NOTIFICACIÓN DE CUSTODIA ACTIVA*\n\n¡Hola! Te notifico que ya realicé el depósito correspondiente. El búnker de *TRATO™* ya retuvo los fondos.\n\n📋 *Detalles de la Operación:*\n- *Producto:* #${idParaConfirmar}\n\n⚠️ *INSTRUCCIÓN:* Ya podés proceder con el despacho. Recordá que para liberar los fondos es obligatorio pegar de forma visible el código en el paquete.`;
+            } else {
+                mensaje = `🛡️ *SISTEMA TRATO™ | PROTOCOLO PRESENCIAL ACTIVADO*\n\n¡Hola! Te confirmo que los fondos ya fueron depositados con éxito en *TRATO™*. El dinero se encuentra congelado de forma segura.\n\n🤝 *COORDINACIÓN:* Pasame tus horarios para el punto de encuentro.\n\n⚠️ *REGLA:* Al activarse la entrega en persona, corre un reloj de seguridad de 24 horas corridas desde el intercambio.`;
+            }
             window.open(`https://api.whatsapp.com/send?phone=${telefonoVendedor}&text=${encodeURIComponent(mensaje)}`, '_blank');
         };
     </script>
