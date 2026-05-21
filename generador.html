@@ -286,7 +286,7 @@
             <div class="modal-text">
                 <p><strong>1. Naturaleza del Servicio y Costos:</strong> TRATO™ (plataforma operada por RichardBro) actúa exclusivamente como agente intermediario y custodio de fondos. El recargo del 15% corresponde al costo por el uso de la plataforma y el servicio de gestión de custodia en el búnker. Este costo del 15% es <em>no reembolsable</em> una vez que los fondos han sido depositados y el servicio ha comenzado a procesarse, ya que cubre los costos operativos de gestión. La plataforma no otorga garantías ni asume responsabilidad civil, comercial o penal sobre el estado, calidad, funcionamiento, vicios ocultos o legalidad del producto o servicio transaccionado.</p>
                 <p><strong>2. Responsabilidad del Usuario:</strong> Cada usuario (tanto comprador como vendedor) es absoluta y exclusivamente responsable de sus propios actos, declaraciones y transacciones. La plataforma actúa como un tercero de confianza, pero no interviene en las negociaciones comerciales ni en la veracidad de los acuerdos particulares entre las partes.</p>
-                <p><strong>3. Validación de Identidad y Prevención de Fraude:</strong> Es de carácter OBLIGATORIO para vendedor y comprador presentar su documento de identidad (DNI o similar). En caso de que el comprador realice un pago desde una cuenta de titularidad de terceros, debe informar los datos de identidad and DNI del titular de dicha cuenta.</p>
+                <p><strong>3. Validación de Identidad y Prevención de Fraude:</strong> Es de carácter OBLIGATORIO para vendedor y comprador presentar su documento de identidad (DNI o similar). En caso de que el comprador realice un pago desde una cuenta de titularidad de terceros, debe informar los datos de identidad y DNI del titular de dicha cuenta.</p>
                 <p><strong>4. Sistema de Custodia de Fondos:</strong> El dinero correspondiente al valor base del producto se retiene en el búnker de garantía hasta que la operación se concrete y se verifique mediante el protocolo de TRATO™.</p>
                 <p><strong>5. Protocolo de Envíos, Entregas y Validación Obligatoria de Producto:</strong> Para proteger a ambas partes contra fraudes (tales como el reemplazo de productos, el envío de artículos dañados o estafas), se establece de manera estricta el siguiente protocolo:</p>
                 <ul>
@@ -386,7 +386,7 @@
             }
         };
 
-        // 📤 ENVIAR DATOS FORMATEADOS A SOPORTE (LINK DE RETORNO EXCLUSIVO PARA VOLVER AL GENERADOR)
+        // 📤 ENVÍO A SOPORTE CENTRAL CON LINKS DE AUDITORÍA CRUZADA (RETORNO PERFECTO AL GENERADOR)
         window.enviarSoporteDirecto = function() {
             const producto = document.getElementById('prod').value;
             const montoIngresado = document.getElementById('monto').value;
@@ -408,8 +408,9 @@
                 globalDigitalID = Math.floor(100000 + Math.random() * 900000).toString();
             }
 
-            // --- 🚀 FIX DIRECTO: Volver a generador.html reteniendo todos tus parámetros originales ---
             const baseDir = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+            
+            // Link de Retorno al Generador inyectando la sesión completa para que el vendedor no pierda nada
             const linkRetornoVendedor = `${baseDir}generador.html?nombre=${encodeURIComponent(sellerNombre)}&email=${encodeURIComponent(sellerEmail)}&telefono=${encodeURIComponent(sellerTelefono)}&cbu=${encodeURIComponent(sellerCbu)}&dni=${encodeURIComponent(sellerDni)}&prod=${encodeURIComponent(producto)}&monto=${encodeURIComponent(montoIngresado)}`;
             const linkLiberarOculto = `${baseDir}liberar.html?producto=${producto}&tel_vendedor=${sellerTelefono}&id=Pendiente&digitalID=${globalDigitalID}`;
 
@@ -462,6 +463,7 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const sellerTelefono = urlParams.get('telefono') || '5493456528480';
 
+                // Mandamos el globalDigitalID como el parámetro "producto" a la API de Render
                 const respuesta = await fetch(RENDER_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -483,7 +485,8 @@
                     window.comenzarMonitoreoBunker(globalDigitalID);
 
                     if (tipo === 'comprador') {
-                        // --- 🚀 FIX ABSOLUTO: El link de MP viaja 100% puro y oculto, sin pins expuestos ---
+                        // --- 🚀 ENFOQUE EXTERNAL_REFERENCE BLINDADO ---
+                        // El link de pago de Mercado Pago va 100% libre de variables añadidas para que viaje oculto internamente
                         const linkCompradorLimpio = data.url;
 
                         const mensajeComprador = `🛡️ *TRATO™ | TÉRMINOS Y CONDICIONES Y LINK DE PAGO*\n\n` +
