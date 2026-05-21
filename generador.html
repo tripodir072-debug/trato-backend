@@ -409,8 +409,6 @@
             }
 
             const baseDir = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
-            
-            // Link de Retorno al Generador inyectando la sesión completa para que el vendedor no pierda nada
             const linkRetornoVendedor = `${baseDir}generador.html?nombre=${encodeURIComponent(sellerNombre)}&email=${encodeURIComponent(sellerEmail)}&telefono=${encodeURIComponent(sellerTelefono)}&cbu=${encodeURIComponent(sellerCbu)}&dni=${encodeURIComponent(sellerDni)}&prod=${encodeURIComponent(producto)}&monto=${encodeURIComponent(montoIngresado)}`;
             const linkLiberarOculto = `${baseDir}liberar.html?producto=${producto}&tel_vendedor=${sellerTelefono}&id=Pendiente&digitalID=${globalDigitalID}`;
 
@@ -463,7 +461,6 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const sellerTelefono = urlParams.get('telefono') || '5493456528480';
 
-                // Mandamos el globalDigitalID como el parámetro "producto" a la API de Render
                 const respuesta = await fetch(RENDER_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -485,10 +482,9 @@
                     window.comenzarMonitoreoBunker(globalDigitalID);
 
                     if (tipo === 'comprador') {
-                        // --- 🚀 ENFOQUE EXTERNAL_REFERENCE BLINDADO ---
-                        // El link de pago de Mercado Pago va 100% libre de variables añadidas para que viaje oculto internamente
                         const linkCompradorLimpio = data.url;
 
+                        // --- 🚀 INCLUSIÓN DEL INSTRUCTIVO EDUCATIVO CRUZADO PARA EL VENDEDOR ---
                         const mensajeComprador = `🛡️ *TRATO™ | TÉRMINOS Y CONDICIONES Y LINK DE PAGO*\n\n` +
                                                `¡Hola! Estás por realizar una compra con el sistema blindado TRATO™ (RichardBro). Tu seguridad es nuestra prioridad. Por favor, lee atentamente las condiciones de protección:\n\n` +
                                                `• *🔒 Protección del Comprador:* Tu dinero queda resguardado en el búnker de TRATO™ y no se libera al vendedor hasta que recibas el producto y verifiques que todo está en orden.\n\n` +
@@ -498,7 +494,10 @@
                                                `🔴 *¡ATENCIÓN OBLIGATORIA!* 🔴\n` +
                                                `*Después de concretar el pago, hacé clic en el botón de depositar fondos en la pantalla para acreditar el pago en el búnker y habilitar el comprobante de soporte.*\n\n` +
                                                `💵 *Monto Total de la Operación (con 15%):* $ ${precioBase.toFixed(2)}\n\n` +
-                                               `🔗 *Link de pago seguro:* ${linkCompradorLimpio}`;
+                                               `🔗 *Link de pago seguro:* ${linkCompradorLimpio}\n\n` +
+                                               `----------------------------------------\n` +
+                                               `👨‍💼 *INSTRUCTIVO PARA EL VENDEDOR (RECORDATORIO):*\n` +
+                                               `Si por error cerraste o saliste de la pantalla de monitoreo en vivo, *NO te asustes*. Para volver a ingresar a tu panel con todos los datos cargados, andá al chat con Soporte Central TRATO™ y tocá el *Link de Retorno* exclusivo que generamos en el Paso 1.`;
 
                         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensajeComprador)}`, '_blank');
                     }
