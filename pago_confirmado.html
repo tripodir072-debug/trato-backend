@@ -78,7 +78,7 @@
             
             <button id="btn-continuar" onclick="desbloquearPantalla()" class="btn-portal" style="border-color: #00d4ff; color: #00d4ff; margin-top: 15px;" disabled>✅ CONTINUAR AL PANEL</button>
             
-            <p style="font-size: 0.7em; color: #666; margin-top: 20px;">TRATO™ | Sistema Blindado RichardBro</p>
+            <p style="font-size: 0.7em; color: #666; margin-top: 20px;">TRATO™ | System Blindado RichardBro</p>
         </div>
     </div>
 
@@ -109,7 +109,6 @@
         const UPDATE_URL = "https://bunker-trato-api.onrender.com/marcar-pagado";
         const urlParams = new URLSearchParams(window.location.search);
         
-        // El opID almacena de forma invisible el payment_id / collection_id de Mercado Pago
         const opID = urlParams.get('payment_id') || urlParams.get('collection_id') || urlParams.get('id') || 'Pendiente de validación';
         
         let productoDetectado = urlParams.get('producto') || urlParams.get('digitalID') || 'Producto no especificado';
@@ -147,8 +146,6 @@
             }
         }
 
-        // --- 🚀 PROTECCIÓN ABSOLUTA EN LA CARGA ---
-        // Se eliminó por completo la línea que escribía el opID (PIN) en texto plano al cargar la pantalla.
         function actualizarUI() {
             document.getElementById('info-operacion').innerHTML = `
                 <strong>Producto / Paquete:</strong> #<span id="id-real-html">${productoDetectado}</span> <br>
@@ -176,8 +173,6 @@
 
             const idRealParaAsentar = document.getElementById('id-real-html').innerText.trim();
 
-            // --- 🔒 REVELACIÓN EXCLUSIVA DENTRO DEL BOTÓN AZUL ---
-            // Solo aparece acá en pantalla tras presionar el botón azul. No viaja en bandeja por mensaje al vendedor.
             document.getElementById('info-operacion').innerHTML += `
                 <div id="bunker-pin-box" style="margin-top: 18px; padding: 14px; background: #001a0e; border: 2px solid #00ff9d; border-radius: 10px; color: #00ff9d; font-size: 0.95em; font-weight: bold; text-align: center; box-shadow: 0 0 15px rgba(0,255,157,0.2);">
                     🔑 TU ID DE LIBERACIÓN DE FONDOS PARA EL VENDEDOR ES: ${opID}<br>
@@ -212,7 +207,6 @@
             document.getElementById('pantaya-bloqueo').style.display = 'flex';
         };
 
-        // El equipo de TRATO recibe el PIN en el chat para corroborar, pero no se le manda al vendedor
         function abrirSoporteWhatsApp(dniUser) {
             const idRealParaAsentar = document.getElementById('id-real-html').innerText.trim();
             const numeroSoporte = "5493456528480";
@@ -239,15 +233,33 @@
             document.getElementById('pantaya-bloqueo').style.display = 'none';
         };
 
-        // Modificadas las alertas de cara al vendedor para usar estrictamente el producto manual de 4 dígitos y ocultar el opID de los chats comunes
+        // --- 🚀 FIX QUIRÚRGICO APLICADO AQUÍ: SE REEMPLAZÓ EL opID POR LAS VARIABLES CORRECTAS ---
         window.notificar = (tipo) => {
-            const idRealParaAsentar = document.getElementById('id-real-html').innerText.trim();
             let mensaje = "";
 
-            if (tipo === 'envio') {
-                mensaje = `🛡️ *SISTEMA TRATO™ | NOTIFICACIÓN DE CUSTODIA ACTIVA*\n\n¡Hola! Te notifico que ya realicé el depósito correspondiente a nuestra operación. El búnker de *TRATO™* ya retuvo los fondos de forma segura bajo el protocolo de resguardo.\n\n📋 *Detalles de la Operación:*\n- *Producto/Paquete:* #${idRealParaAsentar}\n\n⚠️ *INSTRUCCIÓN PARA EL DESPACHO:* El sistema me indica que ya estás autorizado a proceder con el despacho del producto por correo. Recordá que para liberar los fondos es obligatorio que anotes el número de producto *#${idRealParaAsentar}* de forma visible en el paquete antes de enviarlo.\n\n¡Quedo a la espera del comprobante de envío! 👍`;
+            let precioFormateado = "Monto a verificar";
+            if (precioDetectado && !isNaN(precioDetectado)) {
+                precioFormateado = parseFloat(precioDetectado).toFixed(2);
             } else {
-                mensaje = `🛡️ *SISTEMA TRATO™ | PROTOCOLO PRESENCIAL ACTIVADO*\n\n¡Hola! Te confirmo que los fondos ya fueron depositados con éxito en la plataforma de garantías de *TRATO™*. El dinero se encuentra congelado y resguardado de forma segura.\n\n📋 *Detalles de la Operación:*\n- *Producto:* #${idRealParaAsentar}\n\n🤝 *COORDINACIÓN DE ENTREGA:* Pasame tus horarios así coordinamos el punto de encuentro en un lugar público y seguro para ambas partes.\n\n⚠️ *REGLA DE PLAZO PRESENCIAL:* Al activarse la entrega en persona, el sistema TRATO™ inicia un reloj de seguridad de 24 horas corridas. Una vez realizado el encuentro, si no reporto ninguna queja en soporte dentro de ese plazo, los fondos se liberarán automáticamente al vendedor por vencimiento de tiempo.`;
+                precioFormateado = precioDetectado;
+            }
+
+            if (tipo === 'envio') {
+                mensaje = `🛡️ *SISTEMA TRATO™ | NOTIFICACIÓN DE CUSTODIA ACTIVA*\n\n` +
+                          `¡Hola! Te notifico que ya realicé el depósito correspondiente a nuestra operación. El búnker de *TRATO™* ya retuvo los fondos de forma segura bajo el protocolo de resguardo.\n\n` +
+                          `📋 *Detalles de la Operación:*\n` +
+                          `- *Producto / Paquete:* #${productoDetectado}\n` +
+                          `- *Monto Asegurado con Comisión:* $ ${precioFormateado}\n\n` +
+                          `⚠️ *INSTRUCCIÓN PARA EL DESPACHO:* El sistema me indica que ya estás autorizado a proceder con el despacho del producto por correo. Recordá que para liberar los fondos es obligatorio que anotes el número de producto *#${productoDetectado}* de forma visible en el paquete antes de enviarlo.\n\n` +
+                          `¡Quedo a la espera del comprobante de envío! 👍`;
+            } else {
+                mensaje = `🛡️ *SISTEMA TRATO™ | PROTOCOLO PRESENCIAL ACTIVADO*\n\n` +
+                          `¡Hola! Te confirmo que los fondos ya fueron depositados con éxito en la plataforma de garantías de *TRATO™*. El dinero se encuentra congelado y resguardado de forma segura.\n\n` +
+                          `📋 *Detalles de la Operación:*\n` +
+                          `- *Producto / Paquete:* #${productoDetectado}\n` +
+                          `- *Monto Total Custodiado:* $ ${precioFormateado}\n\n` +
+                          `🤝 *COORDINACIÓN DE ENTREGA:* Pasame tus horarios así coordinamos el punto de encuentro en un lugar público y seguro para ambas partes.\n\n` +
+                          `⚠️ *REGLA DE PLAZO PRESENCIAL:* Al activarse la entrega en persona, el sistema TRATO™ inicia un reloj de seguridad de 24 horas corridas. Una vez realizado el encuentro, si no reporto ninguna queja en soporte dentro de ese plazo, los fondos se liberarán automáticamente al vendedor por vencimiento de tiempo.`;
             }
 
             window.open(`https://api.whatsapp.com/send?phone=${telefonoVendedor}&text=${encodeURIComponent(mensaje)}`, '_blank');
