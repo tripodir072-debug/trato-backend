@@ -17,10 +17,11 @@ app.post("/crear-pago", async (req, res) => {
             return res.status(500).json({ error: "Credenciales no configuradas" });
         }
 
-        const { producto, precioBase } = req.body;
+        // --- CORRECCIÓN QUIRÚRGICA: Cambiado precioBase por monto para conectar con tu generador ---
+        const { producto, monto } = req.body;
 
-        if (!producto || !precioBase) {
-            return res.status(400).json({ error: "Faltan datos" });
+        if (!producto || !monto) {
+            return res.status(400).json({ error: "Faltan datos en el búnker" });
         }
 
         if (operacionesUsadas.has(producto.toString())) {
@@ -41,7 +42,7 @@ app.post("/crear-pago", async (req, res) => {
                 items: [{
                     title: `Paquete #${producto}`,
                     quantity: 1,
-                    unit_price: parseFloat(precioBase),
+                    unit_price: parseFloat(monto), // Usamos el monto que viene del frontend
                     currency_id: "ARS"
                 }],
                 external_reference: producto.toString(),
@@ -71,7 +72,7 @@ app.post("/crear-pago", async (req, res) => {
     }
 });
 
-// 🔥 EL DETONADOR: El comprador llama acá para asentar el pago en el búnker
+// 🔥 EL DETONADOR: El comprador llama acá para asentar el pago en el búnker (Acepta los 6 dígitos)
 app.post("/marcar-pagado", (req, res) => {
     const { producto } = req.body;
     if (!producto) return res.status(400).json({ error: "Falta ID de producto" });
